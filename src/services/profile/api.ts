@@ -1,20 +1,5 @@
-import type { UserProfile, ProfileStats } from '@/types'
+import type { UserProfile, DbProfile } from '@/types'
 import { supabase } from '@/lib/supabaseClient'
-import { userProfile } from './data'
-
-// Database profile type (matching your schema)
-interface DbProfile {
-  id: string
-  full_name: string | null
-  email: string | null
-  bio: string | null
-  skills: string[] | null
-  social_links: Record<string, unknown> | null
-  joined_date: string | null
-  profile_image_url: string | null
-  saved_challenges: unknown | null
-  github_url: string | null
-}
 
 // Profile API service
 export const ProfileService = {
@@ -30,8 +15,6 @@ export const ProfileService = {
         userId = user.id
       }
 
-      console.log('[ProfileService] Fetching profile for user:', userId)
-
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -44,11 +27,8 @@ export const ProfileService = {
       }
 
       if (!data) {
-        console.warn('[ProfileService] No profile found for user:', userId)
         return null
       }
-
-      console.log('[ProfileService] ✅ Profile fetched successfully:', data)
 
       // Map database profile to UserProfile type
       const dbProfile = data as DbProfile
@@ -82,7 +62,17 @@ export const ProfileService = {
           totalPoints: 0,
         },
         // expose any learning path state saved in social_links
-        learningPaths: (socialLinks && (socialLinks.learningPaths as any)) || undefined,
+        learningPaths:
+          (socialLinks &&
+            (socialLinks.learningPaths as unknown as Record<
+              string,
+              {
+                started: boolean
+                progress: number
+                completedChallenges: string[]
+              }
+            >)) ||
+          undefined,
       }
 
       return profile
@@ -98,12 +88,6 @@ export const ProfileService = {
     updates: Partial<UserProfile>
   ): Promise<UserProfile | null> {
     try {
-      console.log(
-        '[ProfileService] Updating profile for user:',
-        userId,
-        updates
-      )
-
       // First, get existing profile to merge social links properly
       const { data: existingProfile } = (await supabase
         .from('profiles')
@@ -130,7 +114,7 @@ export const ProfileService = {
         updates.website !== undefined ||
         updates.location !== undefined ||
         // allow passing learningPaths as part of updates
-        (updates as any).learningPaths !== undefined
+        'learningPaths' in updates
       ) {
         // Get existing social links (may contain nested objects such as learningPaths)
         const existingSocialLinks: Record<string, unknown> =
@@ -143,11 +127,13 @@ export const ProfileService = {
         if (updates.twitterUrl !== undefined)
           socialLinks.twitter = updates.twitterUrl
         if (updates.website !== undefined) socialLinks.website = updates.website
-        if (updates.location !== undefined) socialLinks.location = updates.location
+        if (updates.location !== undefined)
+          socialLinks.location = updates.location
         // merge learningPaths if provided
-        if ((updates as any).learningPaths !== undefined) {
-          const existingLP = (socialLinks.learningPaths as Record<string, unknown>) || {}
-          const incomingLP = (updates as any).learningPaths as Record<string, unknown>
+        if ('learningPaths' in updates && updates.learningPaths) {
+          const existingLP =
+            (socialLinks.learningPaths as Record<string, unknown>) || {}
+          const incomingLP = updates.learningPaths as Record<string, unknown>
           socialLinks.learningPaths = {
             ...existingLP,
             ...incomingLP,
@@ -156,8 +142,6 @@ export const ProfileService = {
 
         dbUpdates.social_links = socialLinks
       }
-
-      console.log('[ProfileService] Database updates:', dbUpdates)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const { error } = await (supabase.from('profiles') as any)
@@ -171,8 +155,6 @@ export const ProfileService = {
         throw error
       }
 
-      console.log('[ProfileService] ✅ Profile updated successfully')
-
       // Return the updated profile
       return await this.getProfile(userId)
     } catch (error) {
@@ -182,24 +164,7 @@ export const ProfileService = {
   },
 
   // Update profile stats (when challenges are completed, etc.)
-  async updateStats(
-    userId: string,
-    statUpdates: Partial<ProfileStats>
-  ): Promise<void> {
+  async updateStats(): Promise<void> {
     // TODO: Implement stats tracking in a separate table or jsonb field
-    console.log('[ProfileService] Stats updated for user:', userId, statUpdates)
   },
-}
-
-// Hooks for React components
-export const useProfile = (userId: string) => {
-  // This will be replaced with React Query or similar data fetching library
-  // For now, return mock data
-  return {
-    data: userProfile,
-    isLoading: false,
-    error: null,
-    mutate: (updates: Partial<UserProfile>) =>
-      ProfileService.updateProfile(userId, updates),
-  }
 }

@@ -46,18 +46,12 @@ export async function isChallengeeSaved(challengeId: string): Promise<boolean> {
  */
 export async function saveChallenge(challengeId: string) {
   try {
-    console.log(
-      `[saveChallenge] 💾 Attempting to save challenge: ${challengeId}`
-    )
-
     const {
       data: { user },
     } = await supabase.auth.getUser()
     if (!user) {
       throw new Error('User not authenticated')
     }
-
-    console.log(`[saveChallenge] 👤 User ID: ${user.id}`)
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.rpc as any)('save_challenge', {
@@ -69,16 +63,6 @@ export async function saveChallenge(challengeId: string) {
       console.error('[saveChallenge] ❌ Error:', error)
       throw error
     }
-
-    console.log('[saveChallenge] ✅ Success! Response:', data)
-    console.log(
-      '[saveChallenge] 📊 New array:',
-      (data as any)?.saved_challenges
-    )
-    console.log(
-      '[saveChallenge] 📊 Array length:',
-      (data as any)?.saved_challenges?.length || 0
-    )
 
     return data
   } catch (error) {
@@ -190,7 +174,8 @@ export async function getSavedChallengeIds(): Promise<string[]> {
     }
 
     // Extract challenge IDs where isSaved is true
-    const savedChallenges = (profile as any).saved_challenges as Array<{
+    const savedChallenges = (profile as { saved_challenges: unknown })
+      .saved_challenges as Array<{
       challenge_id: string
       isSaved: boolean
     }>
