@@ -9,12 +9,10 @@ import {
 } from '@/services/profile'
 import { CheckCircle, Trophy, Heart, LogIn } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
-import { useQueryClient } from '@tanstack/react-query'
+import { supabase } from '@/lib/supabaseClient'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import '@/types/profile.css'
 
 interface TabItem {
   key: string
@@ -49,28 +47,6 @@ function RouteComponent() {
   // Use the shared useAuth query so auth state is cached and consistent
   const { data: authData, isLoading: isAuthLoading } = useAuth()
   const isAuthenticated = authData?.isAuthenticated ?? false
-
-  // Keep the auth query up-to-date if Supabase emits auth changes (update the query cache)
-  const queryClient = useQueryClient()
-  useEffect(() => {
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        queryClient.setQueryData(['auth'], {
-          isAuthenticated: !!session,
-          session,
-        })
-      }
-    )
-
-    return () => {
-      if (
-        listener.subscription &&
-        typeof listener.subscription.unsubscribe === 'function'
-      ) {
-        listener.subscription.unsubscribe()
-      }
-    }
-  }, [queryClient])
 
   // Update tab ONLY when URL search param changes
   useEffect(() => {

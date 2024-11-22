@@ -3,13 +3,20 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { ThemeProviderProps } from 'next-themes'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import type { ReactNode } from 'react'
+import { useEffect } from 'react'
 import { queryClient } from '@/lib/queryClient'
+import { initAuthSubscription } from '@/lib/authSubscription'
 
 interface Props {
   children: ReactNode
 }
 
 export function AppProvider({ children }: Props) {
+  // Initialize the global auth subscription once
+  useEffect(() => {
+    initAuthSubscription(queryClient)
+  }, [])
+
   return (
     <QueryClientProvider client={queryClient}>
       <NextThemesProvider

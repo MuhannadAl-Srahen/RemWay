@@ -151,7 +151,6 @@ export const UserActions = ({
             className='w-full flex items-center gap-3 px-3 py-3 text-sm rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-950/30 text-red-600 dark:text-red-400 transition-all duration-300 cursor-pointer group hover:shadow-md hover:scale-[1.02] active:scale-95'
             onClick={() => {
               onLogout()
-              console.log('Sign out clicked')
             }}
           >
             <div className='flex items-center justify-center w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-all duration-300 group-hover:scale-110'>
