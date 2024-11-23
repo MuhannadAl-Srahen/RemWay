@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabaseClient'
+import { STALE_TIME, RETRY_CONFIG, CACHE_VALIDITY } from '@/lib/queryConfig'
 import type { Session } from '@supabase/supabase-js'
 
 interface AuthState {
@@ -13,9 +14,9 @@ const getCachedAuthState = (): AuthState | undefined => {
     const cached = localStorage.getItem('auth-state-cache')
     if (cached) {
       const parsed = JSON.parse(cached)
-      // Check if cache is still valid (less than 5 minutes old)
+      // Check if cache is still valid using centralized config
       const cacheAge = Date.now() - (parsed.timestamp || 0)
-      if (cacheAge < 5 * 60 * 1000) {
+      if (cacheAge < CACHE_VALIDITY.DEFAULT) {
         return parsed.data
       }
     }
@@ -57,8 +58,8 @@ export const useAuth = () => {
 
       return result
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: 1, // Auth should fail fast
+    staleTime: STALE_TIME.AUTH,
+    retry: RETRY_CONFIG.AUTH,
     // Use cached data as initial data to prevent flash
     initialData: getCachedAuthState,
   })
