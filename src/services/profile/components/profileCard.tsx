@@ -68,7 +68,6 @@ export function ProfileCard() {
       {
         onSuccess: () => {
           setIsEditing(false)
-          console.log('Profile updated successfully!')
         },
         onError: (error) => {
           console.error('Failed to update profile:', error)
@@ -218,10 +217,14 @@ export function ProfileCard() {
                 ) : (
                   <>
                     <span>
-                      I am passionate about building delightful web experiences — I enjoy turning designs into accessible, fast, and maintainable applications.
+                      I am passionate about building delightful web experiences
+                      — I enjoy turning designs into accessible, fast, and
+                      maintainable applications.
                     </span>
                     <span className='mt-2 block text-xs text-muted-foreground/80'>
-                      Click <strong className='font-medium'>Edit Profile</strong> to personalize this section.
+                      Click{' '}
+                      <strong className='font-medium'>Edit Profile</strong> to
+                      personalize this section.
                     </span>
                   </>
                 )}
@@ -352,7 +355,7 @@ export function ProfileCard() {
           ) : (
             <div className='space-y-2'>
               <div>
-                {(editData.githubUrl || user.githubUrl) ? (
+                {editData.githubUrl || user.githubUrl ? (
                   <Button
                     variant='ghost'
                     size='sm'
@@ -367,7 +370,13 @@ export function ProfileCard() {
                     >
                       <Github className='w-4 h-4 mr-3 flex-shrink-0' />
                       <span className='truncate'>
-                        @{String(editData.githubUrl || user.githubUrl || user.username || 'username')
+                        @
+                        {String(
+                          editData.githubUrl ||
+                            user.githubUrl ||
+                            user.username ||
+                            'username'
+                        )
                           .split('/')
                           .filter(Boolean)
                           .pop()}
@@ -388,7 +397,7 @@ export function ProfileCard() {
               </div>
 
               <div>
-                {(editData.linkedinUrl || user.linkedinUrl) ? (
+                {editData.linkedinUrl || user.linkedinUrl ? (
                   <Button
                     variant='ghost'
                     size='sm'
@@ -403,7 +412,11 @@ export function ProfileCard() {
                     >
                       <Linkedin className='w-4 h-4 mr-3 flex-shrink-0' />
                       <span className='truncate'>
-                        {(editData.linkedinUrl || user.linkedinUrl || '').replace(/^https?:\/\//, '')}
+                        {(
+                          editData.linkedinUrl ||
+                          user.linkedinUrl ||
+                          ''
+                        ).replace(/^https?:\/\//, '')}
                       </span>
                     </a>
                   </Button>
@@ -421,7 +434,7 @@ export function ProfileCard() {
               </div>
 
               <div>
-                {(editData.website || user.website) ? (
+                {editData.website || user.website ? (
                   <Button
                     variant='ghost'
                     size='sm'
@@ -436,7 +449,10 @@ export function ProfileCard() {
                     >
                       <Globe className='w-4 h-4 mr-3 flex-shrink-0' />
                       <span className='truncate'>
-                        {(editData.website || user.website || '').replace(/^https?:\/\//, '')}
+                        {(editData.website || user.website || '').replace(
+                          /^https?:\/\//,
+                          ''
+                        )}
                       </span>
                     </a>
                   </Button>
