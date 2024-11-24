@@ -56,7 +56,7 @@ const WhyFollowSection = () => (
         />
         <WhyFollowCard
           icon={
-        <BadgeCheck className='w-12 h-12 md:w-14 md:h-14 text-primary' />
+            <BadgeCheck className='w-12 h-12 md:w-14 md:h-14 text-primary' />
           }
           iconBg='bg-primary/10'
           title='AI Feedback'

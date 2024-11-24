@@ -1,4 +1,3 @@
-import React from 'react'
 import { Link } from '@tanstack/react-router'
 import type { ChallengeListItem } from '@/types'
 import { learningPaths } from '../data'
@@ -238,7 +237,9 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
     profile?.learningPaths?.[pathId]?.completedChallenges?.length ?? 0
   const progress =
     profile?.learningPaths?.[pathId]?.progress ??
-    (totalChallenges > 0 ? Math.round((completedChallenges / totalChallenges) * 100) : 0)
+    (totalChallenges > 0
+      ? Math.round((completedChallenges / totalChallenges) * 100)
+      : 0)
 
   if (!path) return null
 

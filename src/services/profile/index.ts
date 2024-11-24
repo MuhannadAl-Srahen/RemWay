@@ -1,4 +1,3 @@
-export * from './data'
 export { ProfileService } from './api'
 export * from './components'
 export * from './lib/savedChallenges'
