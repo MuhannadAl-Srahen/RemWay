@@ -1,6 +1,5 @@
 'use client'
-import React from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode, Children } from 'react'
 import { motion, useTransform, useScroll, useSpring } from 'motion/react'
 import { cn } from '@/lib/utils'
 
@@ -8,7 +7,7 @@ export const TracingBeam = ({
   children,
   className,
 }: {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }) => {
   const ref = useRef<HTMLDivElement>(null)
@@ -108,13 +107,10 @@ export const TracingBeam = ({
       </div>
 
       <div ref={contentRef} className='mt-8 flex flex-col gap-12 md:block'>
-        {React.Children.map(children, (child) => (
+        {Children.map(children, (child) => (
           <div className='md:block md:pl-0 pl-16'>{child}</div>
         ))}
       </div>
     </motion.div>
   )
 }
-
-
-
