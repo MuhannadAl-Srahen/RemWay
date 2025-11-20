@@ -1,0 +1,5 @@
+export { HeroSection } from './components/Hero-Section'
+export { FeatureSection } from './components/Feature-Section'
+export { HowWorkSection } from './components/How-Work-Section'
+export { ChallengeSection } from './components/Challenge-Section'
+export { CIASection } from './components/CIA-Section'
