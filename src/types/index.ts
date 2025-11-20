@@ -1,5 +1,15 @@
+// Re-export all domain-specific types
+export * from './auth'
+export * from './challenge'
+export * from './components'
+export * from './feedback'
+export * from './profile'
+export * from './resource'
+export * from './roadmap'
+export * from './supabase'
+
 // ============================================================================
-// CHALLENGE TYPES
+// LEGACY TYPES (kept for backward compatibility)
 // ============================================================================
 
 export interface Challenge {
