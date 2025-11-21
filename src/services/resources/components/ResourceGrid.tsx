@@ -28,7 +28,7 @@ export function ResourceGrid({
       </div>
     )
   }
-  
+
   // Show EmptyState when no items are found and there's a search term
   if (items.length === 0 && searchTerm && searchTerm.trim() !== '') {
     return (

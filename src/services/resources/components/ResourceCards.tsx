@@ -38,7 +38,8 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
 
   // More robust video detection: prefer category, but also check URL/thumbnail
   const categoryLower = (resource.category || '').toLowerCase()
-  const urlIsYouTube = !!resource.url && /youtu(?:\.be|be\.com)/i.test(resource.url)
+  const urlIsYouTube =
+    !!resource.url && /youtu(?:\.be|be\.com)/i.test(resource.url)
   const isVideo =
     categoryLower.includes('video') ||
     categoryLower.includes('youtube') ||
@@ -58,14 +59,17 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
       if (!id) return undefined
       // Prefer maxres, fall back to hq
       return `https://img.youtube.com/vi/${id}/maxresdefault.jpg`
-    } catch (e) {
+    } catch {
       return undefined
     }
   }
 
   const resolveThumbnail = () => {
     return (
-      resource.thumbnail || resource.image || getYouTubeThumbnail(resource.url) || undefined
+      resource.thumbnail ||
+      resource.image ||
+      getYouTubeThumbnail(resource.url) ||
+      undefined
     )
   }
 
