@@ -83,7 +83,7 @@ export function ChallengeControls({
         <div className='flex items-center'>
           <div
             className='relative inline-flex items-center rounded-xl bg-muted/50 p-1 shadow-sm border border-border/30'
-            style={{ ['--toggle-gap' as any]: '2px' }}
+            style={{ '--toggle-gap': '2px' } as React.CSSProperties}
           >
             {/* Animated sliding background */}
             <div

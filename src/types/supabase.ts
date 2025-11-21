@@ -12,8 +12,13 @@ import type {
  *   .from('challenges')
  *   .select('*') as SupabaseTable<Challenge>)
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SupabaseTable<T> = PostgrestQueryBuilder<any, any, T[]>
+export type SupabaseTable<T> = PostgrestQueryBuilder<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  any,
+  T[]
+>
 
 /**
  * Type-safe wrapper for Supabase filter builders
@@ -24,9 +29,10 @@ export type SupabaseTable<T> = PostgrestQueryBuilder<any, any, T[]>
  *   .from('challenges')
  *   .select('*') as SupabaseQueryBuilder<Challenge>
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SupabaseQueryBuilder<T> = PostgrestFilterBuilder<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
   T[],
   'id',

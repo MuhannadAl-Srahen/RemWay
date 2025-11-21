@@ -1,10 +1,10 @@
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '@/lib/supabaseClient'
 
 // Type for saved challenge items in the database
 type SavedChallengeItem = {
-  challenge_id: string;
-  isSaved: boolean;
-};
+  challenge_id: string
+  isSaved: boolean
+}
 
 /**
  * Toggles the saved status of a challenge for the current user
@@ -19,41 +19,54 @@ export async function toggleChallengeSave(
 ): Promise<string[] | null> {
   try {
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
-      console.error('[toggleChallengeSave] Not authenticated:', authError);
-      return null;
+      console.error('[toggleChallengeSave] Not authenticated:', authError)
+      return null
     }
 
     // Call the appropriate database function
-    const functionName = currentSavedState ? 'unsave_challenge' : 'save_challenge';
-    
+    const functionName = currentSavedState
+      ? 'unsave_challenge'
+      : 'save_challenge'
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.rpc as any)(functionName, {
       user_id: user.id,
       challenge_id: challengeId,
-    });
+    })
 
     if (error) {
-      console.error(`[toggleChallengeSave] Error calling ${functionName}:`, error);
-      return null;
+      console.error(
+        `[toggleChallengeSave] Error calling ${functionName}:`,
+        error
+      )
+      return null
     }
 
     if (!data || !data.success) {
-      console.warn('[toggleChallengeSave] Function returned unsuccessful:', data);
-      return null;
+      console.warn(
+        '[toggleChallengeSave] Function returned unsuccessful:',
+        data
+      )
+      return null
     }
 
     // Return the full array of saved challenge IDs from the database response
-    const savedChallengeIds = ((data.saved_challenges || []) as SavedChallengeItem[])
+    const savedChallengeIds = (
+      (data.saved_challenges || []) as SavedChallengeItem[]
+    )
       .filter((item) => item.isSaved === true)
-      .map((item) => item.challenge_id);
-    
-    return savedChallengeIds;
+      .map((item) => item.challenge_id)
+
+    return savedChallengeIds
   } catch (err) {
-    console.error('[toggleChallengeSave] Unexpected error:', err);
-    return null;
+    console.error('[toggleChallengeSave] Unexpected error:', err)
+    return null
   }
 }
 
@@ -67,28 +80,31 @@ export async function getChallengeSavedState(
 ): Promise<boolean | null> {
   try {
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
-      console.error('[getChallengeSavedState] Not authenticated:', authError);
-      return false; // Not logged in = not saved
+      console.error('[getChallengeSavedState] Not authenticated:', authError)
+      return false // Not logged in = not saved
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data, error } = await (supabase.rpc as any)('is_challenge_saved', {
       user_id: user.id,
       challenge_id: challengeId,
-    });
+    })
 
     if (error) {
-      console.error('[getChallengeSavedState] Error:', error);
-      return null;
+      console.error('[getChallengeSavedState] Error:', error)
+      return null
     }
 
-    return data === true;
+    return data === true
   } catch (err) {
-    console.error('[getChallengeSavedState] Unexpected error:', err);
-    return null;
+    console.error('[getChallengeSavedState] Unexpected error:', err)
+    return null
   }
 }
 
@@ -99,11 +115,14 @@ export async function getChallengeSavedState(
 export async function getSavedChallenges(): Promise<string[]> {
   try {
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
-      console.error('[getSavedChallenges] Not authenticated:', authError);
-      return [];
+      console.error('[getSavedChallenges] Not authenticated:', authError)
+      return []
     }
 
     // Get user's saved_challenges from profile
@@ -111,39 +130,41 @@ export async function getSavedChallenges(): Promise<string[]> {
       .from('profiles')
       .select('saved_challenges')
       .eq('id', user.id)
-      .single();
+      .single()
 
     if (error) {
-      console.error('[getSavedChallenges] Database error:', error);
-      return [];
+      console.error('[getSavedChallenges] Database error:', error)
+      return []
     }
 
     if (!profile) {
-      return [];
+      return []
     }
 
     // Use type assertion to access saved_challenges
-    type ProfileWithSaved = { saved_challenges?: SavedChallengeItem[] };
-    const profileData = profile as ProfileWithSaved;
-    
-    if (!profileData.saved_challenges || !Array.isArray(profileData.saved_challenges)) {
-      return [];
+    type ProfileWithSaved = { saved_challenges?: SavedChallengeItem[] }
+    const profileData = profile as ProfileWithSaved
+
+    if (
+      !profileData.saved_challenges ||
+      !Array.isArray(profileData.saved_challenges)
+    ) {
+      return []
     }
 
     // Extract challenge IDs where isSaved is true
-    const savedChallenges = profileData.saved_challenges as Array<{ 
-      challenge_id: string;
-      isSaved: boolean;
-    }>;
-    
+    const savedChallenges = profileData.saved_challenges as Array<{
+      challenge_id: string
+      isSaved: boolean
+    }>
+
     const savedIds = savedChallenges
-      .filter(item => item.isSaved === true)
-      .map(item => item.challenge_id);
-    
-    return savedIds;
+      .filter((item) => item.isSaved === true)
+      .map((item) => item.challenge_id)
+
+    return savedIds
   } catch (err) {
-    console.error('[getSavedChallenges] Unexpected error:', err);
-    return [];
+    console.error('[getSavedChallenges] Unexpected error:', err)
+    return []
   }
 }
-
