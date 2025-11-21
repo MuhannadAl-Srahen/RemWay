@@ -81,17 +81,18 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
             </button>
 
             <div className='absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 flex space-x-2 z-20 opacity-100 md:opacity-60 md:group-hover:opacity-100 transition-opacity duration-300'>
-              {hasImages && challenge.images.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 ${
-                    index === currentImageIndex
-                      ? 'bg-white'
-                      : 'bg-white/50 hover:bg-white/80'
-                  }`}
-                />
-              ))}
+              {hasImages &&
+                challenge.images.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setCurrentImageIndex(index)}
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 ${
+                      index === currentImageIndex
+                        ? 'bg-white'
+                        : 'bg-white/50 hover:bg-white/80'
+                    }`}
+                  />
+                ))}
             </div>
           </>
         )}
