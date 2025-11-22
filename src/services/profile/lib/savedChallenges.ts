@@ -23,11 +23,11 @@ export async function isChallengeeSaved(challengeId: string): Promise<boolean> {
     } = await supabase.auth.getUser()
     if (!user) return false
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.rpc as any)('is_challenge_saved', {
+    const { data, error } = (await supabase.rpc('is_challenge_saved', {
       user_id: user.id,
       challenge_id: challengeId,
-    })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)) as { data: boolean; error: Error | null }
 
     if (error) {
       console.error('[isChallengeeSaved] Error:', error)
@@ -59,11 +59,11 @@ export async function saveChallenge(challengeId: string) {
 
     console.log(`[saveChallenge] 👤 User ID: ${user.id}`)
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.rpc as any)('save_challenge', {
+    const { data, error } = (await supabase.rpc('save_challenge', {
       user_id: user.id,
       challenge_id: challengeId,
-    })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)) as { data: unknown; error: Error | null }
 
     if (error) {
       console.error('[saveChallenge] ❌ Error:', error)
@@ -71,13 +71,11 @@ export async function saveChallenge(challengeId: string) {
     }
 
     console.log('[saveChallenge] ✅ Success! Response:', data)
-    console.log(
-      '[saveChallenge] 📊 New array:',
-      (data as any)?.saved_challenges
-    )
+    const responseData = data as { saved_challenges?: unknown[] } | null
+    console.log('[saveChallenge] 📊 New array:', responseData?.saved_challenges)
     console.log(
       '[saveChallenge] 📊 Array length:',
-      (data as any)?.saved_challenges?.length || 0
+      responseData?.saved_challenges?.length || 0
     )
 
     return data
@@ -99,11 +97,11 @@ export async function unsaveChallenge(challengeId: string) {
       throw new Error('User not authenticated')
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.rpc as any)('unsave_challenge', {
+    const { data, error } = (await supabase.rpc('unsave_challenge', {
       user_id: user.id,
       challenge_id: challengeId,
-    })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)) as { data: unknown; error: Error | null }
 
     if (error) {
       console.error('[unsaveChallenge] Error:', error)
@@ -147,13 +145,10 @@ export async function getSavedChallenges(): Promise<SavedChallenge[]> {
       return []
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase.rpc as any)(
-      'get_saved_challenges',
-      {
-        user_id: user.id,
-      }
-    )
+    const { data, error } = (await supabase.rpc('get_saved_challenges', {
+      user_id: user.id,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any)) as { data: SavedChallenge[]; error: Error | null }
 
     if (error) {
       console.error('[getSavedChallenges] Error:', error)
@@ -179,21 +174,24 @@ export async function getSavedChallengeIds(): Promise<string[]> {
       return []
     }
 
-    const { data: profile, error } = await supabase
+    const { data: profile, error } = (await supabase
       .from('profiles')
       .select('saved_challenges')
       .eq('id', user.id)
-      .single()
+      .single()) as {
+      data: { saved_challenges: unknown } | null
+      error: Error | null
+    }
 
     if (error || !profile) {
       return []
     }
 
     // Extract challenge IDs where isSaved is true
-    const savedChallenges = (profile as any).saved_challenges as Array<{
+    const savedChallenges = profile.saved_challenges as Array<{
       challenge_id: string
       isSaved: boolean
-    }>
+    }> | null
 
     if (!Array.isArray(savedChallenges)) {
       return []

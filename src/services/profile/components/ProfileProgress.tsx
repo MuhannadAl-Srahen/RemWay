@@ -1,5 +1,5 @@
 import { Target, Code, BarChart3 } from 'lucide-react'
-import '../../../types/profile.css'
+import '../../../styles/profile.css'
 import { useProfile } from '@/services/profile/hooks/useProfile'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
 
@@ -23,8 +23,14 @@ export function ProfileProgress() {
   ]
 
   const learningPathStats = pathIds.map((id) => {
-    const difficultyLabel = id === 'beginner' ? 'Beginner' : id === 'intermediate' ? 'Intermediate' : 'Advanced'
-    const completed = profile?.learningPaths?.[id]?.completedChallenges?.length ?? 0
+    const difficultyLabel =
+      id === 'beginner'
+        ? 'Beginner'
+        : id === 'intermediate'
+          ? 'Intermediate'
+          : 'Advanced'
+    const completed =
+      profile?.learningPaths?.[id]?.completedChallenges?.length ?? 0
     const total = totalsByDifficulty[difficultyLabel] ?? 0
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
     return { id, name: `${difficultyLabel} Path`, completed, total, percentage }
@@ -62,7 +68,15 @@ export function ProfileProgress() {
   // techEntries removed; we'll build finalTechEntries below including desired techs
 
   // Ensure the profile shows a fixed set of technologies in the desired order
-  const desiredTechs = ['HTML', 'CSS', 'JavaScript', 'Tailwind CSS', 'React', 'TypeScript', 'API']
+  const desiredTechs = [
+    'HTML',
+    'CSS',
+    'JavaScript',
+    'Tailwind CSS',
+    'React',
+    'TypeScript',
+    'API',
+  ]
 
   // Ensure each desired tech exists in the totals (even if zero)
   for (const dt of desiredTechs) {
@@ -81,15 +95,17 @@ export function ProfileProgress() {
   ]
 
   // Difficulty section (aggregate across difficulties)
-  const difficultyStats = ['Beginner', 'Intermediate', 'Advanced'].map((level) => {
-    const completed = Array.from(completedSet).filter((cid) => {
-      const ch = challengeById.get(cid)
-      return ch?.difficulty === level
-    }).length
-    const total = totalsByDifficulty[level] ?? 0
-    const avgScore = 0 // no score data available here; kept as 0
-    return { level, completed, total, avgScore }
-  })
+  const difficultyStats = ['Beginner', 'Intermediate', 'Advanced'].map(
+    (level) => {
+      const completed = Array.from(completedSet).filter((cid) => {
+        const ch = challengeById.get(cid)
+        return ch?.difficulty === level
+      }).length
+      const total = totalsByDifficulty[level] ?? 0
+      const avgScore = 0 // no score data available here; kept as 0
+      return { level, completed, total, avgScore }
+    }
+  )
 
   return (
     <div className='space-y-6'>
@@ -157,7 +173,9 @@ export function ProfileProgress() {
           <div className='space-y-4'>
             {finalTechEntries.slice(0, 8).map((tech) => {
               // Sanitize technology name into a safe CSS class key, e.g. "Tailwind CSS" -> "tailwind-css"
-              const safeName = tech.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+              const safeName = tech.name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
               return (
                 <div
                   key={tech.name}

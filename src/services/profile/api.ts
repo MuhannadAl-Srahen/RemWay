@@ -82,7 +82,16 @@ export const ProfileService = {
           totalPoints: 0,
         },
         // expose any learning path state saved in social_links
-        learningPaths: (socialLinks && (socialLinks.learningPaths as any)) || undefined,
+        learningPaths: socialLinks?.learningPaths as
+          | Record<
+              string,
+              {
+                started: boolean
+                progress: number
+                completedChallenges: string[]
+              }
+            >
+          | undefined,
       }
 
       return profile
@@ -130,7 +139,7 @@ export const ProfileService = {
         updates.website !== undefined ||
         updates.location !== undefined ||
         // allow passing learningPaths as part of updates
-        (updates as any).learningPaths !== undefined
+        'learningPaths' in updates
       ) {
         // Get existing social links (may contain nested objects such as learningPaths)
         const existingSocialLinks: Record<string, unknown> =
@@ -143,28 +152,30 @@ export const ProfileService = {
         if (updates.twitterUrl !== undefined)
           socialLinks.twitter = updates.twitterUrl
         if (updates.website !== undefined) socialLinks.website = updates.website
-        if (updates.location !== undefined) socialLinks.location = updates.location
+        if (updates.location !== undefined)
+          socialLinks.location = updates.location
         // merge learningPaths if provided
-        if ((updates as any).learningPaths !== undefined) {
-          const existingLP = (socialLinks.learningPaths as Record<string, unknown>) || {}
-          const incomingLP = (updates as any).learningPaths as Record<string, unknown>
+        if ('learningPaths' in updates) {
+          const existingLP =
+            (socialLinks.learningPaths as Record<string, unknown>) || {}
+          const incomingLP = (updates as Record<string, unknown>)
+            .learningPaths as Record<string, unknown>
           socialLinks.learningPaths = {
             ...existingLP,
             ...incomingLP,
-          }
+          } as typeof socialLinks.learningPaths
         }
-
         dbUpdates.social_links = socialLinks
       }
 
       console.log('[ProfileService] Database updates:', dbUpdates)
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase.from('profiles') as any)
+      const { error } = (await (supabase.from('profiles') as any)
         .update(dbUpdates)
         .eq('id', userId)
         .select()
-        .single()
+        .single()) as { error: Error | null }
 
       if (error) {
         console.error('[ProfileService] Error updating profile:', error)
