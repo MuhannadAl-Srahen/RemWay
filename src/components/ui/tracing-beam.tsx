@@ -115,6 +115,3 @@ export const TracingBeam = ({
     </motion.div>
   )
 }
-
-
-

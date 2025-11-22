@@ -14,7 +14,7 @@ import { useAuth } from '@/services/challenges/hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
-import '@/types/profile.css'
+import '@/styles/profile.css'
 
 interface TabItem {
   key: string

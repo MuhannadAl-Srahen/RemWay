@@ -7,12 +7,12 @@ export function ResourceCardSkeleton() {
       {/* Thumbnail/Image Skeleton */}
       <div className='relative aspect-video overflow-hidden bg-muted/40'>
         <Skeleton className='h-full w-full' />
-        
+
         {/* Play Button Skeleton (for videos) */}
         <div className='absolute inset-0 flex items-center justify-center'>
           <Skeleton className='h-16 w-16 rounded-full' />
         </div>
-        
+
         {/* Duration Badge Skeleton */}
         <div className='absolute bottom-3 right-3'>
           <Skeleton className='h-6 w-16 rounded-md' />
@@ -23,10 +23,10 @@ export function ResourceCardSkeleton() {
       <CardContent className='flex flex-1 flex-col gap-3 p-5'>
         {/* Category Badge Skeleton */}
         <Skeleton className='h-5 w-24 rounded-full' />
-        
+
         {/* Title Skeleton */}
         <Skeleton className='h-6 w-4/5' />
-        
+
         {/* Description Skeleton */}
         <div className='space-y-2'>
           <Skeleton className='h-4 w-full' />
@@ -58,10 +58,10 @@ export function ResourceListSkeleton() {
       <div className='flex flex-1 flex-col gap-3'>
         {/* Category Badge Skeleton */}
         <Skeleton className='h-5 w-24 rounded-full' />
-        
+
         {/* Title Skeleton */}
         <Skeleton className='h-6 w-3/5' />
-        
+
         {/* Description Skeleton */}
         <div className='space-y-1.5'>
           <Skeleton className='h-3 w-full' />

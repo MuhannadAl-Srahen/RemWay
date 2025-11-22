@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { HeroSection } from '@/services/Home/Hero-Section'
-import { FeatureSection } from '@/services/Home/Feature-Section'
-import { HowWorkSection } from '@/services/Home/How-Work-Section'
-import { ChallengeSection } from '@/services/Home/Challenge-Section'
-import { CIASection } from '@/services/Home/CIA-Section'
+import { HeroSection } from '@/services/home'
+import { FeatureSection } from '@/services/home'
+import { HowWorkSection } from '@/services/home'
+import { ChallengeSection } from '@/services/home'
+import { CIASection } from '@/services/home'
 
 export const Route = createFileRoute('/')({
   component: Index,
