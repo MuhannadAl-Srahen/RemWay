@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { profileStats } from '@/services/profile/data'
 import { useState } from 'react'
-import '@/types/profile.css'
+import '@/styles/profile.css'
 
 interface Submission {
   id: string

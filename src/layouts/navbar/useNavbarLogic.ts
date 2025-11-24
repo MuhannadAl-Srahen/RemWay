@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabaseClient.js' // keep your .js path if that
 import { ensureProfileExists } from '@/services/profile/lib/profileHelpers'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
+import type { User } from '@supabase/supabase-js'
 
 const SCROLL_THRESHOLD = 50
 const THROTTLE_DELAY = 16
@@ -41,7 +42,7 @@ export const useNavbarLogic = () => {
   const pathname = location.pathname
   const { theme, setTheme } = useTheme()
 
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [scrollY, setScrollY] = useState(0)
   const [lastScrollY, setLastScrollY] = useState(0)

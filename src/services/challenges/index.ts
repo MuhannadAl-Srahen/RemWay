@@ -6,11 +6,11 @@ export { ChallengeListItem } from './components/ChallengeListItem'
 export { ChallengeView } from './components/ChallengeView'
 
 // Challenge Detail Components
-export { ChallengeHero } from '../challenge details/ChallengeHero'
-export { ChallengeOverview } from '../challenge details/ChallengeOverview'
-export { ChallengeDesign } from '../challenge details/ChallengeDesign'
-export { ChallengeResources } from '../challenge details/ChallengeResources'
-export { ChallengeSubmission } from '../challenge details/ChallengeSubmission'
+export { ChallengeHero } from './components/ChallengeHero'
+export { ChallengeOverview } from './components/ChallengeOverview'
+export { ChallengeDesign } from './components/ChallengeDesign'
+export { ChallengeResources } from './components/ChallengeResources'
+export { ChallengeSubmission } from './components/ChallengeSubmission'
 
 // Hooks
 export { useChallengeFilters } from './hooks/useChallengeFilters'

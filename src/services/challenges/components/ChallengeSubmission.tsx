@@ -14,7 +14,7 @@ import {
   Info,
   LogIn,
 } from 'lucide-react'
-import { submitChallengeSolution } from '../challenges/api'
+import { submitChallengeSolution } from '../api'
 import type { Challenge } from '@/types'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
