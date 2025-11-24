@@ -16,7 +16,8 @@ export function useSubmissionFeedback(submissionId: string) {
       }
       return false
     },
-    // Keep previous data while refetching
-    placeholderData: (previousData) => previousData,
+    // Don't use placeholder data - we want fresh data on navigation
+    // This prevents showing stale feedback after resubmission
+    staleTime: 0,
   })
 }

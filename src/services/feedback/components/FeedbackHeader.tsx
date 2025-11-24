@@ -84,7 +84,7 @@ export function FeedbackHeader({
             </div>
 
             {/* Right Side - Score */}
-            <div className='flex flex-col items-center bg-muted/30 rounded-lg px-8 py-5 border border-border min-w-[160px]'>
+            <div className='flex flex-col items-center bg-muted/30 rounded-lg px-8 py-5 border border-border min-w-40'>
               <div className={`text-6xl font-bold ${getScoreColor(overallScore)} leading-none`}>
                 {overallScore}
               </div>

@@ -43,7 +43,7 @@ export function OverallAnalysis({
                   transition={{ duration: 0.3, delay: idx * 0.1 }}
                   className='text-sm text-foreground flex items-start gap-2'
                 >
-                  <CheckCircle className='h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 flex-shrink-0' />
+                  <CheckCircle className='h-4 w-4 text-green-600 dark:text-green-500 mt-0.5 shrink-0' />
                   <span className='flex-1'>{item}</span>
                 </motion.li>
               ))}
@@ -69,7 +69,7 @@ export function OverallAnalysis({
                   transition={{ duration: 0.3, delay: idx * 0.1 }}
                   className='text-sm text-foreground flex items-start gap-2'
                 >
-                  <AlertTriangle className='h-4 w-4 text-yellow-600 dark:text-yellow-500 mt-0.5 flex-shrink-0' />
+                  <AlertTriangle className='h-4 w-4 text-yellow-600 dark:text-yellow-500 mt-0.5 shrink-0' />
                   <span className='flex-1'>{item}</span>
                 </motion.li>
               ))}

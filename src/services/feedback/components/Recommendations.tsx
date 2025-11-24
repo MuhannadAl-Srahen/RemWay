@@ -135,7 +135,7 @@ export function Recommendations({
                       {resource.description}
                     </p>
                   </div>
-                  <ChevronRight className='h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-1' />
+                  <ChevronRight className='h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0 mt-1' />
                 </div>
               </motion.a>
             ))}
