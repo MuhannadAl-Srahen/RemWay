@@ -57,17 +57,43 @@ function RouteComponent() {
   if (error || !challenge) {
     return (
       <PageLayout>
-        <div className='flex items-center justify-center min-h-[50vh]'>
-          <div className='text-center'>
-            <h1 className='text-2xl font-bold text-foreground mb-4'>
+        <div className='flex items-center justify-center min-h-[60vh] px-4'>
+          <div className='text-center max-w-md'>
+            <div className='mb-8'>
+              <div className='relative inline-block'>
+                <FileText
+                  className='absolute -top-3 -left-3 text-primary/20'
+                  size={40}
+                />
+                <h1 className='text-7xl font-bold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent'>
+                  404
+                </h1>
+                <FileText
+                  className='absolute -bottom-3 -right-3 text-primary/20'
+                  size={40}
+                />
+              </div>
+            </div>
+            <h2 className='text-2xl md:text-3xl font-bold text-foreground mb-4'>
               Challenge Not Found
-            </h1>
-            <p className='text-muted-foreground mb-6'>
-              The challenge you're looking for doesn't exist.
+            </h2>
+            <p className='text-muted-foreground mb-8 leading-relaxed'>
+              The challenge you're looking for doesn't exist or may have been removed.
+              Let's get you back on track!
             </p>
-            <Button onClick={() => navigate({ to: '/challenges' })}>
-              Back to Challenges
-            </Button>
+            <div className='flex flex-col sm:flex-row gap-3 justify-center'>
+              <Button onClick={() => navigate({ to: '/challenges' })} size='lg'>
+                <ArrowLeft className='mr-2 h-4 w-4' />
+                Back to Challenges
+              </Button>
+              <Button
+                variant='outline'
+                onClick={() => navigate({ to: '/' })}
+                size='lg'
+              >
+                Go Home
+              </Button>
+            </div>
           </div>
         </div>
       </PageLayout>

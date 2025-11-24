@@ -10,7 +10,7 @@ export const NavbarLogo = () => {
           className='h-20 sm:h-26 w-auto dark:block hidden'
         />
         <img
-          src='/pextfect_balck.svg'
+          src='/pexfect_black.svg'
           alt='PexFect Logo'
           className='h-20 sm:h-26 w-auto dark:hidden block'
         />
