@@ -72,21 +72,15 @@ export function SavedChallenges() {
   const handleToggleSave = async (challengeId: string) => {
     // Must be authenticated to save
     if (!isAuthenticated) {
-      console.warn('[handleToggleSave] ⚠️ User not authenticated')
       return
     }
 
     // Prevent double-clicking while mutation is in progress
     if (toggleSaveMutation.isPending) {
-      console.log('[handleToggleSave] ⏳ Already processing a save request')
       return
     }
 
     const isSaved = savedChallengeIds.includes(challengeId)
-    console.log(
-      `[handleToggleSave] ${isSaved ? 'Unsaving' : 'Saving'} challenge:`,
-      challengeId
-    )
 
     // Trigger the mutation
     toggleSaveMutation.mutate(

@@ -1,7 +1,7 @@
 ﻿import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { PageLayout } from '@/layouts/PageLayout'
-import { ResourceControls, ResourcesSection } from '@/services/Resources'
+import { ResourceControls, ResourcesSection } from '@/services/resources'
 import { PageHeader } from '@/layouts'
 
 export const Route = createFileRoute('/resources/')({

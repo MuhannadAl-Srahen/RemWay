@@ -16,10 +16,11 @@ interface ProfileUpdate {
  */
 export async function ensureProfileExists() {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user) {
-      console.log('[ensureProfileExists] No user found')
       return null
     }
 
@@ -34,30 +35,37 @@ export async function ensureProfileExists() {
     if (fetchError) {
       // Check if it's a permission error (42501)
       if (fetchError.code === '42501') {
-        console.error('[ensureProfileExists] ❌ RLS Policy Error - Please run the SQL migration!')
-        console.error('[ensureProfileExists] Run: supabase/migrations/AGGRESSIVE_FIX.sql')
+        console.error(
+          '[ensureProfileExists] ❌ RLS Policy Error - Please run the SQL migration!'
+        )
+        console.error(
+          '[ensureProfileExists] Run: supabase/migrations/AGGRESSIVE_FIX.sql'
+        )
       } else {
-        console.error('[ensureProfileExists] Error checking profile:', fetchError)
+        console.error(
+          '[ensureProfileExists] Error checking profile:',
+          fetchError
+        )
       }
       return null
     }
 
     // If profile exists, return it
     if (existingProfile) {
-      console.log('[ensureProfileExists] ✅ Profile already exists')
       return existingProfile
     }
 
     // Profile doesn't exist, create it with upsert to avoid race conditions
-    console.log('[ensureProfileExists] Creating new profile...')
-    
+
     // Extract GitHub username and construct GitHub URL
     const githubUsername = user.user_metadata?.user_name
-    const githubUrl = githubUsername ? `https://github.com/${githubUsername}` : null
-    
+    const githubUrl = githubUsername
+      ? `https://github.com/${githubUsername}`
+      : null
+
     // Extract only the date part (YYYY-MM-DD) from created_at timestamp
     const joinedDate = user.created_at ? user.created_at.split('T')[0] : null
-    
+
     // Use upsert to handle race conditions (if trigger creates it simultaneously)
     const { data: newProfile, error: insertError } = await supabase
       .from('profiles')
@@ -65,7 +73,8 @@ export async function ensureProfileExists() {
       .upsert(
         {
           id: user.id,
-          full_name: user.user_metadata?.full_name || user.user_metadata?.name || null,
+          full_name:
+            user.user_metadata?.full_name || user.user_metadata?.name || null,
           email: user.email || null,
           joined_date: joinedDate,
           profile_image_url: user.user_metadata?.avatar_url || null,
@@ -73,18 +82,20 @@ export async function ensureProfileExists() {
         },
         {
           onConflict: 'id',
-          ignoreDuplicates: false // Update if exists
+          ignoreDuplicates: false, // Update if exists
         }
       )
       .select()
       .maybeSingle()
 
     if (insertError) {
-      console.error('[ensureProfileExists] Error upserting profile:', insertError)
+      console.error(
+        '[ensureProfileExists] Error upserting profile:',
+        insertError
+      )
       return null
     }
 
-    console.log('[ensureProfileExists] ✅ Profile created successfully')
     return newProfile
   } catch (error) {
     console.error('[ensureProfileExists] Unexpected error:', error)
@@ -97,8 +108,10 @@ export async function ensureProfileExists() {
  */
 export async function getUserProfile() {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user) return null
 
     const { data, error } = await supabase
@@ -124,10 +137,11 @@ export async function getUserProfile() {
  */
 export async function updateUserProfile(updates: ProfileUpdate) {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
     if (!user) {
-      console.error('[updateUserProfile] No user found')
       return null
     }
 
@@ -144,7 +158,6 @@ export async function updateUserProfile(updates: ProfileUpdate) {
       return null
     }
 
-    console.log('[updateUserProfile] Profile updated successfully')
     return data
   } catch (error) {
     console.error('[updateUserProfile] Unexpected error:', error)

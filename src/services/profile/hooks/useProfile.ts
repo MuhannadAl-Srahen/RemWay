@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { STALE_TIME, RETRY_CONFIG, CACHE_VALIDITY } from '@/lib/queryConfig'
 import { ProfileService } from '../api'
 import type { UserProfile } from '@/types'
 
@@ -9,9 +10,9 @@ const getCachedProfile = (userId?: string): UserProfile | null | undefined => {
     const cached = localStorage.getItem(`profile-cache-${key}`)
     if (cached) {
       const parsed = JSON.parse(cached)
-      // Check if cache is still valid (less than 5 minutes old)
+      // Check if cache is still valid using centralized config
       const cacheAge = Date.now() - (parsed.timestamp || 0)
-      if (cacheAge < 5 * 60 * 1000) {
+      if (cacheAge < CACHE_VALIDITY.DEFAULT) {
         return parsed.data
       }
     }
@@ -46,9 +47,9 @@ export const useProfile = (userId?: string) => {
       setCachedProfile(data, userId)
       return data
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 10, // 10 minutes
-    retry: 2,
+    staleTime: STALE_TIME.PROFILE,
+    gcTime: STALE_TIME.PROFILE * 2, // Cache twice as long as stale time
+    retry: RETRY_CONFIG.DEFAULT,
     enabled: !!userId || userId === undefined, // Allow fetching current user's profile
     // Use cached data as initial data to prevent flash
     initialData: () => getCachedProfile(userId),

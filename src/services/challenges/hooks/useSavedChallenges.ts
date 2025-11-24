@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { STALE_TIME, RETRY_CONFIG, CACHE_VALIDITY } from '@/lib/queryConfig'
 import {
   getSavedChallenges,
   toggleChallengeSave,
@@ -10,9 +11,9 @@ const getCachedSavedChallenges = (): string[] | undefined => {
     const cached = localStorage.getItem('saved-challenges-cache')
     if (cached) {
       const parsed = JSON.parse(cached)
-      // Check if cache is still valid (less than 5 minutes old)
+      // Check if cache is still valid using centralized config
       const cacheAge = Date.now() - (parsed.timestamp || 0)
-      if (cacheAge < 5 * 60 * 1000) {
+      if (cacheAge < CACHE_VALIDITY.DEFAULT) {
         return parsed.data
       }
     }
@@ -47,8 +48,8 @@ export const useSavedChallenges = (isAuthenticated: boolean) => {
       return data
     },
     enabled: isAuthenticated, // Only run if user is authenticated
-    staleTime: 1000 * 60, // 1 minute
-    retry: 2,
+    staleTime: STALE_TIME.SAVED_CHALLENGES,
+    retry: RETRY_CONFIG.DEFAULT,
     // Use cached data as initial data to prevent flash
     initialData: () => getCachedSavedChallenges(),
   })

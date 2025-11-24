@@ -1,7 +1,4 @@
-import React from 'react'
-// Link removed: card CTA handles navigation via Continue Path when started
-import type { LearningPath } from '../../../types/roadmap'
-
+import type { LearningPath } from '@/types/roadmap'
 import { BookOpen, Zap, Trophy } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import {
@@ -31,7 +28,6 @@ const CTA_LABELS = {
   intermediate: 'Start Intermediate Path →',
   advanced: 'Start Advanced Path →',
 }
-// CTA_LINKS removed; navigation handled elsewhere when needed
 const CTA_LINKS = {
   beginner: '/roadmap/beginner',
   intermediate: '/roadmap/intermediate',

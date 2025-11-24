@@ -65,21 +65,15 @@ function RouteComponent() {
   const handleToggleSave = async (challengeId: string) => {
     // Must be authenticated to save
     if (!isAuthenticated) {
-      console.warn('[handleToggleSave] ⚠️ User not authenticated')
       return
     }
 
     // Prevent double-clicking while mutation is in progress
     if (toggleSaveMutation.isPending) {
-      console.log('[handleToggleSave] ⏳ Already processing a save request')
       return
     }
 
     const isSaved = savedChallenges.includes(challengeId)
-    console.log(
-      `[handleToggleSave] ${isSaved ? 'Unsaving' : 'Saving'} challenge:`,
-      challengeId
-    )
 
     toggleSaveMutation.mutate({ challengeId, isSaved })
   }

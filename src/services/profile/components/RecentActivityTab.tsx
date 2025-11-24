@@ -2,9 +2,8 @@ import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
-import { profileStats } from '@/services/profile/data'
 import { useState } from 'react'
-import '@/types/profile.css'
+import type { ProfileStats } from '@/types'
 
 interface Submission {
   id: string
@@ -13,6 +12,16 @@ interface Submission {
   technologies: string[]
   date: string
   score: number
+}
+
+// Mock stats for display
+const mockProfileStats: ProfileStats = {
+  challengesCompleted: 18,
+  totalSubmissions: 24,
+  averageRating: 82,
+  currentStreak: 2,
+  longestStreak: 7,
+  totalPoints: 1450,
 }
 
 const mockSubmissions: Submission[] = [
@@ -140,7 +149,7 @@ export function RecentActivityTab() {
                 </div>
               </div>
               <div className='profile-text-blue text-lg sm:text-xl md:text-2xl font-bold'>
-                {profileStats.challengesCompleted}
+                {mockProfileStats.challengesCompleted}
               </div>
               <div className='profile-text-blue-muted text-xs sm:text-sm mt-1'>
                 Completed
@@ -161,7 +170,7 @@ export function RecentActivityTab() {
                 </svg>
               </div>
               <div className='profile-text-yellow text-lg sm:text-xl md:text-2xl font-bold'>
-                {profileStats.averageRating}%
+                {mockProfileStats.averageRating}%
               </div>
               <div className='profile-text-yellow-muted text-xs sm:text-sm mt-1'>
                 Avg Score
@@ -186,7 +195,7 @@ export function RecentActivityTab() {
                 </svg>
               </div>
               <div className='profile-text-green text-lg sm:text-xl md:text-2xl font-bold'>
-                {profileStats.currentStreak}
+                {mockProfileStats.currentStreak}
               </div>
               <div className='profile-text-green-muted text-xs sm:text-sm mt-1'>
                 Day Streak

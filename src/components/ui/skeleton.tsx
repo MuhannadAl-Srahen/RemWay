@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
 function Skeleton({
   className,
@@ -7,13 +7,13 @@ function Skeleton({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-md bg-muted/60",
-        "before:absolute before:inset-0",
-        "before:-translate-x-full",
-        "before:animate-shimmer-slide",
-        "before:bg-gradient-to-r",
-        "before:from-transparent before:via-white/20 before:to-transparent",
-        "dark:before:via-white/10",
+        'relative overflow-hidden rounded-md bg-muted/60',
+        'before:absolute before:inset-0',
+        'before:-translate-x-full',
+        'before:animate-shimmer-slide',
+        'before:bg-gradient-to-r',
+        'before:from-transparent before:via-white/20 before:to-transparent',
+        'dark:before:via-white/10',
         className
       )}
       {...props}

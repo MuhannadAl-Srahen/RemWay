@@ -7,12 +7,12 @@ export function ChallengeCardSkeleton() {
       {/* Image Skeleton */}
       <div className='relative aspect-[16/9] overflow-hidden rounded-t-xl bg-muted/40'>
         <Skeleton className='h-full w-full' />
-        
+
         {/* Difficulty Badge Skeleton */}
         <div className='absolute top-4 left-4'>
           <Skeleton className='h-5 w-20 rounded-full' />
         </div>
-        
+
         {/* Heart Button Skeleton */}
         <div className='absolute top-4 right-4'>
           <Skeleton className='h-10 w-10 rounded-full' />
@@ -23,7 +23,7 @@ export function ChallengeCardSkeleton() {
       <CardContent className='flex flex-1 flex-col gap-3 p-5'>
         {/* Title Skeleton */}
         <Skeleton className='h-6 w-3/4' />
-        
+
         {/* Description Skeleton */}
         <div className='space-y-2'>
           <Skeleton className='h-4 w-full' />
@@ -45,14 +45,14 @@ export function ChallengeCardSkeleton() {
               <Skeleton className='h-4 w-4 rounded-full' />
               <Skeleton className='h-3 w-12' />
             </div>
-            
+
             {/* Users Skeleton */}
             <div className='flex items-center gap-1.5'>
               <Skeleton className='h-4 w-4 rounded-full' />
               <Skeleton className='h-3 w-8' />
             </div>
           </div>
-          
+
           {/* Button Skeleton */}
           <Skeleton className='h-9 w-20 rounded-md' />
         </div>
@@ -67,7 +67,7 @@ export function ChallengeListSkeleton() {
       {/* Image Skeleton */}
       <div className='relative h-40 w-64 flex-shrink-0 overflow-hidden rounded-lg bg-muted/40'>
         <Skeleton className='h-full w-full' />
-        
+
         {/* Difficulty Badge Skeleton */}
         <div className='absolute top-3 left-3'>
           <Skeleton className='h-5 w-20 rounded-full' />
@@ -105,14 +105,14 @@ export function ChallengeListSkeleton() {
               <Skeleton className='h-4 w-4 rounded-full' />
               <Skeleton className='h-3 w-12' />
             </div>
-            
+
             {/* Users Skeleton */}
             <div className='flex items-center gap-2'>
               <Skeleton className='h-4 w-4 rounded-full' />
               <Skeleton className='h-3 w-8' />
             </div>
           </div>
-          
+
           {/* Button Skeleton */}
           <Skeleton className='h-10 w-24 rounded-md' />
         </div>
