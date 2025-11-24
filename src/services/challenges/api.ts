@@ -122,10 +122,12 @@ export const submitChallengeSolution = async (
         submitted_at: new Date().toISOString(), // Update timestamp
       }
 
-      const { error: updateError } = (await (supabase.from(
-        'challenge_submissions',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ) as any)
+      const { error: updateError } = (await (
+        supabase.from(
+          'challenge_submissions'
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ) as any
+      )
         .update(updateData)
         .eq('id', submissionId)) as { error: Error | null }
 
@@ -135,10 +137,12 @@ export const submitChallengeSolution = async (
       }
     } else {
       // INSERT new submission
-      const { data, error } = await (supabase.from(
-        'challenge_submissions',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ) as any)
+      const { data, error } = await (
+        supabase.from(
+          'challenge_submissions'
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ) as any
+      )
         .insert({
           challenge_id: challengeId,
           profile_id: user.id,

@@ -3,6 +3,7 @@
 Thank you for your interest in contributing to PexFect! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
+
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [Development Workflow](#development-workflow)
@@ -15,13 +16,16 @@ Thank you for your interest in contributing to PexFect! This document provides g
 ## Code of Conduct
 
 ### Our Pledge
+
 We are committed to providing a welcoming and inclusive environment for all contributors. We expect all participants to:
+
 - Be respectful and considerate
 - Accept constructive criticism gracefully
 - Focus on what is best for the community
 - Show empathy towards other community members
 
 ### Unacceptable Behavior
+
 - Harassment, discrimination, or offensive comments
 - Trolling, insulting, or derogatory remarks
 - Personal or political attacks
@@ -31,6 +35,7 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+ or Bun 1.0+
 - Git
 - A Supabase account (for backend features)
@@ -39,23 +44,27 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ### Setting Up Your Development Environment
 
 1. **Fork and Clone**
+
    ```bash
    git clone https://github.com/YOUR_USERNAME/PexFect.git
    cd PexFect
    ```
 
 2. **Install Dependencies**
+
    ```bash
    bun install
    ```
 
 3. **Environment Configuration**
+
    ```bash
    cp .env.example .env
    # Edit .env with your Supabase credentials
    ```
 
 4. **Start Development Server**
+
    ```bash
    bun dev
    ```
@@ -68,7 +77,9 @@ We are committed to providing a welcoming and inclusive environment for all cont
 ## Development Workflow
 
 ### Branch Naming Convention
+
 Use descriptive branch names following this pattern:
+
 ```
 feature/pf-[issue-number]-brief-description
 fix/pf-[issue-number]-brief-description
@@ -77,6 +88,7 @@ docs/pf-[issue-number]-brief-description
 ```
 
 Examples:
+
 - `feature/pf-42-add-dark-mode`
 - `fix/pf-38-navbar-mobile-layout`
 - `refactor/pf-51-simplify-auth-flow`
@@ -89,6 +101,7 @@ Examples:
    - Add relevant labels (feature, bug, enhancement)
 
 2. **Create a Branch**
+
    ```bash
    git checkout -b feature/pf-[issue-number]-description
    ```
@@ -99,6 +112,7 @@ Examples:
    - Include tests if applicable
 
 4. **Test Your Changes**
+
    ```bash
    bun run lint
    bun run build
@@ -106,6 +120,7 @@ Examples:
    ```
 
 5. **Commit Your Changes**
+
    ```bash
    git add .
    git commit -m "feat(scope): description"
@@ -121,6 +136,7 @@ Examples:
 ### TypeScript Guidelines
 
 #### Type Safety
+
 - ✅ Use explicit types for function parameters and return values
 - ✅ Avoid `any` - use `unknown` if type is truly dynamic
 - ✅ Use type guards for runtime type checking
@@ -129,9 +145,9 @@ Examples:
 ```typescript
 // Good
 interface User {
-  id: string;
-  name: string;
-  email: string;
+  id: string
+  name: string
+  email: string
 }
 
 function getUser(id: string): Promise<User | null> {
@@ -145,27 +161,29 @@ function getUser(id: any): any {
 ```
 
 #### Interfaces vs Types
+
 - Use `interface` for object shapes that might be extended
 - Use `type` for unions, intersections, or mapped types
 
 ```typescript
 // Good
 interface BaseUser {
-  id: string;
-  name: string;
+  id: string
+  name: string
 }
 
 interface AdminUser extends BaseUser {
-  permissions: string[];
+  permissions: string[]
 }
 
-type UserRole = 'admin' | 'user' | 'guest';
-type UserId = string | number;
+type UserRole = 'admin' | 'user' | 'guest'
+type UserId = string | number
 ```
 
 ### React Best Practices
 
 #### Component Structure
+
 ```typescript
 // Imports
 import { useState, useEffect } from 'react';
@@ -181,17 +199,17 @@ interface MyComponentProps {
 export function MyComponent({ title, onAction }: MyComponentProps) {
   // Hooks
   const [state, setState] = useState<string>('');
-  
+
   // Effects
   useEffect(() => {
     // effect logic
   }, []);
-  
+
   // Event handlers
   const handleClick = () => {
     onAction?.();
   };
-  
+
   // Render
   return (
     <div>
@@ -202,6 +220,7 @@ export function MyComponent({ title, onAction }: MyComponentProps) {
 ```
 
 #### Hooks Guidelines
+
 - ✅ Always use hooks at the top level
 - ✅ Extract complex logic into custom hooks
 - ✅ Name custom hooks with `use` prefix
@@ -210,20 +229,23 @@ export function MyComponent({ title, onAction }: MyComponentProps) {
 ```typescript
 // Good - Custom hook
 function useChallenge(id: string) {
-  const [challenge, setChallenge] = useState<Challenge | null>(null);
-  const [loading, setLoading] = useState(true);
-  
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    fetchChallenge(id).then(setChallenge).finally(() => setLoading(false));
-  }, [id]);
-  
-  return { challenge, loading };
+    fetchChallenge(id)
+      .then(setChallenge)
+      .finally(() => setLoading(false))
+  }, [id])
+
+  return { challenge, loading }
 }
 ```
 
 ### Styling Guidelines
 
 #### Tailwind CSS
+
 - Use utility classes for styling
 - Extract repeated patterns into components
 - Follow mobile-first responsive design
@@ -244,6 +266,7 @@ function useChallenge(id: string) {
 ### File Organization
 
 #### Service Structure
+
 ```
 services/[feature]/
 ├── api.ts              # API calls and data fetching
@@ -263,6 +286,7 @@ services/[feature]/
 ## Commit Guidelines
 
 ### Commit Message Format
+
 ```
 <type>(<scope>): <subject>
 
@@ -272,6 +296,7 @@ services/[feature]/
 ```
 
 ### Types
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `refactor`: Code refactoring
@@ -281,6 +306,7 @@ services/[feature]/
 - `chore`: Maintenance tasks
 
 ### Examples
+
 ```bash
 feat(challenges): add difficulty filter
 fix(auth): resolve login redirect issue
@@ -292,6 +318,7 @@ chore(deps): update dependencies
 ```
 
 ### Commit Best Practices
+
 - Keep commits atomic and focused
 - Write clear, descriptive messages
 - Reference issue numbers when applicable
@@ -303,6 +330,7 @@ chore(deps): update dependencies
 ### Before Submitting
 
 1. **Ensure Code Quality**
+
    ```bash
    bun run lint      # No errors
    bun run build     # Successful build
@@ -320,28 +348,35 @@ chore(deps): update dependencies
    - Verify accessibility
 
 ### PR Template
+
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Related Issue
+
 Closes #[issue-number]
 
 ## Testing
+
 - [ ] Tested locally
 - [ ] Tested in production-like environment
 - [ ] Added/updated tests
 
 ## Screenshots (if applicable)
+
 [Add screenshots]
 
 ## Checklist
+
 - [ ] Code follows project style guidelines
 - [ ] Self-review completed
 - [ ] Comments added for complex code
@@ -351,6 +386,7 @@ Closes #[issue-number]
 ```
 
 ### Review Process
+
 1. Automated checks must pass (lint, build)
 2. At least one approval required
 3. All comments must be resolved
@@ -359,6 +395,7 @@ Closes #[issue-number]
 ## Testing
 
 ### Manual Testing Checklist
+
 - [ ] Feature works as expected
 - [ ] No console errors
 - [ ] Responsive on mobile/tablet/desktop
@@ -369,6 +406,7 @@ Closes #[issue-number]
 - [ ] Error states handled gracefully
 
 ### Testing Best Practices
+
 - Test edge cases
 - Test with empty data
 - Test with large datasets
@@ -378,14 +416,15 @@ Closes #[issue-number]
 ## Documentation
 
 ### Code Documentation
-```typescript
+
+````typescript
 /**
  * Fetches a challenge by ID from the database
- * 
+ *
  * @param id - The unique identifier of the challenge
  * @returns Promise resolving to Challenge object or null if not found
  * @throws {Error} If the database query fails
- * 
+ *
  * @example
  * ```typescript
  * const challenge = await fetchChallenge('123');
@@ -397,18 +436,19 @@ Closes #[issue-number]
 async function fetchChallenge(id: string): Promise<Challenge | null> {
   // implementation
 }
-```
+````
 
 ### Component Documentation
+
 ```typescript
 /**
  * ChallengeCard - Displays a challenge summary card
- * 
+ *
  * Features:
  * - Shows challenge title, difficulty, and completion status
  * - Clickable to navigate to challenge details
  * - Displays save/unsave button for authenticated users
- * 
+ *
  * @param challenge - The challenge object to display
  * @param onSave - Optional callback when save button clicked
  */
