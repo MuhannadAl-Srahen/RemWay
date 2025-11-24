@@ -28,3 +28,13 @@ dist-ssr
 *.sln
 *.sw?
 *.specstory
+
+# Build and cache directories
+.tanstack/
+.turbo/
+.vercel/
+coverage/
+*.tsbuildinfo
+
+# OS files
+Thumbs.db

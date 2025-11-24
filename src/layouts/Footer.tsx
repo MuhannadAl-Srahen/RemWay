@@ -20,7 +20,7 @@ const FooterLogo = () => {
           className='h-22 sm:h-28 w-auto dark:block hidden'
         />
         <img
-          src='/pextfect_balck.svg'
+          src='/pexfect_black.svg'
           alt='PexFect Logo'
           className='h-22 sm:h-28 w-auto dark:hidden block'
         />
