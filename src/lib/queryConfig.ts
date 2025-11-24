@@ -70,4 +70,9 @@ export const queryKeys = {
   roadmap: ['roadmap'] as const,
   learningPaths: ['roadmap', 'paths'] as const,
   pathDetail: (id: string) => ['roadmap', 'path', id] as const,
+
+  // Feedback
+  feedback: ['feedback'] as const,
+  submissionFeedback: (submissionId: string) =>
+    ['feedback', 'submission', submissionId] as const,
 } as const

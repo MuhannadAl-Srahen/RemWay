@@ -18,6 +18,8 @@ export function MainLayout({ children }: Props) {
   const isChallengePage =
     location.pathname.startsWith('/challenges/') &&
     location.pathname !== '/challenges'
+  
+  const isFeedbackPage = location.pathname.startsWith('/feedback/')
 
   // Scroll restoration
   useEffect(() => {
@@ -47,7 +49,7 @@ export function MainLayout({ children }: Props) {
     <div className='min-h-screen flex flex-col overflow-x-hidden'>
       <Navbar />
       <main className='flex-1 w-full max-w-full'>{children}</main>
-      {!isChallengePage && <Footer />}
+      {!isChallengePage && !isFeedbackPage && <Footer />}
       <ScrollToTop />
     </div>
   )
