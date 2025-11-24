@@ -10,15 +10,10 @@ import type {
  * Example:
  * const { data, error } = await (supabase
  *   .from('challenges')
- *   .select('*') as SupabaseTable<Challenge>)
+ *   .select('*') as SupabaseTable)
  */
-export type SupabaseTable<T> = PostgrestQueryBuilder<
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any,
-  T[]
->
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SupabaseTable = PostgrestQueryBuilder<any, any, any>
 
 /**
  * Type-safe wrapper for Supabase filter builders
@@ -27,14 +22,15 @@ export type SupabaseTable<T> = PostgrestQueryBuilder<
  * Example:
  * const query = supabase
  *   .from('challenges')
- *   .select('*') as SupabaseQueryBuilder<Challenge>
+ *   .select('*') as SupabaseQueryBuilder
  */
-export type SupabaseQueryBuilder<T> = PostgrestFilterBuilder<
+export type SupabaseQueryBuilder = PostgrestFilterBuilder<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
-  T[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  any,
   'id',
   unknown
 >
