@@ -1,6 +1,6 @@
 # PexFect
 
-**PexFect** is a modern frontend web application built with React, TanStack Router, TanStack Query, Tailwind CSS (v4), ShadCN UI, Zustand, Zod, and Supabase. It features an advanced theming system, modular routing, and efficient state and data management.
+**PexFect** is a modern frontend web application built with React, TanStack Router, TanStack Query, Tailwind CSS (v4), ShadCN UI, Zustand, Zod, and Supabase. It features an advanced theming system, modular routing, efficient state and data management, and **AI-powered feedback** using Gemini 2.0 Flash Experimental.
 
 ---
 
@@ -13,8 +13,42 @@
 - **ShadCN UI** components for a polished, accessible UI
 - **Zustand** for lightweight client-side state management
 - **Supabase** as a backend and authentication provider
-- AI feedback integration (planned) for user challenge submissions
+- **AI Feedback System** with Gemini 2.0 Flash for automated challenge assessment
+- **Submission History Tracking** with comparative analysis across attempts
 - Modular project structure for scalability and maintainability
+
+---
+
+## AI Feedback System
+
+PexFect includes a comprehensive AI feedback system that:
+
+- ✅ **Generates detailed feedback** for challenge submissions using Gemini AI
+- ✅ **Tracks submission history** and compares improvements over time
+- ✅ **Provides structured analysis** across 6 key areas (design, code quality, functionality, accessibility)
+- ✅ **Offers actionable recommendations** for next steps and learning resources
+- ✅ **Monitors performance** with generation time tracking
+
+### Quick Start
+
+1. Set up environment variables in `.env.local`:
+
+   ```env
+   VITE_GEMINI_API_KEY=your_gemini_api_key
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_key
+   ```
+
+2. View demo feedback UI:
+
+   ```
+   http://localhost:5000/feedback/demo
+   ```
+
+3. For full integration guide, see:
+   - **[AI_FEEDBACK_INTEGRATION.md](./AI_FEEDBACK_INTEGRATION.md)** - Complete documentation
+   - **[IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md)** - Implementation details
+   - **[TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md)** - Testing guide
 
 ---
 
@@ -24,6 +58,8 @@
 
 - [Bun](https://bun.sh/) installed (preferred package manager and runtime)
 - Node.js (optional, if using npm/yarn instead)
+- Supabase account with project set up
+- Gemini API key (free tier available)
 
 ---
 
@@ -42,6 +78,13 @@
    bun install
    ```
 
+3. Set up environment variables:
+
+   ```bash
+   cp .env.example .env.local
+   # Edit .env.local with your credentials
+   ```
+
 ---
 
 ### Development
@@ -52,7 +95,7 @@ Run the development server with:
 bun run dev
 ```
 
-This will start Vite and open your app at `http://localhost:3000`.
+This will start Vite and open your app at `http://localhost:5000`.
 
 ---
 
@@ -90,10 +133,15 @@ src/
  ┣ components/       # Reusable UI components and primitives
  ┣ hooks/            # Custom React hooks
  ┣ layouts/          # Layout components (MainLayout, Navbar, Footer, etc...)
- ┣ lib/              # Utility functions, API clients (supabase, aiClient, queryClient, etc...)
+ ┣ lib/              # Utility functions, API clients (supabase, queryClient, etc...)
  ┣ providers/        # React context providers (QueryProvider, ThemeProvider, etc...)
  ┣ routes/           # Route components organized by feature
- ┣ services/         # Domain-specific services and stores (auth, challenges, feedback, profile)
+ ┣ services/         # Domain-specific services and stores
+ ┃ ┣ ai/            # AI feedback generation service (Gemini integration)
+ ┃ ┣ challenges/    # Challenge listing, details, submission logic
+ ┃ ┣ feedback/      # Feedback display and data fetching
+ ┃ ┣ profile/       # User profile management
+ ┃ ┗ ...            # Other feature modules
  ┣ types/            # TypeScript type declarations
  ┣ test/             # Tests (if applicable)
  ┣ main.tsx          # Entry point
