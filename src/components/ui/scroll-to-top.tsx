@@ -58,7 +58,10 @@ export const ScrollToTop = () => {
   // Calculate stroke dash offset for circular progress
   const radius = 20
   const circumference = 2 * Math.PI * radius
-  const offset = circumference - (scrollProgress / 100) * circumference
+  // Ensure offset is always a valid number (not NaN or Infinity)
+  const offset = Number.isFinite(scrollProgress) 
+    ? circumference - (scrollProgress / 100) * circumference 
+    : circumference
 
   return (
     <button
