@@ -3,6 +3,103 @@ import type {
   PostgrestFilterBuilder,
 } from '@supabase/postgrest-js'
 
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  public: {
+    Tables: {
+      challenge_submissions: {
+        Row: {
+          challenge_id: string
+          challenge_title: string
+          github_url: string
+          id: string
+          live_site_url: string
+          previous_submission_id: string | null
+          profile_id: string
+          screenshots: string[] | null
+          submission_description: string | null
+          submitted_at: string | null
+        }
+        Insert: {
+          challenge_id: string
+          challenge_title: string
+          github_url: string
+          id?: string
+          live_site_url: string
+          previous_submission_id?: string | null
+          profile_id: string
+          screenshots?: string[] | null
+          submission_description?: string | null
+          submitted_at?: string | null
+        }
+        Update: {
+          challenge_id?: string
+          challenge_title?: string
+          github_url?: string
+          id?: string
+          live_site_url?: string
+          previous_submission_id?: string | null
+          profile_id?: string
+          screenshots?: string[] | null
+          submission_description?: string | null
+          submitted_at?: string | null
+        }
+      }
+      challenge_feedback: {
+        Row: {
+          accessibility: string[]
+          ai_model_version: string | null
+          best_practices: string[] | null
+          code_formatting: string[]
+          comparison_notes: Json | null
+          created_at: string | null
+          feedback_generation_time: number | null
+          functionality: string[]
+          id: string
+          improvment_advices: string[] | null
+          live_preview: string
+          overall_analysis_description: Json
+          overall_good_practices: string[]
+          overall_rating: string
+          overall_score: number
+          recommended_next_challenge: string | null
+          recommended_resources: Json | null
+          submission_id: string
+          view_code: string
+        }
+        Insert: {
+          accessibility: string[]
+          ai_model_version?: string | null
+          best_practices?: string[] | null
+          code_formatting: string[]
+          comparison_notes?: Json | null
+          created_at?: string | null
+          feedback_generation_time?: number | null
+          functionality: string[]
+          id?: string
+          improvment_advices?: string[] | null
+          live_preview: string
+          overall_analysis_description: Json
+          overall_good_practices: string[]
+          overall_rating: string
+          overall_score: number
+          recommended_next_challenge?: string | null
+          recommended_resources?: Json | null
+          submission_id: string
+          view_code: string
+        }
+      }
+    }
+  }
+}
+
 /**
  * Type-safe wrapper for Supabase table queries
  * Use this to cast Supabase query builders with proper TypeScript types

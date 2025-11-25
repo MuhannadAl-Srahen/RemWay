@@ -16,6 +16,7 @@ import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as RoadmapIndexRouteImport } from './routes/roadmap/index'
 import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
+import { Route as FeedbackDemoRouteImport } from './routes/feedback/demo'
 import { Route as FeedbackSubmissionIdRouteImport } from './routes/feedback/$submissionId'
 import { Route as RoadmapPathIdIndexRouteImport } from './routes/roadmap/$pathId/index'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
@@ -55,6 +56,11 @@ const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
   path: '/challenges/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedbackDemoRoute = FeedbackDemoRouteImport.update({
+  id: '/feedback/demo',
+  path: '/feedback/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedbackSubmissionIdRoute = FeedbackSubmissionIdRouteImport.update({
   id: '/feedback/$submissionId',
   path: '/feedback/$submissionId',
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/feedback/$submissionId': typeof FeedbackSubmissionIdRoute
+  '/feedback/demo': typeof FeedbackDemoRoute
   '/challenges': typeof ChallengesIndexRoute
   '/resources': typeof ResourcesIndexRoute
   '/roadmap': typeof RoadmapIndexRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/feedback/$submissionId': typeof FeedbackSubmissionIdRoute
+  '/feedback/demo': typeof FeedbackDemoRoute
   '/challenges': typeof ChallengesIndexRoute
   '/resources': typeof ResourcesIndexRoute
   '/roadmap': typeof RoadmapIndexRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/progress': typeof ProgressRoute
   '/feedback/$submissionId': typeof FeedbackSubmissionIdRoute
+  '/feedback/demo': typeof FeedbackDemoRoute
   '/challenges/': typeof ChallengesIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/roadmap/': typeof RoadmapIndexRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/feedback/$submissionId'
+    | '/feedback/demo'
     | '/challenges'
     | '/resources'
     | '/roadmap'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/feedback/$submissionId'
+    | '/feedback/demo'
     | '/challenges'
     | '/resources'
     | '/roadmap'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/progress'
     | '/feedback/$submissionId'
+    | '/feedback/demo'
     | '/challenges/'
     | '/resources/'
     | '/roadmap/'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ProgressRoute: typeof ProgressRoute
   FeedbackSubmissionIdRoute: typeof FeedbackSubmissionIdRoute
+  FeedbackDemoRoute: typeof FeedbackDemoRoute
   ChallengesIndexRoute: typeof ChallengesIndexRoute
   ResourcesIndexRoute: typeof ResourcesIndexRoute
   RoadmapIndexRoute: typeof RoadmapIndexRoute
@@ -211,6 +224,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChallengesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feedback/demo': {
+      id: '/feedback/demo'
+      path: '/feedback/demo'
+      fullPath: '/feedback/demo'
+      preLoaderRoute: typeof FeedbackDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feedback/$submissionId': {
       id: '/feedback/$submissionId'
       path: '/feedback/$submissionId'
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ProgressRoute: ProgressRoute,
   FeedbackSubmissionIdRoute: FeedbackSubmissionIdRoute,
+  FeedbackDemoRoute: FeedbackDemoRoute,
   ChallengesIndexRoute: ChallengesIndexRoute,
   ResourcesIndexRoute: ResourcesIndexRoute,
   RoadmapIndexRoute: RoadmapIndexRoute,

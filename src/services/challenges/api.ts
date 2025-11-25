@@ -135,6 +135,10 @@ export const submitChallengeSolution = async (
         console.error('Update error:', updateError)
         throw new Error(updateError.message)
       }
+
+      // Note: Old feedback will be deleted by generateAndStoreFeedback 
+      // after it captures the previous feedback for comparison
+      console.log('[submitChallengeSolution] Updated submission for resubmission:', submissionId)
     } else {
       // INSERT new submission
       const { data, error } = await (
