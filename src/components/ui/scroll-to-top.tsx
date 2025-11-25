@@ -59,15 +59,15 @@ export const ScrollToTop = () => {
   const radius = 20
   const circumference = 2 * Math.PI * radius
   // Ensure offset is always a valid number (not NaN or Infinity)
-  const offset = Number.isFinite(scrollProgress) 
-    ? circumference - (scrollProgress / 100) * circumference 
+  const offset = Number.isFinite(scrollProgress)
+    ? circumference - (scrollProgress / 100) * circumference
     : circumference
 
   return (
     <button
       onClick={scrollToTop}
       className={cn(
-        'fixed bottom-6 right-6 z-50 group',
+        'fixed bottom-6 right-6 z-50 group cursor-pointer',
         'w-12 h-12 rounded-full',
         'bg-primary text-primary-foreground',
         'shadow-lg hover:shadow-xl',

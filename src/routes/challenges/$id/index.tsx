@@ -78,8 +78,8 @@ function RouteComponent() {
               Challenge Not Found
             </h2>
             <p className='text-muted-foreground mb-8 leading-relaxed'>
-              The challenge you're looking for doesn't exist or may have been removed.
-              Let's get you back on track!
+              The challenge you're looking for doesn't exist or may have been
+              removed. Let's get you back on track!
             </p>
             <div className='flex flex-col sm:flex-row gap-3 justify-center'>
               <Button onClick={() => navigate({ to: '/challenges' })} size='lg'>
@@ -134,7 +134,7 @@ function RouteComponent() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-1 md:gap-2 h-full transition-all duration-200 relative px-1 ${
+                className={`flex items-center justify-center gap-1 md:gap-2 h-full transition-all duration-200 relative px-1 cursor-pointer ${
                   activeTab === tab.id
                     ? 'bg-primary/10 text-primary scale-100'
                     : 'hover:bg-muted text-muted-foreground hover:text-foreground hover:scale-[1.02]'
