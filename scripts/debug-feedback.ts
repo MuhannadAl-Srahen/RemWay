@@ -41,9 +41,7 @@ async function debug() {
   } else {
     console.log(`✅ Found ${feedback?.length || 0} feedback entries`)
     feedback?.forEach((fb, i) => {
-      console.log(
-        `   ${i + 1}. Score: ${fb.overall_score} (Submission: ${fb.submission_id})`
-      )
+      console.log(`   ${i + 1}. Score: ${fb.overall_score} (Submission: ${fb.submission_id})`)
     })
   }
 

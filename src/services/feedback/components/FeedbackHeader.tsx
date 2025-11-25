@@ -66,11 +66,7 @@ export function FeedbackHeader({
               <div className='flex flex-wrap items-center gap-3'>
                 {liveUrl && (
                   <a href={liveUrl} target='_blank' rel='noopener noreferrer'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='hover:bg-primary/10 hover:border-primary transition-all cursor-pointer'
-                    >
+                    <Button variant='outline' size='sm' className='hover:bg-primary/10 hover:border-primary transition-all cursor-pointer'>
                       <Eye className='h-4 w-4 mr-2' />
                       Live Preview
                     </Button>
@@ -78,11 +74,7 @@ export function FeedbackHeader({
                 )}
                 {githubUrl && (
                   <a href={githubUrl} target='_blank' rel='noopener noreferrer'>
-                    <Button
-                      variant='outline'
-                      size='sm'
-                      className='hover:bg-primary/10 hover:border-primary transition-all cursor-pointer'
-                    >
+                    <Button variant='outline' size='sm' className='hover:bg-primary/10 hover:border-primary transition-all cursor-pointer'>
                       <Code2 className='h-4 w-4 mr-2' />
                       View Code
                     </Button>
@@ -93,9 +85,7 @@ export function FeedbackHeader({
 
             {/* Right Side - Score */}
             <div className='flex flex-col items-center bg-muted/30 rounded-lg px-8 py-5 border border-border min-w-40'>
-              <div
-                className={`text-6xl font-bold ${getScoreColor(overallScore)} leading-none`}
-              >
+              <div className={`text-6xl font-bold ${getScoreColor(overallScore)} leading-none`}>
                 {overallScore}
               </div>
               <div className='text-sm font-medium text-foreground mt-3'>

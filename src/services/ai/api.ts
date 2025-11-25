@@ -117,11 +117,11 @@ export const generateAIFeedback = async (
 ): Promise<AIFeedbackResponse> => {
   const maxRetries = 2
   let lastError: Error | null = null
-
+  
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`[generateAIFeedback] Attempt ${attempt}/${maxRetries}`)
-
+      
       const model = genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
         systemInstruction: SYSTEM_PROMPT,
@@ -131,24 +131,18 @@ export const generateAIFeedback = async (
       let codeAnalysis = ''
       if (request.submission.github_url) {
         console.log('[generateAIFeedback] Fetching code from GitHub...')
-        const repoCode = await fetchRepositoryCode(
-          request.submission.github_url
-        )
-
+        const repoCode = await fetchRepositoryCode(request.submission.github_url)
+        
         if (repoCode) {
           codeAnalysis = formatCodeForAI(repoCode)
-          console.log(
-            `[generateAIFeedback] Fetched ${repoCode.files.length} files (${(repoCode.totalSize / 1024).toFixed(1)}KB)`
-          )
+          console.log(`[generateAIFeedback] Fetched ${repoCode.files.length} files (${(repoCode.totalSize / 1024).toFixed(1)}KB)`)
         } else {
-          console.warn(
-            '[generateAIFeedback] Could not fetch GitHub code, proceeding with URL-only analysis'
-          )
+          console.warn('[generateAIFeedback] Could not fetch GitHub code, proceeding with URL-only analysis')
         }
       }
 
       const prompt = buildPrompt(request, codeAnalysis)
-
+      
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
@@ -162,130 +156,93 @@ export const generateAIFeedback = async (
 
       const response = result.response
       const text = response.text()
-
-      console.log(
-        '[generateAIFeedback] 📄 Raw AI response length:',
-        text.length,
-        'chars'
-      )
-      console.log(
-        '[generateAIFeedback] 📄 First 500 chars:',
-        text.substring(0, 500)
-      )
-      console.log(
-        '[generateAIFeedback] 📄 Last 200 chars:',
-        text.substring(Math.max(0, text.length - 200))
-      )
-
-      // Check if response looks truncated
-      if (!text.trim().endsWith('}')) {
-        console.warn(
-          "[generateAIFeedback] ⚠️ Response appears truncated (doesn't end with })"
-        )
-      }
-
-      // Parse and validate the response
-      let feedback: AIFeedbackResponse
-      try {
-        feedback = JSON.parse(text) as AIFeedbackResponse
-      } catch (parseError) {
-        console.error('[generateAIFeedback] ❌ JSON parse failed:', parseError)
-        console.error('[generateAIFeedback] Response length:', text.length)
-        console.error(
-          '[generateAIFeedback] Response ends with:',
-          text.substring(Math.max(0, text.length - 100))
-        )
-
-        // Try to salvage partial response by attempting to close JSON
-        if (text.includes('{') && !text.trim().endsWith('}')) {
-          console.warn(
-            '[generateAIFeedback] Attempting to repair truncated JSON...'
-          )
-          const fixedText = text.trim().replace(/,\s*$/, '') + '}'
-          try {
-            feedback = JSON.parse(fixedText) as AIFeedbackResponse
-            console.log('[generateAIFeedback] ✅ Repaired JSON successfully')
-          } catch {
-            throw new Error(
-              'Failed to parse AI response as JSON - response was truncated'
-            )
-          }
-        } else {
-          throw new Error('Failed to parse AI response as JSON')
+    
+    console.log('[generateAIFeedback] 📄 Raw AI response length:', text.length, 'chars')
+    console.log('[generateAIFeedback] 📄 First 500 chars:', text.substring(0, 500))
+    console.log('[generateAIFeedback] 📄 Last 200 chars:', text.substring(Math.max(0, text.length - 200)))
+    
+    // Check if response looks truncated
+    if (!text.trim().endsWith('}')) {
+      console.warn('[generateAIFeedback] ⚠️ Response appears truncated (doesn\'t end with })')
+    }
+    
+    // Parse and validate the response
+    let feedback: AIFeedbackResponse
+    try {
+      feedback = JSON.parse(text) as AIFeedbackResponse
+    } catch (parseError) {
+      console.error('[generateAIFeedback] ❌ JSON parse failed:', parseError)
+      console.error('[generateAIFeedback] Response length:', text.length)
+      console.error('[generateAIFeedback] Response ends with:', text.substring(Math.max(0, text.length - 100)))
+      
+      // Try to salvage partial response by attempting to close JSON
+      if (text.includes('{') && !text.trim().endsWith('}')) {
+        console.warn('[generateAIFeedback] Attempting to repair truncated JSON...')
+        const fixedText = text.trim().replace(/,\s*$/, '') + '}'
+        try {
+          feedback = JSON.parse(fixedText) as AIFeedbackResponse
+          console.log('[generateAIFeedback] ✅ Repaired JSON successfully')
+        } catch {
+          throw new Error('Failed to parse AI response as JSON - response was truncated')
         }
+      } else {
+        throw new Error('Failed to parse AI response as JSON')
       }
-
-      console.log('[generateAIFeedback] ✅ Parsed feedback structure:', {
-        hasScore: !!feedback.overallScore,
-        hasRating: !!feedback.overallRating,
-        hasWhatYouDidWell: !!feedback.whatYouDidWell,
-        whatYouDidWellCount: feedback.whatYouDidWell?.length || 0,
-        hasAreasForImprovement: !!feedback.areasForImprovement,
-        areasCount: feedback.areasForImprovement?.length || 0,
-        hasTechAnalysis: !!feedback.techAnalysis,
-        techKeys: feedback.techAnalysis
-          ? Object.keys(feedback.techAnalysis)
-          : [],
-      })
-
-      // Validate required fields
-      if (
-        !feedback.overallScore ||
-        !feedback.whatYouDidWell ||
-        !feedback.areasForImprovement
-      ) {
-        console.error('[generateAIFeedback] ❌ Missing required fields')
-        throw new Error('Invalid AI response: missing required fields')
+    }
+    
+    console.log('[generateAIFeedback] ✅ Parsed feedback structure:', {
+      hasScore: !!feedback.overallScore,
+      hasRating: !!feedback.overallRating,
+      hasWhatYouDidWell: !!feedback.whatYouDidWell,
+      whatYouDidWellCount: feedback.whatYouDidWell?.length || 0,
+      hasAreasForImprovement: !!feedback.areasForImprovement,
+      areasCount: feedback.areasForImprovement?.length || 0,
+      hasTechAnalysis: !!feedback.techAnalysis,
+      techKeys: feedback.techAnalysis ? Object.keys(feedback.techAnalysis) : []
+    })
+    
+    // Validate required fields
+    if (!feedback.overallScore || !feedback.whatYouDidWell || !feedback.areasForImprovement) {
+      console.error('[generateAIFeedback] ❌ Missing required fields')
+      throw new Error('Invalid AI response: missing required fields')
+    }
+    
+    // Ensure techAnalysis has the expected structure
+    if (!feedback.techAnalysis) {
+      console.warn('[generateAIFeedback] ⚠️ No techAnalysis in response, creating empty structure')
+      feedback.techAnalysis = {
+        bestPractices: [],
+        codeFormatting: [],
+        functionality: [],
+        accessibility: []
       }
-
-      // Ensure techAnalysis has the expected structure
-      if (!feedback.techAnalysis) {
-        console.warn(
-          '[generateAIFeedback] ⚠️ No techAnalysis in response, creating empty structure'
-        )
-        feedback.techAnalysis = {
-          bestPractices: [],
-          codeFormatting: [],
-          functionality: [],
-          accessibility: [],
-        }
-      }
+    }
 
       return feedback
     } catch (error) {
       lastError = error as Error
       console.error(`[generateAIFeedback] Attempt ${attempt} failed:`, error)
-
+      
       // Don't retry on parse errors, only network errors
       if (error instanceof Error && !error.message.includes('Network')) {
         throw error
       }
-
+      
       if (attempt < maxRetries) {
         const delay = attempt * 2000 // 2s, 4s
         console.log(`[generateAIFeedback] Retrying in ${delay}ms...`)
-        await new Promise((resolve) => setTimeout(resolve, delay))
+        await new Promise(resolve => setTimeout(resolve, delay))
       }
     }
   }
-
+  
   // All retries failed
   console.error('[generateAIFeedback] All retry attempts failed')
   throw lastError || new Error('Failed to generate AI feedback')
 }
 
-const buildPrompt = (
-  request: AIFeedbackRequest,
-  codeAnalysis: string
-): string => {
-  const {
-    submission,
-    previousSubmission,
-    previousFeedback,
-    challengeDescription,
-    designRequirements,
-    techRequirements,
-  } = request
+const buildPrompt = (request: AIFeedbackRequest, codeAnalysis: string): string => {
+  const { submission, previousSubmission, previousFeedback, challengeDescription, designRequirements, techRequirements } = request
 
   // Build comparison section if previous submission exists
   let comparisonSection = ''
@@ -376,18 +333,12 @@ Return JSON with:
     "expectedProject": "${submission.challenge.title}",
     "actualProject": "detected project name from code",
     "explanation": "why it matches or doesn't match"
-  }${
-    previousSubmission
-      ? `,
+  }${previousSubmission ? `,
   "comparisonNotes": {
     "improvements": ["what got better from previous submission"],
     "regressions": ["what got worse, if any"],
     "newSkills": ["new skills demonstrated in this submission"]
-  }`
-      : ''
-  }${
-    previousFeedback
-      ? `,
+  }` : ''}${previousFeedback ? `,
   "improvementsFromPrevious": {
     "issuesFixed": [
       {"issue": "the specific issue from previous feedback", "wasFixed": true|false, "details": "explanation of fix or what still needs work"}
@@ -395,9 +346,7 @@ Return JSON with:
     "previousScore": ${previousFeedback.previous_score},
     "scoreImprovement": "new_score - ${previousFeedback.previous_score}",
     "overallAssessment": "Great job fixing X issues! Still need to work on Y." or "Keep working on the previous issues."
-  }`
-      : ''
-  }
+  }` : ''}
 }
 
 Keep responses concise. Limit each array to 3-5 items max.`

@@ -16,8 +16,8 @@ export {
 export { useSubmissionFeedback } from './hooks/useSubmissionFeedback'
 
 // API
-export {
-  getSubmissionFeedback,
+export { 
+  getSubmissionFeedback, 
   verifySubmissionOwnership,
   getPreviousSubmission,
   generateAndStoreFeedback,

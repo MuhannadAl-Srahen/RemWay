@@ -6,10 +6,7 @@ import type {
 } from '@/types/feedback'
 import type { ChallengeSubmission } from '@/types/challenge'
 import { generateAIFeedback } from '@/services/ai'
-import {
-  validateSubmission,
-  generateValidationErrorFeedback,
-} from '@/services/ai/validation'
+import { validateSubmission, generateValidationErrorFeedback } from '@/services/ai/validation'
 
 export interface SubmissionWithFeedback {
   submission: ChallengeSubmission
@@ -48,10 +45,7 @@ export const getSubmissionFeedback = async (
       .single()
 
     if (submissionError) {
-      console.error(
-        '[getSubmissionFeedback] submission error:',
-        submissionError
-      )
+      console.error('[getSubmissionFeedback] submission error:', submissionError)
       return null
     }
 
@@ -84,19 +78,11 @@ export const getSubmissionFeedback = async (
       const submittedAt = new Date(submission.submitted_at)
       const feedbackCreatedAt = new Date(feedback.created_at)
       feedbackIsStale = feedbackCreatedAt < submittedAt
-
+      
       if (feedbackIsStale) {
-        console.log(
-          '[getSubmissionFeedback] ⚠️ Feedback is STALE - was created before submission update'
-        )
-        console.log(
-          '[getSubmissionFeedback] Submission updated:',
-          submittedAt.toISOString()
-        )
-        console.log(
-          '[getSubmissionFeedback] Feedback created:',
-          feedbackCreatedAt.toISOString()
-        )
+        console.log('[getSubmissionFeedback] ⚠️ Feedback is STALE - was created before submission update')
+        console.log('[getSubmissionFeedback] Submission updated:', submittedAt.toISOString())
+        console.log('[getSubmissionFeedback] Feedback created:', feedbackCreatedAt.toISOString())
       }
     }
 
@@ -122,7 +108,7 @@ export const getSubmissionFeedback = async (
       challenge_id: submission.challenge_id,
       submission_url: submission.submission_url,
       github_url: submission.github_url,
-      live_url: submission.live_site_url, // DB column is live_site_url
+      live_url: submission.live_site_url,  // DB column is live_site_url
       description: submission.description,
       screenshots: submission.screenshots,
       submitted_at: submission.submitted_at,
@@ -148,10 +134,8 @@ export const getSubmissionFeedback = async (
             recommended_next_challenge: feedback.recommended_next_challenge,
             comparison_notes: feedback.comparison_notes,
             submission_mismatch: feedback.submission_mismatch || null,
-            previous_feedback_summary:
-              feedback.previous_feedback_summary || null,
-            improvements_from_previous:
-              feedback.improvements_from_previous || null,
+            previous_feedback_summary: feedback.previous_feedback_summary || null,
+            improvements_from_previous: feedback.improvements_from_previous || null,
             ai_model_version: feedback.ai_model_version,
             created_at: feedback.created_at,
           }
@@ -251,9 +235,7 @@ export const generateAndStoreFeedback = async (
   try {
     // 0. First, fetch any existing feedback for this submission (for comparison on resubmission)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existingFeedback } = await (
-      supabase.from('challenge_feedback') as any
-    )
+    const { data: existingFeedback } = await (supabase.from('challenge_feedback') as any)
       .select('*')
       .eq('submission_id', submissionId)
       .maybeSingle()
@@ -269,19 +251,14 @@ export const generateAndStoreFeedback = async (
         previous_functionality: existingFeedback.functionality || [],
         previous_accessibility: existingFeedback.accessibility || [],
       }
-      console.log(
-        '[generateAndStoreFeedback] 📋 Found previous feedback for comparison:',
-        previousFeedbackSummary
-      )
-
+      console.log('[generateAndStoreFeedback] 📋 Found previous feedback for comparison:', previousFeedbackSummary)
+      
       // Delete the old feedback so we can insert new one
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (supabase.from('challenge_feedback') as any)
         .delete()
         .eq('submission_id', submissionId)
-      console.log(
-        '[generateAndStoreFeedback] 🗑️ Deleted old feedback for regeneration'
-      )
+      console.log('[generateAndStoreFeedback] 🗑️ Deleted old feedback for regeneration')
     }
 
     // 1. Fetch submission with challenge details and overview
@@ -302,80 +279,50 @@ export const generateAndStoreFeedback = async (
       .eq('id', submissionId)
       .single()
 
-    console.log('[generateAndStoreFeedback] Query result:', {
-      submission,
-      submissionError,
-    })
+    console.log('[generateAndStoreFeedback] Query result:', { submission, submissionError })
 
     if (submissionError) {
-      console.error(
-        '[generateAndStoreFeedback] Supabase error:',
-        submissionError
-      )
-      return {
-        success: false,
-        error: `Database error: ${submissionError.message}`,
-      }
+      console.error('[generateAndStoreFeedback] Supabase error:', submissionError)
+      return { success: false, error: `Database error: ${submissionError.message}` }
     }
 
     if (!submission) {
-      console.error(
-        '[generateAndStoreFeedback] No submission found for ID:',
-        submissionId
-      )
+      console.error('[generateAndStoreFeedback] No submission found for ID:', submissionId)
       return { success: false, error: 'Submission not found' }
     }
 
-    console.log(
-      '[generateAndStoreFeedback] 📦 Raw submission data:',
-      JSON.stringify(submission, null, 2)
-    )
-
+    console.log('[generateAndStoreFeedback] 📦 Raw submission data:', JSON.stringify(submission, null, 2))
+    
     const anySubmission = submission as any
     console.log('[generateAndStoreFeedback] 🔍 Checking challenge data:', {
       hasChallenge: !!anySubmission.challenges,
       challengeType: typeof anySubmission.challenges,
-      challengeKeys: anySubmission.challenges
-        ? Object.keys(anySubmission.challenges)
-        : 'N/A',
+      challengeKeys: anySubmission.challenges ? Object.keys(anySubmission.challenges) : 'N/A'
     })
 
-    const submissionData =
-      submission as unknown as ChallengeSubmissionWithChallenge
-
+    const submissionData = submission as unknown as ChallengeSubmissionWithChallenge
+    
     // Handle Supabase returning 'challenges' as array or object
     if (!submissionData.challenge) {
-      console.warn(
-        '[generateAndStoreFeedback] ⚠️ No .challenge property, checking .challenges...'
-      )
+      console.warn('[generateAndStoreFeedback] ⚠️ No .challenge property, checking .challenges...')
       const challengesData = (submission as any).challenges
-
+      
       if (Array.isArray(challengesData) && challengesData.length > 0) {
-        console.log(
-          '[generateAndStoreFeedback] ✅ Found challenges array, using first element'
-        )
+        console.log('[generateAndStoreFeedback] ✅ Found challenges array, using first element')
         submissionData.challenge = challengesData[0]
       } else if (challengesData && typeof challengesData === 'object') {
-        console.log(
-          '[generateAndStoreFeedback] ✅ Found challenges object, using directly'
-        )
+        console.log('[generateAndStoreFeedback] ✅ Found challenges object, using directly')
         submissionData.challenge = challengesData
       } else {
-        console.error(
-          '[generateAndStoreFeedback] ❌ No valid challenge data found:',
-          challengesData
-        )
-        return {
-          success: false,
-          error: 'Challenge data not found in submission',
-        }
+        console.error('[generateAndStoreFeedback] ❌ No valid challenge data found:', challengesData)
+        return { success: false, error: 'Challenge data not found in submission' }
       }
     }
-
+    
     console.log('[generateAndStoreFeedback] ✅ Final challenge data:', {
       id: submissionData.challenge.id,
       title: submissionData.challenge.title,
-      difficulty: submissionData.challenge.difficulty,
+      difficulty: submissionData.challenge.difficulty
     })
 
     // 1.5. Validate submission URLs before proceeding
@@ -386,17 +333,11 @@ export const generateAndStoreFeedback = async (
     })
 
     if (!validation.isValid) {
-      console.error(
-        '[generateAndStoreFeedback] ❌ Validation failed:',
-        validation.errors
-      )
-
+      console.error('[generateAndStoreFeedback] ❌ Validation failed:', validation.errors)
+      
       // Generate error feedback for invalid submissions
-      const errorFeedback = generateValidationErrorFeedback(
-        validation.errors,
-        validation.warnings
-      )
-
+      const errorFeedback = generateValidationErrorFeedback(validation.errors, validation.warnings)
+      
       // Store the error feedback so user knows what went wrong
       const feedbackData = {
         submission_id: submissionId,
@@ -405,7 +346,7 @@ export const generateAndStoreFeedback = async (
         overall_good_practices: errorFeedback.whatYouDidWell,
         improvment_advices: errorFeedback.areasForImprovement,
         best_practices: errorFeedback.techAnalysis.bestPractices.map(
-          (item) => `${item.category}: ${item.description} (${item.status})`
+          item => `${item.category}: ${item.description} (${item.status})`
         ),
         code_formatting: [],
         functionality: [],
@@ -435,10 +376,7 @@ export const generateAndStoreFeedback = async (
         .insert(feedbackData as any)
 
       if (insertError) {
-        console.error(
-          '[generateAndStoreFeedback] Failed to store validation error feedback:',
-          insertError
-        )
+        console.error('[generateAndStoreFeedback] Failed to store validation error feedback:', insertError)
         return { success: false, error: validation.errors.join('. ') }
       }
 
@@ -447,10 +385,7 @@ export const generateAndStoreFeedback = async (
 
     // Log any warnings but continue
     if (validation.warnings.length > 0) {
-      console.warn(
-        '[generateAndStoreFeedback] ⚠️ Validation warnings:',
-        validation.warnings
-      )
+      console.warn('[generateAndStoreFeedback] ⚠️ Validation warnings:', validation.warnings)
     }
 
     // 1.6. Fetch challenge overview for requirements
@@ -481,7 +416,7 @@ export const generateAndStoreFeedback = async (
       techRequirements: requirements,
     })
     const generationTime = Date.now() - startTime
-
+    
     console.log('[generateAndStoreFeedback] ✅ AI feedback generated')
     console.log('[generateAndStoreFeedback] 📊 Response structure:', {
       hasScore: !!aiFeedback.overallScore,
@@ -489,15 +424,10 @@ export const generateAndStoreFeedback = async (
       hasWhatYouDidWell: !!aiFeedback.whatYouDidWell,
       hasAreasForImprovement: !!aiFeedback.areasForImprovement,
       hasTechAnalysis: !!aiFeedback.techAnalysis,
-      techAnalysisKeys: aiFeedback.techAnalysis
-        ? Object.keys(aiFeedback.techAnalysis)
-        : 'N/A',
-      hasRecommendations: !!aiFeedback.recommendations,
+      techAnalysisKeys: aiFeedback.techAnalysis ? Object.keys(aiFeedback.techAnalysis) : 'N/A',
+      hasRecommendations: !!aiFeedback.recommendations
     })
-    console.log(
-      '[generateAndStoreFeedback] 🔍 Full AI response:',
-      JSON.stringify(aiFeedback, null, 2)
-    )
+    console.log('[generateAndStoreFeedback] 🔍 Full AI response:', JSON.stringify(aiFeedback, null, 2))
 
     // 4. Store feedback in database
     const feedbackData = {
@@ -507,47 +437,40 @@ export const generateAndStoreFeedback = async (
       overall_good_practices: aiFeedback.whatYouDidWell || [],
       improvment_advices: aiFeedback.areasForImprovement || [],
       best_practices: (aiFeedback.techAnalysis?.bestPractices || []).map(
-        (item) => `${item.category}: ${item.description} (${item.status})`
+        item => `${item.category}: ${item.description} (${item.status})`
       ),
       code_formatting: (aiFeedback.techAnalysis?.codeFormatting || []).map(
-        (item) => `${item.category}: ${item.description} (${item.status})`
+        item => `${item.category}: ${item.description} (${item.status})`
       ),
       functionality: (aiFeedback.techAnalysis?.functionality || []).map(
-        (item) => `${item.category}: ${item.description} (${item.status})`
+        item => `${item.category}: ${item.description} (${item.status})`
       ),
       accessibility: (aiFeedback.techAnalysis?.accessibility || []).map(
-        (item) => `${item.category}: ${item.description} (${item.status})`
+        item => `${item.category}: ${item.description} (${item.status})`
       ),
       recommended_resources: aiFeedback.recommendations.learningResources,
-      recommended_next_challenge:
-        aiFeedback.recommendations.nextChallenges[0]?.title || null,
+      recommended_next_challenge: aiFeedback.recommendations.nextChallenges[0]?.title || null,
       overall_analysis_description: {
         designNotes: aiFeedback.designComparison.designNotes,
         matchesDesign: aiFeedback.designComparison.matchesDesign,
       },
       comparison_notes: aiFeedback.comparisonNotes || null,
       // Store mismatch detection data
-      submission_mismatch: aiFeedback.submissionMismatch
-        ? {
-            is_mismatched: aiFeedback.submissionMismatch.isMismatched,
-            expected_project: aiFeedback.submissionMismatch.expectedProject,
-            actual_project: aiFeedback.submissionMismatch.actualProject,
-            explanation: aiFeedback.submissionMismatch.explanation,
-          }
-        : null,
+      submission_mismatch: aiFeedback.submissionMismatch ? {
+        is_mismatched: aiFeedback.submissionMismatch.isMismatched,
+        expected_project: aiFeedback.submissionMismatch.expectedProject,
+        actual_project: aiFeedback.submissionMismatch.actualProject,
+        explanation: aiFeedback.submissionMismatch.explanation,
+      } : null,
       // Store previous feedback summary for reference
       previous_feedback_summary: previousFeedbackSummary || null,
       // Store improvements tracking from AI analysis
-      improvements_from_previous: aiFeedback.improvementsFromPrevious
-        ? {
-            issues_fixed: aiFeedback.improvementsFromPrevious.issuesFixed,
-            previous_score: aiFeedback.improvementsFromPrevious.previousScore,
-            score_improvement:
-              aiFeedback.improvementsFromPrevious.scoreImprovement,
-            overall_assessment:
-              aiFeedback.improvementsFromPrevious.overallAssessment,
-          }
-        : null,
+      improvements_from_previous: aiFeedback.improvementsFromPrevious ? {
+        issues_fixed: aiFeedback.improvementsFromPrevious.issuesFixed,
+        previous_score: aiFeedback.improvementsFromPrevious.previousScore,
+        score_improvement: aiFeedback.improvementsFromPrevious.scoreImprovement,
+        overall_assessment: aiFeedback.improvementsFromPrevious.overallAssessment,
+      } : null,
       ai_model_version: 'gemini-2.5-flash',
       feedback_generation_time: generationTime,
       // These are foreign keys to challenge_submissions - use actual URLs
@@ -576,9 +499,9 @@ export const generateAndStoreFeedback = async (
     return { success: true }
   } catch (err) {
     console.error('[generateAndStoreFeedback] error:', err)
-    return {
-      success: false,
-      error: err instanceof Error ? err.message : 'Unknown error',
+    return { 
+      success: false, 
+      error: err instanceof Error ? err.message : 'Unknown error' 
     }
   }
 }
@@ -591,7 +514,7 @@ export const triggerFeedbackGeneration = async (
 ): Promise<void> => {
   try {
     // Run generation in background (don't await)
-    generateAndStoreFeedback(submissionId).then((result) => {
+    generateAndStoreFeedback(submissionId).then(result => {
       if (!result.success) {
         console.error('[triggerFeedbackGeneration] failed:', result.error)
       }

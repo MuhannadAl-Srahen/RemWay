@@ -27,27 +27,15 @@ interface TechAnalysisProps {
 function getIcon(status: 'correct' | 'incorrect' | 'warning') {
   switch (status) {
     case 'correct':
-      return (
-        <CheckCircle className='h-4 w-4 text-green-600 dark:text-green-500 shrink-0' />
-      )
+      return <CheckCircle className='h-4 w-4 text-green-600 dark:text-green-500 shrink-0' />
     case 'incorrect':
-      return (
-        <XCircle className='h-4 w-4 text-red-600 dark:text-red-500 shrink-0' />
-      )
+      return <XCircle className='h-4 w-4 text-red-600 dark:text-red-500 shrink-0' />
     case 'warning':
-      return (
-        <AlertTriangle className='h-4 w-4 text-yellow-600 dark:text-yellow-500 shrink-0' />
-      )
+      return <AlertTriangle className='h-4 w-4 text-yellow-600 dark:text-yellow-500 shrink-0' />
   }
 }
 
-function CategoryCollapse({
-  category,
-  index,
-}: {
-  category: TechCategory
-  index: number
-}) {
+function CategoryCollapse({ category, index }: { category: TechCategory; index: number }) {
   const [isOpen, setIsOpen] = useState(false)
 
   // Count items by status for badges

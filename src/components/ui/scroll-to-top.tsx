@@ -59,8 +59,8 @@ export const ScrollToTop = () => {
   const radius = 20
   const circumference = 2 * Math.PI * radius
   // Ensure offset is always a valid number (not NaN or Infinity)
-  const offset = Number.isFinite(scrollProgress)
-    ? circumference - (scrollProgress / 100) * circumference
+  const offset = Number.isFinite(scrollProgress) 
+    ? circumference - (scrollProgress / 100) * circumference 
     : circumference
 
   return (

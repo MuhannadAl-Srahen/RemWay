@@ -31,8 +31,7 @@ export function Recommendations({
 }: RecommendationsProps) {
   const difficultyColors = {
     easy: 'bg-green-500/10 text-green-600 dark:text-green-500 border-green-500/20',
-    medium:
-      'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20',
+    medium: 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-500 border-yellow-500/20',
     hard: 'bg-red-500/10 text-red-600 dark:text-red-500 border-red-500/20',
   }
 
@@ -78,11 +77,7 @@ export function Recommendations({
                         challenge.difficulty.slice(1)}
                     </Badge>
                     {challenge.technologies.map((tech, techIdx) => (
-                      <Badge
-                        key={techIdx}
-                        variant='secondary'
-                        className='text-xs'
-                      >
+                      <Badge key={techIdx} variant='secondary' className='text-xs'>
                         {tech}
                       </Badge>
                     ))}
