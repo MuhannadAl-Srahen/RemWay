@@ -268,7 +268,7 @@ export function RecentActivityTab() {
                     {/* Score indicator bar */}
                     <div className='w-16 sm:w-12 h-2 bg-muted rounded-full overflow-hidden'>
                       <div
-                        className='h-full bg-linear-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out'
+                        className='h-full bg-gradient-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out'
                         style={{
                           width: `${submission.score ?? 0}%`,
                         }}
