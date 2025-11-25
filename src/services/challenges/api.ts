@@ -68,17 +68,37 @@ export const submitChallengeSolution = async (
       }
     }
 
-    // Check if URLs are already used for a DIFFERENT challenge
+    // Check if URLs are already used for a DIFFERENT challenge by the SAME user
+    // This prevents the user from accidentally submitting the same repo for multiple challenges
     const { data: existingWithGithub } = await supabase
       .from('challenge_submissions')
       .select('challenge_id, challenge_title')
       .eq('github_url', submission.githubUrl)
+      .eq('profile_id', user.id)
       .neq('challenge_id', challengeId)
       .limit(1)
 
     if (existingWithGithub && existingWithGithub.length > 0) {
+      const existingChallenge = existingWithGithub[0] as {
+        challenge_id: string
+        challenge_title: string
+      }
       throw new Error(
-        `GITHUB_URL_USED: The GitHub repository URL "${submission.githubUrl}" that you're trying to submit is already used for another challenge. Please create a new repository for this challenge.`
+        `GITHUB_URL_USED: The GitHub repository URL "${submission.githubUrl}" is already used for your submission to "${existingChallenge.challenge_title}". Please create a new repository for this challenge, or update your other submission if you used the wrong URL.`
+      )
+    }
+
+    // Also check if the URL is used by a different user (to prevent copying)
+    const { data: existingWithGithubOtherUser } = await supabase
+      .from('challenge_submissions')
+      .select('challenge_id')
+      .eq('github_url', submission.githubUrl)
+      .neq('profile_id', user.id)
+      .limit(1)
+
+    if (existingWithGithubOtherUser && existingWithGithubOtherUser.length > 0) {
+      throw new Error(
+        `GITHUB_URL_USED: The GitHub repository URL "${submission.githubUrl}" has already been submitted by another user. Please use your own repository.`
       )
     }
 
@@ -86,24 +106,26 @@ export const submitChallengeSolution = async (
       .from('challenge_submissions')
       .select('challenge_id, challenge_title')
       .eq('live_site_url', submission.liveUrl)
+      .eq('profile_id', user.id)
       .neq('challenge_id', challengeId)
       .limit(1)
 
     if (existingWithLive && existingWithLive.length > 0) {
+      const existingChallenge = existingWithLive[0] as {
+        challenge_id: string
+        challenge_title: string
+      }
       throw new Error(
-        `LIVE_URL_USED: The live preview URL "${submission.liveUrl}" that you're trying to submit is already used for another challenge. Please deploy this project to a different URL.`
+        `LIVE_URL_USED: The live preview URL "${submission.liveUrl}" is already used for your submission to "${existingChallenge.challenge_title}". Please deploy this project to a different URL.`
       )
     }
 
-    // Check if user already submitted this challenge with these URLs
+    // Check if user already has a submission for this challenge (for update flow)
     const { data: existingSubmission } = await supabase
       .from('challenge_submissions')
       .select('id')
       .eq('challenge_id', challengeId)
       .eq('profile_id', user.id)
-      .or(
-        `github_url.eq.${submission.githubUrl},live_site_url.eq.${submission.liveUrl}`
-      )
       .maybeSingle()
 
     let submissionId: string
@@ -136,9 +158,12 @@ export const submitChallengeSolution = async (
         throw new Error(updateError.message)
       }
 
-      // Note: Old feedback will be deleted by generateAndStoreFeedback 
+      // Note: Old feedback will be deleted by generateAndStoreFeedback
       // after it captures the previous feedback for comparison
-      console.log('[submitChallengeSolution] Updated submission for resubmission:', submissionId)
+      console.log(
+        '[submitChallengeSolution] Updated submission for resubmission:',
+        submissionId
+      )
     } else {
       // INSERT new submission
       const { data, error } = await (
