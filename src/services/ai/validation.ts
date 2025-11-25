@@ -14,12 +14,13 @@ export interface ValidationResult {
  */
 export const isValidGitHubUrl = (url: string): boolean => {
   if (!url || typeof url !== 'string') return false
-  
+
   // Must contain github.com
   if (!url.includes('github.com')) return false
-  
+
   // Must match pattern: github.com/owner/repo
-  const githubPattern = /^https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9._-]+\/?.*$/
+  const githubPattern =
+    /^https?:\/\/(www\.)?github\.com\/[a-zA-Z0-9_-]+\/[a-zA-Z0-9._-]+\/?.*$/
   return githubPattern.test(url)
 }
 
@@ -28,7 +29,7 @@ export const isValidGitHubUrl = (url: string): boolean => {
  */
 export const isValidLiveSiteUrl = (url: string): boolean => {
   if (!url || typeof url !== 'string') return false
-  
+
   try {
     const parsed = new URL(url)
     // Must be http or https
@@ -48,7 +49,7 @@ export const isValidLiveSiteUrl = (url: string): boolean => {
  */
 export const isSuspiciousUrl = (url: string): boolean => {
   if (!url) return true
-  
+
   const suspiciousPatterns = [
     /example\.(com|org|net)/i,
     /test\.(com|org|net)/i,
@@ -62,15 +63,17 @@ export const isSuspiciousUrl = (url: string): boolean => {
     // Random looking domains
     /[a-z]{10,}\.(com|org|net|au|us|uk)/i,
   ]
-  
-  return suspiciousPatterns.some(pattern => pattern.test(url))
+
+  return suspiciousPatterns.some((pattern) => pattern.test(url))
 }
 
 /**
  * Check if a live site URL is accessible (returns status)
  * This is a lightweight check - just tries to fetch headers
  */
-export const checkLiveSiteAccessibility = async (url: string): Promise<{
+export const checkLiveSiteAccessibility = async (
+  url: string
+): Promise<{
   accessible: boolean
   statusCode?: number
   error?: string
@@ -100,7 +103,10 @@ export const checkLiveSiteAccessibility = async (url: string): Promise<{
   } catch (error) {
     if (error instanceof Error) {
       if (error.name === 'AbortError') {
-        return { accessible: false, error: 'Request timed out - site may be slow or unreachable' }
+        return {
+          accessible: false,
+          error: 'Request timed out - site may be slow or unreachable',
+        }
       }
       return { accessible: false, error: error.message }
     }
@@ -120,30 +126,38 @@ export const validateSubmission = (submission: {
 }): ValidationResult => {
   const errors: string[] = []
   const warnings: string[] = []
-  
+
   // Validate GitHub URL
   if (!submission.github_url) {
     errors.push('GitHub repository URL is required')
   } else if (!isValidGitHubUrl(submission.github_url)) {
-    errors.push(`Invalid GitHub URL: "${submission.github_url}". Must be a valid GitHub repository URL (e.g., https://github.com/username/repo)`)
+    errors.push(
+      `Invalid GitHub URL: "${submission.github_url}". Must be a valid GitHub repository URL (e.g., https://github.com/username/repo)`
+    )
   }
-  
+
   // Validate live site URL if provided
   if (submission.live_site_url) {
     if (!isValidLiveSiteUrl(submission.live_site_url)) {
-      warnings.push(`Invalid live site URL: "${submission.live_site_url}". AI analysis will proceed without live site verification.`)
+      warnings.push(
+        `Invalid live site URL: "${submission.live_site_url}". AI analysis will proceed without live site verification.`
+      )
     } else if (isSuspiciousUrl(submission.live_site_url)) {
-      warnings.push(`Live site URL appears to be a placeholder or test URL. AI analysis may be less accurate.`)
+      warnings.push(
+        `Live site URL appears to be a placeholder or test URL. AI analysis may be less accurate.`
+      )
     }
   }
-  
+
   // Check for suspicious GitHub URLs (valid format but likely fake)
   if (submission.github_url && isValidGitHubUrl(submission.github_url)) {
     if (isSuspiciousUrl(submission.github_url)) {
-      warnings.push(`GitHub URL appears suspicious. Please ensure this is a real repository.`)
+      warnings.push(
+        `GitHub URL appears suspicious. Please ensure this is a real repository.`
+      )
     }
   }
-  
+
   return {
     isValid: errors.length === 0,
     errors,
@@ -154,7 +168,10 @@ export const validateSubmission = (submission: {
 /**
  * Generate a validation error feedback response
  */
-export const generateValidationErrorFeedback = (errors: string[], warnings: string[]) => {
+export const generateValidationErrorFeedback = (
+  errors: string[],
+  warnings: string[]
+) => {
   return {
     overallScore: 0,
     overallRating: 'needs_improvement' as const,
@@ -168,22 +185,26 @@ export const generateValidationErrorFeedback = (errors: string[], warnings: stri
       designNotes: ['Unable to analyze - invalid submission URLs'],
     },
     techAnalysis: {
-      bestPractices: [{
-        category: 'Submission',
-        description: 'Invalid GitHub URL provided',
-        status: 'error' as const,
-      }],
+      bestPractices: [
+        {
+          category: 'Submission',
+          description: 'Invalid GitHub URL provided',
+          status: 'error' as const,
+        },
+      ],
       codeFormatting: [],
       functionality: [],
       accessibility: [],
     },
     recommendations: {
       nextChallenges: [],
-      learningResources: [{
-        title: 'How to Submit a Challenge',
-        url: 'https://pexfect.com/help/submission-guide',
-        type: 'documentation',
-      }],
+      learningResources: [
+        {
+          title: 'How to Submit a Challenge',
+          url: 'https://pexfect.com/help/submission-guide',
+          type: 'documentation',
+        },
+      ],
     },
     submissionMismatch: {
       isMismatched: true,

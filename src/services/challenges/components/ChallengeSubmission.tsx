@@ -57,13 +57,17 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
       // Validate GitHub URL format
       if (!isValidGitHubUrl(value.githubUrl)) {
-        setError('Please enter a valid GitHub repository URL (e.g., https://github.com/username/repo)')
+        setError(
+          'Please enter a valid GitHub repository URL (e.g., https://github.com/username/repo)'
+        )
         return
       }
 
       // Validate Live Site URL format
       if (!isValidLiveSiteUrl(value.liveUrl)) {
-        setError('Please enter a valid live site URL (e.g., https://your-project.vercel.app)')
+        setError(
+          'Please enter a valid live site URL (e.g., https://your-project.vercel.app)'
+        )
         return
       }
 
@@ -79,7 +83,9 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
         // COMPLETELY REMOVE the feedback cache for this submission
         // Using removeQueries instead of invalidateQueries to ensure no stale data is shown
-        queryClient.removeQueries({ queryKey: ['submissionFeedback', result.submissionId] })
+        queryClient.removeQueries({
+          queryKey: ['submissionFeedback', result.submissionId],
+        })
 
         setTimeout(() => {
           navigate({
@@ -293,40 +299,42 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                     const value = field.state.value
                     const showError = value && !isValidGitHubUrl(value)
                     return (
-                    <div className='space-y-2'>
-                      <div className='flex items-center space-x-2'>
-                        <Label
-                          htmlFor={field.name}
-                          className='flex items-center text-sm font-semibold'
-                        >
-                          <Github className='h-4 w-4 mr-2 text-muted-foreground' />
-                          GitHub Repository URL{' '}
-                          <span className='text-destructive ml-1'>*</span>
-                        </Label>
+                      <div className='space-y-2'>
+                        <div className='flex items-center space-x-2'>
+                          <Label
+                            htmlFor={field.name}
+                            className='flex items-center text-sm font-semibold'
+                          >
+                            <Github className='h-4 w-4 mr-2 text-muted-foreground' />
+                            GitHub Repository URL{' '}
+                            <span className='text-destructive ml-1'>*</span>
+                          </Label>
+                        </div>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type='url'
+                          placeholder='https://github.com/username/project-name'
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className={`h-10 px-3 text-sm border-2 rounded-lg focus:ring-0 ${
+                            showError
+                              ? 'border-destructive focus:border-destructive'
+                              : 'border-border focus:border-primary'
+                          }`}
+                          required
+                        />
+                        {showError && (
+                          <p className='text-xs text-destructive flex items-center'>
+                            <AlertCircle className='h-3 w-3 mr-1' />
+                            Must be a valid GitHub URL (e.g.,
+                            github.com/user/repo)
+                          </p>
+                        )}
                       </div>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        type='url'
-                        placeholder='https://github.com/username/project-name'
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        className={`h-10 px-3 text-sm border-2 rounded-lg focus:ring-0 ${
-                          showError 
-                            ? 'border-destructive focus:border-destructive' 
-                            : 'border-border focus:border-primary'
-                        }`}
-                        required
-                      />
-                      {showError && (
-                        <p className='text-xs text-destructive flex items-center'>
-                          <AlertCircle className='h-3 w-3 mr-1' />
-                          Must be a valid GitHub URL (e.g., github.com/user/repo)
-                        </p>
-                      )}
-                    </div>
-                  )}}
+                    )
+                  }}
                 />
 
                 <form.Field
@@ -335,40 +343,42 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                     const value = field.state.value
                     const showError = value && !isValidLiveSiteUrl(value)
                     return (
-                    <div className='space-y-2'>
-                      <div className='flex items-center space-x-2'>
-                        <Label
-                          htmlFor={field.name}
-                          className='flex items-center text-sm font-semibold'
-                        >
-                          <ExternalLink className='h-4 w-4 mr-2 text-muted-foreground' />
-                          Live Site URL{' '}
-                          <span className='text-destructive ml-1'>*</span>
-                        </Label>
+                      <div className='space-y-2'>
+                        <div className='flex items-center space-x-2'>
+                          <Label
+                            htmlFor={field.name}
+                            className='flex items-center text-sm font-semibold'
+                          >
+                            <ExternalLink className='h-4 w-4 mr-2 text-muted-foreground' />
+                            Live Site URL{' '}
+                            <span className='text-destructive ml-1'>*</span>
+                          </Label>
+                        </div>
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type='url'
+                          placeholder='https://your-project.netlify.app'
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className={`h-10 px-3 text-sm border-2 rounded-lg focus:ring-0 ${
+                            showError
+                              ? 'border-destructive focus:border-destructive'
+                              : 'border-border focus:border-primary'
+                          }`}
+                          required
+                        />
+                        {showError && (
+                          <p className='text-xs text-destructive flex items-center'>
+                            <AlertCircle className='h-3 w-3 mr-1' />
+                            Must be a valid URL (e.g.,
+                            https://your-site.vercel.app)
+                          </p>
+                        )}
                       </div>
-                      <Input
-                        id={field.name}
-                        name={field.name}
-                        type='url'
-                        placeholder='https://your-project.netlify.app'
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        className={`h-10 px-3 text-sm border-2 rounded-lg focus:ring-0 ${
-                          showError 
-                            ? 'border-destructive focus:border-destructive' 
-                            : 'border-border focus:border-primary'
-                        }`}
-                        required
-                      />
-                      {showError && (
-                        <p className='text-xs text-destructive flex items-center'>
-                          <AlertCircle className='h-3 w-3 mr-1' />
-                          Must be a valid URL (e.g., https://your-site.vercel.app)
-                        </p>
-                      )}
-                    </div>
-                  )}}
+                    )
+                  }}
                 />
               </div>
 
