@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 // Link removed: card CTA handles navigation via Continue Path when started
 import type { LearningPath } from '../../../types/roadmap'
 
@@ -8,7 +8,9 @@ import {
   useProfile,
   useUpdateProfile,
 } from '@/services/profile/hooks/useProfile'
+import { usePassedChallenges } from '@/services/profile/hooks/usePassedChallenges'
 import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
 
 const ICON_GRADIENTS = {
@@ -71,23 +73,50 @@ interface LearningPathCardProps {
 
 const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
   const key = path.id as keyof typeof ICONS
-  const { data: profile } = useProfile(undefined)
+  const { data: profile, isLoading: isProfileLoading } = useProfile(undefined)
   const updateProfile = useUpdateProfile()
-  const progress = profile?.learningPaths?.[path.id]?.progress ?? 0
   const started = Boolean(profile?.learningPaths?.[path.id]?.started)
-  const completedCount =
-    profile?.learningPaths?.[path.id]?.completedChallenges?.length ?? 0
 
-  const { data: allChallenges = [] } = useChallenges()
+  // Use real submission data for passed challenges (score >= 45)
+  const { passedChallengeIds, isLoading: isSubmissionsLoading } =
+    usePassedChallenges()
+
+  const { data: allChallenges = [], isLoading: isChallengesLoading } =
+    useChallenges()
+
   const difficultyLabel =
     key === 'beginner'
       ? 'Beginner'
       : key === 'intermediate'
         ? 'Intermediate'
         : 'Advanced'
-  const totalForDifficulty = allChallenges.filter(
-    (c) => c.difficulty === difficultyLabel
-  ).length
+
+  // Filter challenges for this difficulty
+  const challengesForDifficulty = useMemo(
+    () => allChallenges.filter((c) => c.difficulty === difficultyLabel),
+    [allChallenges, difficultyLabel]
+  )
+
+  const totalForDifficulty = challengesForDifficulty.length
+
+  // Count passed challenges for this difficulty
+  const completedCount = useMemo(() => {
+    const challengeIdsForDifficulty = new Set(
+      challengesForDifficulty.map((c) => c.id)
+    )
+    return Array.from(passedChallengeIds).filter((id) =>
+      challengeIdsForDifficulty.has(id)
+    ).length
+  }, [passedChallengeIds, challengesForDifficulty])
+
+  // Calculate progress percentage
+  const progress =
+    totalForDifficulty > 0
+      ? Math.round((completedCount / totalForDifficulty) * 100)
+      : 0
+
+  const isLoading =
+    isProfileLoading || isSubmissionsLoading || isChallengesLoading
 
   return (
     <Link to={CTA_LINKS[key]} className='w-full h-full'>
@@ -150,9 +179,13 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
               </span>
             </div>
             <div className='flex-1 bg-card rounded-xl py-2 md:py-3 px-3 md:px-4 flex flex-col items-center justify-center border border-border/50 shadow-sm transition-all duration-300 hover:shadow-md'>
-              <span className='text-base md:text-lg font-bold text-primary leading-none'>
-                {completedCount}/{totalForDifficulty}
-              </span>
+              {isLoading ? (
+                <Skeleton className='h-5 w-12 mb-1' />
+              ) : (
+                <span className='text-base md:text-lg font-bold text-primary leading-none'>
+                  {completedCount}/{totalForDifficulty}
+                </span>
+              )}
               <span className='text-xs text-muted-foreground font-medium mt-0.5 md:mt-1'>
                 Completed
               </span>
@@ -192,20 +225,28 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
               <div className='w-full'>
                 {/* Progress line (no numeric percent shown) */}
                 <div className='w-full bg-muted rounded-full h-3 overflow-hidden border border-border/40'>
-                  <div
-                    className='h-full bg-primary transition-all duration-500'
-                    style={{ width: `${progress}%` }}
-                    aria-hidden
-                  />
+                  {isLoading ? (
+                    <Skeleton className='h-full w-1/3' />
+                  ) : (
+                    <div
+                      className='h-full bg-primary transition-all duration-500'
+                      style={{ width: `${progress}%` }}
+                      aria-hidden
+                    />
+                  )}
                 </div>
                 {/* Small row: weeks on left, completed on right (responsive) */}
                 <div className='flex items-center justify-between mt-3 gap-2'>
                   <div className='text-sm font-semibold text-foreground'>
                     {path.duration}
                   </div>
-                  <div className='text-sm text-muted-foreground'>
-                    {completedCount}/{totalForDifficulty} completed
-                  </div>
+                  {isLoading ? (
+                    <Skeleton className='h-4 w-20' />
+                  ) : (
+                    <div className='text-sm text-muted-foreground'>
+                      {completedCount}/{totalForDifficulty} completed
+                    </div>
+                  )}
                 </div>
               </div>
             )}

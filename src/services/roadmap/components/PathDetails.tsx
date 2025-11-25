@@ -1,10 +1,9 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
 import type { ChallengeListItem } from '@/types'
 import { learningPaths } from '../data'
-import { useProfile } from '@/services/profile/hooks/useProfile'
-import { useMemo } from 'react'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
+import { usePassedChallenges } from '@/services/profile/hooks/usePassedChallenges'
 import {
   ArrowLeft,
   BookOpen,
@@ -14,6 +13,7 @@ import {
   Lock,
   Clock,
   Users,
+  CheckCircle,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -36,8 +36,9 @@ const TimelineChallengeCard: React.FC<{
   challenge: ChallengeListItem
   index: number
   unlocked: boolean
+  completed: boolean
   isLast: boolean
-}> = ({ challenge, index, unlocked, isLast }) => {
+}> = ({ challenge, index, unlocked, completed, isLast }) => {
   // shared inner content (image + card content)
   const inner = (
     <>
@@ -58,8 +59,14 @@ const TimelineChallengeCard: React.FC<{
             {challenge.difficulty}
           </Badge>
         </div>
+        {/* Completed badge */}
+        {completed && (
+          <div className='absolute top-3 right-3 bg-green-500/90 text-white p-2 rounded-full shadow'>
+            <CheckCircle size={18} />
+          </div>
+        )}
         {/* Lock icon (mobile only, top-right) */}
-        {!unlocked && (
+        {!unlocked && !completed && (
           <div className='absolute top-3 right-3 md:hidden bg-white/80 dark:bg-gray-800/80 p-2 rounded-full shadow'>
             <Lock size={18} className='text-gray-400' />
           </div>
@@ -163,9 +170,17 @@ const TimelineChallengeCard: React.FC<{
           className={`w-0.5 h-6 bg-gradient-to-b from-primary/20 to-primary/40 ${index === 0 ? 'invisible' : ''}`}
         />
         <div
-          className={`rounded-full ${unlocked ? 'bg-primary shadow-lg shadow-primary/25' : 'bg-muted border-2 border-muted-foreground/20'} flex items-center justify-center w-10 h-10 z-10 transition-all duration-300`}
+          className={`rounded-full ${
+            completed
+              ? 'bg-green-500 shadow-lg shadow-green-500/25'
+              : unlocked
+                ? 'bg-primary shadow-lg shadow-primary/25'
+                : 'bg-muted border-2 border-muted-foreground/20'
+          } flex items-center justify-center w-10 h-10 z-10 transition-all duration-300`}
         >
-          {unlocked ? (
+          {completed ? (
+            <CheckCircle size={20} className='text-white' />
+          ) : unlocked ? (
             <PlayCircle size={20} className='text-white' />
           ) : (
             <Lock size={16} className='text-muted-foreground' />
@@ -226,21 +241,66 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
   // Use React Query hook to fetch challenges
   const { data: allChallenges = [], isLoading } = useChallenges()
 
+  // Get passed challenges (score >= 45) from real submission data
+  const { passedChallengeIds, isLoading: isLoadingSubmissions } =
+    usePassedChallenges()
+
   // Filter challenges by difficulty level
   const pathChallenges: ChallengeListItem[] = useMemo(() => {
     return allChallenges.filter((c) => c.difficulty === CHALLENGE_MAP[pathId])
   }, [allChallenges, pathId])
 
   const totalChallenges = pathChallenges.length
-  const { data: profile } = useProfile(undefined)
-  // Progress now comes from submissions; no manual "Start Path" action here.
-  const completedChallenges =
-    profile?.learningPaths?.[pathId]?.completedChallenges?.length ?? 0
+
+  // Filter to only count passed challenges for this specific path
+  const completedChallengeIds = useMemo(() => {
+    const pathChallengeIds = new Set(pathChallenges.map((c) => c.id))
+    return new Set(
+      Array.from(passedChallengeIds).filter((id) => pathChallengeIds.has(id))
+    )
+  }, [passedChallengeIds, pathChallenges])
+
+  // Progress now comes from actual passing submissions
+  const completedChallengesCount = completedChallengeIds.size
   const progress =
-    profile?.learningPaths?.[pathId]?.progress ??
-    (totalChallenges > 0
-      ? Math.round((completedChallenges / totalChallenges) * 100)
-      : 0)
+    totalChallenges > 0
+      ? Math.round((completedChallengesCount / totalChallenges) * 100)
+      : 0
+
+  // Determine which challenges are unlocked
+  // A challenge is unlocked if:
+  // 1. It's the first challenge (index 0)
+  // 2. It's already completed
+  // 3. The previous challenge in the list is completed
+  const getUnlockStatus = useMemo(() => {
+    return (
+      challengeId: string,
+      index: number
+    ): { unlocked: boolean; completed: boolean } => {
+      const isCompleted = completedChallengeIds.has(challengeId)
+
+      // First challenge is always unlocked
+      if (index === 0) {
+        return { unlocked: true, completed: isCompleted }
+      }
+
+      // If this challenge is already completed, it's unlocked
+      if (isCompleted) {
+        return { unlocked: true, completed: true }
+      }
+
+      // Check if the previous challenge is completed
+      const previousChallenge = pathChallenges[index - 1]
+      const isPreviousCompleted = previousChallenge
+        ? completedChallengeIds.has(previousChallenge.id)
+        : false
+
+      return {
+        unlocked: isPreviousCompleted,
+        completed: false,
+      }
+    }
+  }, [completedChallengeIds, pathChallenges])
 
   if (!path) return null
 
@@ -301,7 +361,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
               <Card className='bg-card/50 backdrop-blur-sm border-primary/10 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:bg-card/80'>
                 <CardContent className='p-3 md:p-4 text-center'>
                   <div className='text-xl md:text-2xl font-bold text-foreground mb-1'>
-                    {completedChallenges}
+                    {completedChallengesCount}
                   </div>
                   <div className='text-xs text-muted-foreground font-medium'>
                     Completed
@@ -337,7 +397,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
 
       {/* Challenge list */}
       <div className='w-full flex flex-col items-center mt-2'>
-        {isLoading ? (
+        {isLoading || isLoadingSubmissions ? (
           <div className='text-muted-foreground text-center py-10'>
             <div className='animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4'></div>
             Loading challenges...
@@ -348,15 +408,19 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
           </div>
         ) : (
           <div className='flex flex-col gap-0 w-full max-w-5xl mx-auto'>
-            {pathChallenges.map((challenge, idx) => (
-              <TimelineChallengeCard
-                key={challenge.id}
-                challenge={challenge}
-                index={idx}
-                unlocked={idx === 0}
-                isLast={idx === pathChallenges.length - 1}
-              />
-            ))}
+            {pathChallenges.map((challenge, idx) => {
+              const { unlocked, completed } = getUnlockStatus(challenge.id, idx)
+              return (
+                <TimelineChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  index={idx}
+                  unlocked={unlocked}
+                  completed={completed}
+                  isLast={idx === pathChallenges.length - 1}
+                />
+              )
+            })}
           </div>
         )}
       </div>
