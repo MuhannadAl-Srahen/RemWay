@@ -120,6 +120,19 @@ export const submitChallengeSolution = async (
       )
     }
 
+    // Also check if the live site URL is used by a different user (to prevent copying)
+    const { data: existingWithLiveOtherUser } = await supabase
+      .from('challenge_submissions')
+      .select('challenge_id')
+      .eq('live_site_url', submission.liveUrl)
+      .neq('profile_id', user.id)
+      .limit(1)
+
+    if (existingWithLiveOtherUser && existingWithLiveOtherUser.length > 0) {
+      throw new Error(
+        `LIVE_URL_USED: The live preview URL "${submission.liveUrl}" has already been submitted by another user. Please deploy your own solution to a unique URL.`
+      )
+    }
     // Check if user already has a submission for this challenge (for update flow)
     const { data: existingSubmission } = await supabase
       .from('challenge_submissions')
