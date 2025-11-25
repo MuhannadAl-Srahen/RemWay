@@ -51,7 +51,8 @@ PexFect includes a comprehensive AI feedback system that:
    ```
 
 2. For full documentation, see:
-   - **[docs/AI_FEEDBACK_SYSTEM.md](./docs/AI_FEEDBACK_SYSTEM.md)** - Complete user guide & technical docs
+   - **[docs/PROJECT_DOCUMENTATION.md](./docs/PROJECT_DOCUMENTATION.md)** - Complete project documentation
+   - **[docs/AI_FEEDBACK_SYSTEM.md](./docs/AI_FEEDBACK_SYSTEM.md)** - AI feedback system guide
 
 ---
 
@@ -170,3 +171,19 @@ src/
 - Theme toggling supported via the `ThemeProvider` and `ModeToggle` UI component
 
 ---
+
+## Documentation
+
+For detailed documentation, see:
+
+| Document | Description |
+|----------|-------------|
+| [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete architecture, features, and API reference |
+| [AI Feedback System](./docs/AI_FEEDBACK_SYSTEM.md) | AI feedback user guide and technical details |
+| [Contributing](./CONTRIBUTING.md) | Contribution guidelines |
+
+---
+
+## License
+
+This project is private and proprietary.
