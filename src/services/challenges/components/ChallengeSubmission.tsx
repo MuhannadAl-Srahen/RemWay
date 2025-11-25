@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label'
 import { Card } from '@/components/ui/card'
 import { useForm } from '@tanstack/react-form'
 import { useNavigate } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   Github,
   ExternalLink,
@@ -19,6 +20,7 @@ import type { Challenge } from '@/types'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
 import useDelayedLoading from '@/lib/useDelayedLoading'
+import { isValidGitHubUrl, isValidLiveSiteUrl } from '@/services/ai/validation'
 
 interface ChallengeSubmissionProps {
   challenge: Challenge
@@ -26,6 +28,7 @@ interface ChallengeSubmissionProps {
 
 export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   // Use the shared auth query instead of manual effect
   const { data: authData, isLoading: isAuthLoading } = useAuth()
   const isAuthenticated = authData?.isAuthenticated ?? false
@@ -52,6 +55,18 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
         return
       }
 
+      // Validate GitHub URL format
+      if (!isValidGitHubUrl(value.githubUrl)) {
+        setError('Please enter a valid GitHub repository URL (e.g., https://github.com/username/repo)')
+        return
+      }
+
+      // Validate Live Site URL format
+      if (!isValidLiveSiteUrl(value.liveUrl)) {
+        setError('Please enter a valid live site URL (e.g., https://your-project.vercel.app)')
+        return
+      }
+
       setIsSubmitting(true)
 
       try {
@@ -61,6 +76,10 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
         })
 
         setSubmitted(true)
+
+        // COMPLETELY REMOVE the feedback cache for this submission
+        // Using removeQueries instead of invalidateQueries to ensure no stale data is shown
+        queryClient.removeQueries({ queryKey: ['submissionFeedback', result.submissionId] })
 
         setTimeout(() => {
           navigate({
@@ -270,7 +289,10 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
               <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                 <form.Field
                   name='githubUrl'
-                  children={(field) => (
+                  children={(field) => {
+                    const value = field.state.value
+                    const showError = value && !isValidGitHubUrl(value)
+                    return (
                     <div className='space-y-2'>
                       <div className='flex items-center space-x-2'>
                         <Label
@@ -290,16 +312,29 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        className='h-10 px-3 text-sm border-2 border-border rounded-lg focus:border-primary focus:ring-0'
+                        className={`h-10 px-3 text-sm border-2 rounded-lg focus:ring-0 ${
+                          showError 
+                            ? 'border-destructive focus:border-destructive' 
+                            : 'border-border focus:border-primary'
+                        }`}
                         required
                       />
+                      {showError && (
+                        <p className='text-xs text-destructive flex items-center'>
+                          <AlertCircle className='h-3 w-3 mr-1' />
+                          Must be a valid GitHub URL (e.g., github.com/user/repo)
+                        </p>
+                      )}
                     </div>
-                  )}
+                  )}}
                 />
 
                 <form.Field
                   name='liveUrl'
-                  children={(field) => (
+                  children={(field) => {
+                    const value = field.state.value
+                    const showError = value && !isValidLiveSiteUrl(value)
+                    return (
                     <div className='space-y-2'>
                       <div className='flex items-center space-x-2'>
                         <Label
@@ -319,11 +354,21 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                         value={field.state.value}
                         onBlur={field.handleBlur}
                         onChange={(e) => field.handleChange(e.target.value)}
-                        className='h-10 px-3 text-sm border-2 border-border rounded-lg focus:border-primary focus:ring-0'
+                        className={`h-10 px-3 text-sm border-2 rounded-lg focus:ring-0 ${
+                          showError 
+                            ? 'border-destructive focus:border-destructive' 
+                            : 'border-border focus:border-primary'
+                        }`}
                         required
                       />
+                      {showError && (
+                        <p className='text-xs text-destructive flex items-center'>
+                          <AlertCircle className='h-3 w-3 mr-1' />
+                          Must be a valid URL (e.g., https://your-site.vercel.app)
+                        </p>
+                      )}
                     </div>
-                  )}
+                  )}}
                 />
               </div>
 
@@ -420,7 +465,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
               {error && (
                 <div className='bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg'>
                   <div className='flex items-start'>
-                    <AlertCircle className='h-4 w-4 mr-2 flex-shrink-0 mt-0.5' />
+                    <AlertCircle className='h-4 w-4 mr-2 shrink-0 mt-0.5' />
                     <div>
                       <span className='font-semibold text-sm'>
                         Submission Error
@@ -476,7 +521,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
             <div className='px-6 space-y-5'>
               <div className='space-y-2'>
                 <div className='flex items-center space-x-2'>
-                  <Github className='h-5 w-5 text-primary flex-shrink-0' />
+                  <Github className='h-5 w-5 text-primary shrink-0' />
                   <h4 className='font-semibold text-foreground text-sm'>
                     GitHub Repository
                   </h4>
@@ -489,7 +534,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
               <div className='space-y-2'>
                 <div className='flex items-center space-x-2'>
-                  <ExternalLink className='h-5 w-5 text-primary flex-shrink-0' />
+                  <ExternalLink className='h-5 w-5 text-primary shrink-0' />
                   <h4 className='font-semibold text-foreground text-sm'>
                     Live Site URL
                   </h4>
@@ -518,19 +563,19 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
             </div>
             <div className='px-6 space-y-3'>
               <div className='flex items-center space-x-3 group'>
-                <CheckCircle className='h-4 w-4 text-primary flex-shrink-0' />
+                <CheckCircle className='h-4 w-4 text-primary shrink-0' />
                 <span className='text-sm text-muted-foreground'>
                   Code structure & organization
                 </span>
               </div>
               <div className='flex items-center space-x-3 group'>
-                <CheckCircle className='h-4 w-4 text-primary flex-shrink-0' />
+                <CheckCircle className='h-4 w-4 text-primary shrink-0' />
                 <span className='text-sm text-muted-foreground'>
                   Responsive design implementation
                 </span>
               </div>
               <div className='flex items-center space-x-3 group'>
-                <CheckCircle className='h-4 w-4 text-primary flex-shrink-0' />
+                <CheckCircle className='h-4 w-4 text-primary shrink-0' />
                 <span className='text-sm text-muted-foreground'>
                   Accessibility best practices
                 </span>
