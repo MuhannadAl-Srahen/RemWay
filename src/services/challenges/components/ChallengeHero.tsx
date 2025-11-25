@@ -69,13 +69,13 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
           <>
             <button
               onClick={prevImage}
-              className='absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all duration-300 z-20 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:hover:scale-110'
+              className='absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all duration-300 z-20 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:hover:scale-110 cursor-pointer'
             >
               <ChevronLeft className='h-4 w-4 sm:h-5 sm:w-5' />
             </button>
             <button
               onClick={nextImage}
-              className='absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all duration-300 z-20 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:hover:scale-110'
+              className='absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-800 p-2 rounded-full shadow-md transition-all duration-300 z-20 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:hover:scale-110 cursor-pointer'
             >
               <ChevronRight className='h-4 w-4 sm:h-5 sm:w-5' />
             </button>
@@ -86,7 +86,7 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
                   <button
                     key={index}
                     onClick={() => setCurrentImageIndex(index)}
-                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 ${
+                    className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 hover:scale-125 cursor-pointer ${
                       index === currentImageIndex
                         ? 'bg-white'
                         : 'bg-white/50 hover:bg-white/80'

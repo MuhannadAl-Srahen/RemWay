@@ -22,7 +22,10 @@ export function ChallengeGridItem({
   onToggleSave,
 }: ChallengeItemProps) {
   return (
-    <a href={`/challenges/${challenge.id}`} className='block h-full group'>
+    <a
+      href={`/challenges/${challenge.id}`}
+      className='block h-full group cursor-pointer'
+    >
       <Card className='flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-md transition-transform duration-300 hover:shadow-xl hover:scale-[1.02] py-0 gap-0'>
         {/* Image Section */}
         <div className='relative aspect-[16/9] overflow-hidden rounded-t-xl'>

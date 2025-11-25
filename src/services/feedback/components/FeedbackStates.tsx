@@ -1,5 +1,14 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { Loader2, Clock, AlertCircle, Check, Code, Globe, Sparkles, FileText } from 'lucide-react'
+import {
+  Loader2,
+  Clock,
+  AlertCircle,
+  Check,
+  Code,
+  Globe,
+  Sparkles,
+  FileText,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 
@@ -35,12 +44,38 @@ interface FeedbackProcessingProps {
   liveUrl?: string
 }
 
-export function FeedbackProcessing({ challengeTitle, githubUrl, liveUrl }: FeedbackProcessingProps) {
+export function FeedbackProcessing({
+  challengeTitle,
+  githubUrl,
+  liveUrl,
+}: FeedbackProcessingProps) {
   const [steps, setSteps] = useState<ProcessingStep[]>([
-    { id: 'fetch', label: 'Fetching code from GitHub', icon: <Code className='h-4 w-4' />, status: 'active', detail: githubUrl },
-    { id: 'analyze', label: 'Analyzing code quality', icon: <FileText className='h-4 w-4' />, status: 'pending' },
-    { id: 'design', label: 'Checking live site', icon: <Globe className='h-4 w-4' />, status: 'pending', detail: liveUrl },
-    { id: 'generate', label: 'Generating AI feedback', icon: <Sparkles className='h-4 w-4' />, status: 'pending' },
+    {
+      id: 'fetch',
+      label: 'Fetching code from GitHub',
+      icon: <Code className='h-4 w-4' />,
+      status: 'active',
+      detail: githubUrl,
+    },
+    {
+      id: 'analyze',
+      label: 'Analyzing code quality',
+      icon: <FileText className='h-4 w-4' />,
+      status: 'pending',
+    },
+    {
+      id: 'design',
+      label: 'Checking live site',
+      icon: <Globe className='h-4 w-4' />,
+      status: 'pending',
+      detail: liveUrl,
+    },
+    {
+      id: 'generate',
+      label: 'Generating AI feedback',
+      icon: <Sparkles className='h-4 w-4' />,
+      status: 'pending',
+    },
   ])
   const [elapsedTime, setElapsedTime] = useState(0)
   const [currentTip, setCurrentTip] = useState(0)
@@ -56,7 +91,7 @@ export function FeedbackProcessing({ challengeTitle, githubUrl, liveUrl }: Feedb
   // Simulate step progression based on elapsed time
   useEffect(() => {
     const timer = setInterval(() => {
-      setElapsedTime(prev => prev + 1)
+      setElapsedTime((prev) => prev + 1)
     }, 1000)
 
     return () => clearInterval(timer)
@@ -64,21 +99,29 @@ export function FeedbackProcessing({ challengeTitle, githubUrl, liveUrl }: Feedb
 
   // Update steps based on elapsed time
   useEffect(() => {
-    setSteps(prev => prev.map((step, index) => {
-      if (index === 0 && elapsedTime >= 2) return { ...step, status: 'completed' }
-      if (index === 1 && elapsedTime >= 5) return { ...step, status: 'completed' }
-      if (index === 1 && elapsedTime >= 2) return { ...step, status: 'active' }
-      if (index === 2 && elapsedTime >= 10) return { ...step, status: 'completed' }
-      if (index === 2 && elapsedTime >= 5) return { ...step, status: 'active' }
-      if (index === 3 && elapsedTime >= 10) return { ...step, status: 'active' }
-      return step
-    }))
+    setSteps((prev) =>
+      prev.map((step, index) => {
+        if (index === 0 && elapsedTime >= 2)
+          return { ...step, status: 'completed' }
+        if (index === 1 && elapsedTime >= 5)
+          return { ...step, status: 'completed' }
+        if (index === 1 && elapsedTime >= 2)
+          return { ...step, status: 'active' }
+        if (index === 2 && elapsedTime >= 10)
+          return { ...step, status: 'completed' }
+        if (index === 2 && elapsedTime >= 5)
+          return { ...step, status: 'active' }
+        if (index === 3 && elapsedTime >= 10)
+          return { ...step, status: 'active' }
+        return step
+      })
+    )
   }, [elapsedTime])
 
   // Rotate tips
   useEffect(() => {
     const tipTimer = setInterval(() => {
-      setCurrentTip(prev => (prev + 1) % tips.length)
+      setCurrentTip((prev) => (prev + 1) % tips.length)
     }, 4000)
 
     return () => clearInterval(tipTimer)
@@ -95,7 +138,7 @@ export function FeedbackProcessing({ challengeTitle, githubUrl, liveUrl }: Feedb
       <Card className='bg-card border shadow-sm overflow-hidden'>
         {/* Progress bar */}
         <div className='h-1 bg-muted'>
-          <div 
+          <div
             className='h-full bg-primary transition-all duration-1000 ease-out'
             style={{ width: `${Math.min((elapsedTime / 25) * 100, 95)}%` }}
           />
@@ -113,40 +156,56 @@ export function FeedbackProcessing({ challengeTitle, githubUrl, liveUrl }: Feedb
           <h2 className='text-2xl font-bold text-foreground mb-2'>
             Analyzing Your Submission
           </h2>
-          
+
           {challengeTitle && (
-            <p className='text-primary font-medium mb-4'>
-              {challengeTitle}
-            </p>
+            <p className='text-primary font-medium mb-4'>{challengeTitle}</p>
           )}
 
           <p className='text-sm text-muted-foreground text-center max-w-md mb-2'>
-            Our AI is carefully reviewing your code and design. This typically takes 15-30 seconds.
+            Our AI is carefully reviewing your code and design. This typically
+            takes 15-30 seconds.
           </p>
 
           <p className='text-xs text-muted-foreground mb-8'>
             Elapsed: {formatTime(elapsedTime)}
           </p>
-          
+
           {/* Progress Steps */}
           <div className='w-full max-w-lg space-y-4 mb-8'>
             {steps.map((step) => (
               <div key={step.id} className='flex items-start gap-4'>
-                <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-                  step.status === 'completed' ? 'bg-green-500 text-white' :
-                  step.status === 'active' ? 'bg-primary text-white animate-pulse' :
-                  step.status === 'error' ? 'bg-red-500 text-white' :
-                  'bg-muted text-muted-foreground'
-                }`}>
-                  {step.status === 'completed' ? <Check className='h-4 w-4' /> : step.icon}
+                <div
+                  className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
+                    step.status === 'completed'
+                      ? 'bg-green-500 text-white'
+                      : step.status === 'active'
+                        ? 'bg-primary text-white animate-pulse'
+                        : step.status === 'error'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {step.status === 'completed' ? (
+                    <Check className='h-4 w-4' />
+                  ) : (
+                    step.icon
+                  )}
                 </div>
                 <div className='flex-1 min-w-0'>
-                  <p className={`text-sm font-medium ${
-                    step.status === 'completed' ? 'text-green-600 dark:text-green-400' :
-                    step.status === 'active' ? 'text-foreground' :
-                    'text-muted-foreground'
-                  }`}>
-                    {step.status === 'completed' ? '✓ ' : step.status === 'active' ? '⏳ ' : ''}
+                  <p
+                    className={`text-sm font-medium ${
+                      step.status === 'completed'
+                        ? 'text-green-600 dark:text-green-400'
+                        : step.status === 'active'
+                          ? 'text-foreground'
+                          : 'text-muted-foreground'
+                    }`}
+                  >
+                    {step.status === 'completed'
+                      ? '✓ '
+                      : step.status === 'active'
+                        ? '⏳ '
+                        : ''}
                     {step.label}
                   </p>
                   {step.detail && step.status !== 'pending' && (

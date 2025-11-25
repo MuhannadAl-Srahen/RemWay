@@ -79,7 +79,7 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
         href={resource.url}
         target='_blank'
         rel='noopener noreferrer'
-        className='block h-full group'
+        className='block h-full group cursor-pointer'
       >
         <Card className='flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-md transition-all duration-300 hover:shadow-xl hover:scale-[1.02] p-0 gap-0'>
           {/* Video Thumbnail Section */}
@@ -155,7 +155,7 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
       href={resource.url}
       target='_blank'
       rel='noopener noreferrer'
-      className='block h-full group'
+      className='block h-full group cursor-pointer'
     >
       <Card className='flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-md transition-transform duration-300 hover:shadow-xl hover:scale-[1.02] py-0 gap-0'>
         {/* Content Section */}

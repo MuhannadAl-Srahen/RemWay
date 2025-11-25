@@ -40,7 +40,7 @@ export function ResourcesSection({
                 onClick={() =>
                   setActiveTab(tab.key as 'video' | 'documentation' | 'tools')
                 }
-                className={`flex items-center justify-center gap-1 md:gap-2 h-full transition-all duration-200 relative px-1 ${
+                className={`flex items-center justify-center gap-1 md:gap-2 h-full transition-all duration-200 relative px-1 cursor-pointer ${
                   activeTab === tab.key
                     ? 'bg-primary/10 text-primary scale-100'
                     : 'hover:bg-muted text-muted-foreground hover:text-foreground hover:scale-[1.02]'

@@ -18,7 +18,9 @@ export function DesignComparison({
   return (
     <Card className='bg-card border shadow-sm'>
       <CardHeader>
-        <CardTitle className='text-lg font-semibold'>Design Comparison</CardTitle>
+        <CardTitle className='text-lg font-semibold'>
+          Design Comparison
+        </CardTitle>
         <p className='text-sm text-muted-foreground mt-1'>
           Side-by-side comparison with the original design
         </p>

@@ -49,11 +49,7 @@ function RouteComponent() {
                 <ArrowLeft className='mr-2 h-4 w-4' />
                 Back to Roadmap
               </Button>
-              <Button
-                asChild
-                variant='outline'
-                size='lg'
-              >
+              <Button asChild variant='outline' size='lg'>
                 <Link to='/'>
                   <Home className='mr-2 h-4 w-4' />
                   Go Home

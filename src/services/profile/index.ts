@@ -4,3 +4,11 @@ export * from './components'
 export * from './lib/savedChallenges'
 export * from './lib/profileHelpers'
 export { useProfile, useUpdateProfile } from './hooks/useProfile'
+export {
+  useProfileSubmissions,
+  useAllProfileSubmissions,
+  isPassingSubmission,
+  type ProfileSubmission,
+} from './hooks/useProfileSubmissions'
+export { useProfileStats } from './hooks/useProfileStats'
+export { usePassedChallenges } from './hooks/usePassedChallenges'

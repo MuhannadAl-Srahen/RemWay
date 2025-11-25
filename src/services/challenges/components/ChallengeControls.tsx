@@ -96,7 +96,7 @@ export function ChallengeControls({
 
             <button
               onClick={() => onViewModeChange('grid')}
-              className={`relative z-10 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out ${
+              className={`relative z-10 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out cursor-pointer ${
                 viewMode === 'grid'
                   ? 'text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'
@@ -112,7 +112,7 @@ export function ChallengeControls({
 
             <button
               onClick={() => onViewModeChange('list')}
-              className={`relative z-10 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out ${
+              className={`relative z-10 inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out cursor-pointer ${
                 viewMode === 'list'
                   ? 'text-primary-foreground'
                   : 'text-muted-foreground hover:text-foreground'

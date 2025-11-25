@@ -18,7 +18,7 @@ export function MainLayout({ children }: Props) {
   const isChallengePage =
     location.pathname.startsWith('/challenges/') &&
     location.pathname !== '/challenges'
-  
+
   const isFeedbackPage = location.pathname.startsWith('/feedback/')
 
   // Scroll restoration

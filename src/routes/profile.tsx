@@ -199,7 +199,7 @@ function RouteComponent() {
                     <button
                       key={tab.key}
                       onClick={() => handleTabChange(tab.key)}
-                      className={`relative z-10 inline-flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-300 ease-out flex-1 ${
+                      className={`relative z-10 inline-flex items-center justify-center gap-2 rounded-lg px-3 py-3 text-sm font-medium transition-all duration-300 ease-out flex-1 cursor-pointer ${
                         isActive
                           ? 'text-primary-foreground'
                           : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'

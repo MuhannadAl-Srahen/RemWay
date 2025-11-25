@@ -1,11 +1,32 @@
-import { Target, Code, BarChart3 } from 'lucide-react'
+import { useState } from 'react'
+import {
+  Target,
+  Code,
+  BarChart3,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { motion, AnimatePresence } from 'motion/react'
 import '../../../styles/profile.css'
-import { useProfile } from '@/services/profile/hooks/useProfile'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
+import {
+  useAllProfileSubmissions,
+  isPassingSubmission,
+} from '@/services/profile/hooks/useProfileSubmissions'
+
+const TECH_ITEMS_PER_PAGE = 3
 
 export function ProfileProgress() {
-  const { data: profile } = useProfile(undefined)
+  const [techPage, setTechPage] = useState(0)
+  const [slideDirection, setSlideDirection] = useState(0) // -1 for left, 1 for right
   const { data: allChallenges = [] } = useChallenges()
+  const { data: submissions = [] } = useAllProfileSubmissions()
+
+  // Get set of PASSED challenge IDs (score >= 45)
+  const completedSet = new Set<string>(
+    submissions.filter((s) => isPassingSubmission(s)).map((s) => s.challengeId)
+  )
 
   // Build totals per difficulty
   const totalsByDifficulty = allChallenges.reduce(
@@ -22,6 +43,8 @@ export function ProfileProgress() {
     'advanced',
   ]
 
+  const challengeById = new Map(allChallenges.map((c) => [c.id, c]))
+
   const learningPathStats = pathIds.map((id) => {
     const difficultyLabel =
       id === 'beginner'
@@ -29,8 +52,13 @@ export function ProfileProgress() {
         : id === 'intermediate'
           ? 'Intermediate'
           : 'Advanced'
-    const completed =
-      profile?.learningPaths?.[id]?.completedChallenges?.length ?? 0
+
+    // Count passed challenges for this difficulty
+    const completed = Array.from(completedSet).filter((cid) => {
+      const ch = challengeById.get(cid)
+      return ch?.difficulty === difficultyLabel
+    }).length
+
     const total = totalsByDifficulty[difficultyLabel] ?? 0
     const percentage = total > 0 ? Math.round((completed / total) * 100) : 0
     return { id, name: `${difficultyLabel} Path`, completed, total, percentage }
@@ -38,7 +66,6 @@ export function ProfileProgress() {
 
   // Technology breakdown: count total challenges per tag and completed per tag
   const techTotals: Record<string, { total: number; completed: number }> = {}
-  const challengeById = new Map(allChallenges.map((c) => [c.id, c]))
 
   for (const ch of allChallenges) {
     if (!ch.tags) continue
@@ -48,14 +75,7 @@ export function ProfileProgress() {
     }
   }
 
-  // Collect completed challenge ids from profile across all paths
-  const completedSet = new Set<string>()
-  if (profile?.learningPaths) {
-    for (const lp of Object.values(profile.learningPaths)) {
-      for (const cid of lp.completedChallenges || []) completedSet.add(cid)
-    }
-  }
-
+  // Count completed (passed) challenges per tag
   for (const cid of completedSet) {
     const ch = challengeById.get(cid)
     if (!ch || !ch.tags) continue
@@ -64,8 +84,6 @@ export function ProfileProgress() {
       techTotals[tag].completed += 1
     }
   }
-
-  // techEntries removed; we'll build finalTechEntries below including desired techs
 
   // Ensure the profile shows a fixed set of technologies in the desired order
   const desiredTechs = [
@@ -94,7 +112,8 @@ export function ProfileProgress() {
       .sort((a, b) => b.total - a.total),
   ]
 
-  // Difficulty section (aggregate across difficulties)
+  // Difficulty section (aggregate across difficulties with average scores)
+  // Only count PASSED submissions (score >= 45)
   const difficultyStats = ['Beginner', 'Intermediate', 'Advanced'].map(
     (level) => {
       const completed = Array.from(completedSet).filter((cid) => {
@@ -102,7 +121,20 @@ export function ProfileProgress() {
         return ch?.difficulty === level
       }).length
       const total = totalsByDifficulty[level] ?? 0
-      const avgScore = 0 // no score data available here; kept as 0
+
+      // Calculate average score for this difficulty from PASSING submissions only
+      const passingSubmissionsForDifficulty = submissions.filter(
+        (s) => s.difficulty === level && isPassingSubmission(s)
+      )
+      const avgScore =
+        passingSubmissionsForDifficulty.length > 0
+          ? Math.round(
+              passingSubmissionsForDifficulty.reduce(
+                (sum, s) => sum + (s.score || 0),
+                0
+              ) / passingSubmissionsForDifficulty.length
+            )
+          : 0
       return { level, completed, total, avgScore }
     }
   )
@@ -170,37 +202,108 @@ export function ProfileProgress() {
             </div>
           </div>
 
-          <div className='space-y-4'>
-            {finalTechEntries.slice(0, 8).map((tech) => {
-              // Sanitize technology name into a safe CSS class key, e.g. "Tailwind CSS" -> "tailwind-css"
-              const safeName = tech.name
-                .toLowerCase()
-                .replace(/[^a-z0-9]+/g, '-')
-              return (
-                <div
-                  key={tech.name}
-                  className='space-y-2 transition-all duration-300 hover:bg-muted/50 rounded-lg p-3 cursor-pointer group'
-                >
-                  <div className='flex items-center justify-between text-sm'>
-                    <span className='font-medium group-hover:text-primary transition-colors'>
-                      {tech.name}
-                    </span>
-                    <span className='text-muted-foreground'>
-                      {tech.completed}/{tech.total}
-                    </span>
-                  </div>
-                  <div className='w-full bg-muted border-2 border-border rounded-full h-3 overflow-hidden shadow-inner'>
-                    <div
-                      className={`h-full rounded-full profile-progress-${safeName} profile-progress-default transition-all duration-500 ease-out shadow-md border-2 border-white/20 dark:border-white/30`}
-                      style={{
-                        width: `${(tech.total > 0 ? (tech.completed / tech.total) * 100 : 0).toFixed(1)}%`,
-                      }}
-                    />
-                  </div>
+          {/* Technology list with pagination */}
+          {(() => {
+            const totalTechPages = Math.ceil(
+              finalTechEntries.length / TECH_ITEMS_PER_PAGE
+            )
+            const startIdx = techPage * TECH_ITEMS_PER_PAGE
+            const visibleTechs = finalTechEntries.slice(
+              startIdx,
+              startIdx + TECH_ITEMS_PER_PAGE
+            )
+
+            return (
+              <>
+                <div className='min-h-[225px] overflow-hidden'>
+                  <AnimatePresence mode='wait'>
+                    <motion.div
+                      key={techPage}
+                      initial={{ opacity: 0, x: slideDirection * 50 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -slideDirection * 50 }}
+                      transition={{ duration: 0.25, ease: 'easeInOut' }}
+                      className='space-y-4'
+                    >
+                      {visibleTechs.map((tech) => {
+                        const safeName = tech.name
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, '-')
+                        return (
+                          <div
+                            key={tech.name}
+                            className='space-y-2 transition-all duration-300 hover:bg-muted/50 rounded-lg p-3 cursor-pointer group'
+                          >
+                            <div className='flex items-center justify-between text-sm'>
+                              <span className='font-medium group-hover:text-primary transition-colors'>
+                                {tech.name}
+                              </span>
+                              <span className='text-muted-foreground'>
+                                {tech.completed}/{tech.total}
+                              </span>
+                            </div>
+                            <div className='w-full bg-muted border-2 border-border rounded-full h-3 overflow-hidden shadow-inner'>
+                              <div
+                                className={`h-full rounded-full profile-progress-${safeName} profile-progress-default transition-all duration-500 ease-out shadow-md border-2 border-white/20 dark:border-white/30`}
+                                style={{
+                                  width: `${(tech.total > 0 ? (tech.completed / tech.total) * 100 : 0).toFixed(1)}%`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
-              )
-            })}
-          </div>
+
+                {/* Pagination controls */}
+                {totalTechPages > 1 && (
+                  <div className='flex items-center justify-between mt-4 pt-4 border-t border-border'>
+                    <span className='text-xs text-muted-foreground'>
+                      {startIdx + 1}-
+                      {Math.min(
+                        startIdx + TECH_ITEMS_PER_PAGE,
+                        finalTechEntries.length
+                      )}{' '}
+                      of {finalTechEntries.length}
+                    </span>
+                    <div className='flex items-center gap-1'>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => {
+                          setSlideDirection(-1)
+                          setTechPage((p) => Math.max(0, p - 1))
+                        }}
+                        disabled={techPage === 0}
+                        className='h-8 w-8 p-0'
+                      >
+                        <ChevronLeft className='h-4 w-4' />
+                      </Button>
+                      <span className='text-xs text-muted-foreground px-2'>
+                        {techPage + 1} / {totalTechPages}
+                      </span>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        onClick={() => {
+                          setSlideDirection(1)
+                          setTechPage((p) =>
+                            Math.min(totalTechPages - 1, p + 1)
+                          )
+                        }}
+                        disabled={techPage >= totalTechPages - 1}
+                        className='h-8 w-8 p-0'
+                      >
+                        <ChevronRight className='h-4 w-4' />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
+            )
+          })()}
         </div>
 
         {/* By Difficulty */}

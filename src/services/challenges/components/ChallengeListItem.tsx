@@ -24,7 +24,7 @@ export function ChallengeListItem({
   return (
     <a
       href={`/challenges/${challenge.id}`}
-      className='block group focus:outline-none focus-visible:ring focus-visible:ring-primary/50 rounded-xl'
+      className='block group focus:outline-none focus-visible:ring focus-visible:ring-primary/50 rounded-xl cursor-pointer'
     >
       <Card className='overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm hover:shadow-xl transition-transform duration-300 relative hover:scale-[1.02] py-0'>
         {/* Like button */}
