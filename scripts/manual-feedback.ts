@@ -36,7 +36,8 @@ async function manualGenerate() {
     console.log('📥 Step 1: Fetching submission...')
     const { data: submission, error: subError } = await supabase
       .from('challenge_submissions')
-      .select(`
+      .select(
+        `
         *,
         challenges (
           id,
@@ -45,7 +46,8 @@ async function manualGenerate() {
           description,
           thumbnail_url
         )
-      `)
+      `
+      )
       .eq('id', submissionId)
       .single()
 
@@ -92,7 +94,7 @@ async function manualGenerate() {
     console.log()
 
     const startTime = Date.now()
-    
+
     const feedback = await generateAIFeedback({
       submission: submissionData as ChallengeSubmissionWithChallenge,
       challengeDescription: submissionData.challenge?.description || '',
@@ -106,15 +108,21 @@ async function manualGenerate() {
     console.log('━'.repeat(80))
     console.log('📊 FEEDBACK RESULTS')
     console.log('━'.repeat(80))
-    console.log(`Score: ${feedback.overallScore}/100 (${feedback.overallRating})`)
+    console.log(
+      `Score: ${feedback.overallScore}/100 (${feedback.overallRating})`
+    )
     console.log()
     console.log('Strengths:', feedback.whatYouDidWell?.length || 0, 'items')
-    console.log('Improvements:', feedback.areasForImprovement?.length || 0, 'items')
+    console.log(
+      'Improvements:',
+      feedback.areasForImprovement?.length || 0,
+      'items'
+    )
     console.log()
 
     // 4. Store in database
     console.log('💾 Step 4: Storing feedback...')
-    
+
     const feedbackData = {
       submission_id: submissionId,
       overall_score: feedback.overallScore,
@@ -134,7 +142,8 @@ async function manualGenerate() {
         (item: any) => `${item.category}: ${item.description} (${item.status})`
       ),
       recommended_resources: feedback.recommendations?.learningResources || [],
-      recommended_next_challenge: feedback.recommendations?.nextChallenges?.[0]?.title || null,
+      recommended_next_challenge:
+        feedback.recommendations?.nextChallenges?.[0]?.title || null,
       overall_analysis_description: {
         designNotes: feedback.designComparison?.designNotes || [],
         matchesDesign: feedback.designComparison?.matchesDesign || false,
@@ -162,7 +171,6 @@ async function manualGenerate() {
     console.log('🔗 View at: http://localhost:5000/feedback/' + submissionId)
     console.log()
     console.log('🎉 Done!')
-
   } catch (error) {
     console.error('❌ Error:', error)
   }

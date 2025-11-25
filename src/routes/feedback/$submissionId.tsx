@@ -1,5 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useSubmissionFeedback, triggerFeedbackGeneration } from '@/services/feedback'
+import {
+  useSubmissionFeedback,
+  triggerFeedbackGeneration,
+} from '@/services/feedback'
 import {
   FeedbackHeader,
   OverallAnalysis,
@@ -23,7 +26,8 @@ export const Route = createFileRoute('/feedback/$submissionId')({
 function RouteComponent() {
   const { submissionId } = Route.useParams()
   const navigate = useNavigate()
-  const { data, isLoading, error, refetch } = useSubmissionFeedback(submissionId)
+  const { data, isLoading, error, refetch } =
+    useSubmissionFeedback(submissionId)
   const [isGenerating, setIsGenerating] = useState(false)
   const [hasTriggered, setHasTriggered] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
@@ -39,42 +43,64 @@ function RouteComponent() {
 
   // Auto-trigger feedback generation if status is pending and not yet triggered
   useEffect(() => {
-    if (data && (data.status === 'pending' || !data.feedback) && !hasTriggered && !isGenerating && !generationTimedOut) {
+    if (
+      data &&
+      (data.status === 'pending' || !data.feedback) &&
+      !hasTriggered &&
+      !isGenerating &&
+      !generationTimedOut
+    ) {
       setHasTriggered(true)
       setIsGenerating(true)
       setGenerationError(null)
-      
-      triggerFeedbackGeneration(submissionId).then(() => {
-        // Poll for updates
-        const pollInterval = setInterval(() => {
-          refetch().then((result: unknown) => {
-            const queryResult = result as { data?: typeof data }
-            if (queryResult.data?.feedback || queryResult.data?.status === 'completed') {
-              clearInterval(pollInterval)
-              setIsGenerating(false)
-            }
-          })
-        }, 3000) // Check every 3 seconds
 
-        // Stop polling after 2 minutes and show timeout message
-        setTimeout(() => {
-          clearInterval(pollInterval)
+      triggerFeedbackGeneration(submissionId)
+        .then(() => {
+          // Poll for updates
+          const pollInterval = setInterval(() => {
+            refetch().then((result: unknown) => {
+              const queryResult = result as { data?: typeof data }
+              if (
+                queryResult.data?.feedback ||
+                queryResult.data?.status === 'completed'
+              ) {
+                clearInterval(pollInterval)
+                setIsGenerating(false)
+              }
+            })
+          }, 3000) // Check every 3 seconds
+
+          // Stop polling after 2 minutes and show timeout message
+          setTimeout(() => {
+            clearInterval(pollInterval)
+            setIsGenerating(false)
+            // Check one more time if feedback exists
+            refetch().then((result: unknown) => {
+              const queryResult = result as { data?: typeof data }
+              if (!queryResult.data?.feedback) {
+                setGenerationTimedOut(true)
+                setGenerationError(
+                  'Feedback generation is taking longer than expected. Please try refreshing the page.'
+                )
+              }
+            })
+          }, 120000)
+        })
+        .catch((err) => {
           setIsGenerating(false)
-          // Check one more time if feedback exists
-          refetch().then((result: unknown) => {
-            const queryResult = result as { data?: typeof data }
-            if (!queryResult.data?.feedback) {
-              setGenerationTimedOut(true)
-              setGenerationError('Feedback generation is taking longer than expected. Please try refreshing the page.')
-            }
-          })
-        }, 120000)
-      }).catch((err) => {
-        setIsGenerating(false)
-        setGenerationError(err instanceof Error ? err.message : 'Failed to generate feedback')
-      })
+          setGenerationError(
+            err instanceof Error ? err.message : 'Failed to generate feedback'
+          )
+        })
     }
-  }, [data, submissionId, hasTriggered, isGenerating, refetch, generationTimedOut])
+  }, [
+    data,
+    submissionId,
+    hasTriggered,
+    isGenerating,
+    refetch,
+    generationTimedOut,
+  ])
 
   // Loading state
   if (isLoading) {
@@ -110,7 +136,7 @@ function RouteComponent() {
   // Processing/generating state
   if (isGenerating || data.status === 'processing') {
     return (
-      <FeedbackProcessing 
+      <FeedbackProcessing
         challengeTitle={data.challenge?.title}
         githubUrl={data.submission?.github_url}
         liveUrl={data.submission?.live_url}
@@ -125,12 +151,15 @@ function RouteComponent() {
       setHasTriggered(true)
       setGenerationError(null)
       await triggerFeedbackGeneration(submissionId)
-      
+
       // Poll for updates
       const pollInterval = setInterval(() => {
         refetch().then((result: unknown) => {
           const queryResult = result as { data?: typeof data }
-          if (queryResult.data?.feedback || queryResult.data?.status === 'completed') {
+          if (
+            queryResult.data?.feedback ||
+            queryResult.data?.status === 'completed'
+          ) {
             clearInterval(pollInterval)
             setIsGenerating(false)
           }
@@ -148,9 +177,14 @@ function RouteComponent() {
         <div className='text-center space-y-6'>
           <h2 className='text-2xl font-bold'>Generate AI Feedback</h2>
           <p className='text-muted-foreground max-w-md mx-auto'>
-            Your submission is ready for AI analysis. Click the button below to generate detailed feedback.
+            Your submission is ready for AI analysis. Click the button below to
+            generate detailed feedback.
           </p>
-          <Button onClick={handleGenerateFeedback} size='lg' disabled={isGenerating}>
+          <Button
+            onClick={handleGenerateFeedback}
+            size='lg'
+            disabled={isGenerating}
+          >
             {isGenerating ? 'Generating...' : 'Generate Feedback Now'}
           </Button>
         </div>
@@ -164,28 +198,50 @@ function RouteComponent() {
   const challenge = data.challenge
 
   // Helper to parse feedback items from database format
-  const parseFeedbackItems = (items: unknown[]): { message: string; status: 'correct' | 'incorrect' | 'warning' }[] => {
+  const parseFeedbackItems = (
+    items: unknown[]
+  ): { message: string; status: 'correct' | 'incorrect' | 'warning' }[] => {
     return (items || []).map((item: unknown) => {
-      if (typeof item === 'object' && item !== null && 'category' in item && 'description' in item && 'status' in item) {
-        const typedItem = item as { category: string; description: string; status: string }
+      if (
+        typeof item === 'object' &&
+        item !== null &&
+        'category' in item &&
+        'description' in item &&
+        'status' in item
+      ) {
+        const typedItem = item as {
+          category: string
+          description: string
+          status: string
+        }
         return {
           message: `${typedItem.category}: ${typedItem.description}`,
-          status: typedItem.status === 'good' ? 'correct' as const : typedItem.status === 'error' ? 'incorrect' as const : 'warning' as const,
+          status:
+            typedItem.status === 'good'
+              ? ('correct' as const)
+              : typedItem.status === 'error'
+                ? ('incorrect' as const)
+                : ('warning' as const),
         }
       }
-      
+
       // Parse string format: "Category: Description (status)"
       const text = String(item)
       const match = text.match(/^(.+?)\s*\((\w+)\)\s*$/)
-      
+
       if (match) {
         const [, message, status] = match
         return {
           message: message.trim(),
-          status: status === 'good' ? 'correct' as const : status === 'error' ? 'incorrect' as const : 'warning' as const,
+          status:
+            status === 'good'
+              ? ('correct' as const)
+              : status === 'error'
+                ? ('incorrect' as const)
+                : ('warning' as const),
         }
       }
-      
+
       // Fallback: treat as message with 'correct' status
       return {
         message: text,
@@ -239,7 +295,11 @@ function RouteComponent() {
 
   const learningResources = (feedback.recommended_resources || []).map(
     (resource: unknown) => {
-      const r = resource as { title?: string; description?: string; url?: string }
+      const r = resource as {
+        title?: string
+        description?: string
+        url?: string
+      }
       return {
         title: r.title || 'Learning Resource',
         description: r.description || '',
@@ -252,8 +312,9 @@ function RouteComponent() {
   const hasMismatch = feedback.submission_mismatch?.is_mismatched === true
 
   // Check for improvements from previous submission
-  const hasImprovements = feedback.improvements_from_previous && 
-    feedback.improvements_from_previous.issues_fixed && 
+  const hasImprovements =
+    feedback.improvements_from_previous &&
+    feedback.improvements_from_previous.issues_fixed &&
     feedback.improvements_from_previous.issues_fixed.length > 0
 
   return (
@@ -282,14 +343,23 @@ function RouteComponent() {
         {/* Show improvements from previous submission if this is a resubmission */}
         {hasImprovements && feedback.improvements_from_previous && (
           <ImprovementsFromPrevious
-            issuesFixed={feedback.improvements_from_previous.issues_fixed.map((item: { issue: string; was_fixed?: boolean; wasFixed?: boolean; details: string }) => ({
-              issue: item.issue,
-              was_fixed: item.was_fixed ?? item.wasFixed ?? false,
-              details: item.details,
-            }))}
+            issuesFixed={feedback.improvements_from_previous.issues_fixed.map(
+              (item: {
+                issue: string
+                was_fixed?: boolean
+                wasFixed?: boolean
+                details: string
+              }) => ({
+                issue: item.issue,
+                was_fixed: item.was_fixed ?? item.wasFixed ?? false,
+                details: item.details,
+              })
+            )}
             previousScore={feedback.improvements_from_previous.previous_score}
             currentScore={feedback.overall_score}
-            overallAssessment={feedback.improvements_from_previous.overall_assessment}
+            overallAssessment={
+              feedback.improvements_from_previous.overall_assessment
+            }
           />
         )}
 
@@ -300,9 +370,7 @@ function RouteComponent() {
 
         <DesignComparison
           originalDesignImage={challenge.thumbnail_url || undefined}
-          userResultImage={
-            submission.screenshots?.[0] || undefined
-          }
+          userResultImage={submission.screenshots?.[0] || undefined}
         />
 
         <TechAnalysis categories={techAnalysis} />

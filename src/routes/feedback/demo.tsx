@@ -144,8 +144,7 @@ function RouteComponent() {
         title: 'Testimonial Grid Section',
         difficulty: 'easy' as const,
         technologies: ['HTML', 'CSS', 'Grid'],
-        description:
-          'Create a responsive testimonial section using CSS Grid',
+        description: 'Create a responsive testimonial section using CSS Grid',
       },
     ],
     learningResources: [
