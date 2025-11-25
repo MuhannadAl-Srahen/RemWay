@@ -54,12 +54,13 @@ The AI Feedback System analyzes user submissions by:
 
 Before submitting, you need:
 
-| Requirement | Description | Examples |
-|-------------|-------------|----------|
-| **GitHub Repository** | Your source code must be publicly accessible on GitHub | `https://github.com/username/my-project` |
-| **Live Site URL** | Your project must be deployed and accessible online | `https://my-project.vercel.app`, `https://my-project.netlify.app` |
+| Requirement           | Description                                            | Examples                                                          |
+| --------------------- | ------------------------------------------------------ | ----------------------------------------------------------------- |
+| **GitHub Repository** | Your source code must be publicly accessible on GitHub | `https://github.com/username/my-project`                          |
+| **Live Site URL**     | Your project must be deployed and accessible online    | `https://my-project.vercel.app`, `https://my-project.netlify.app` |
 
 **Recommended Deployment Platforms:**
+
 - [Vercel](https://vercel.com) - Best for React/Next.js projects
 - [Netlify](https://netlify.com) - Great for static sites
 - [GitHub Pages](https://pages.github.com) - Free for public repos
@@ -94,14 +95,14 @@ After submission:
 
 Your feedback includes:
 
-| Section | Description |
-|---------|-------------|
-| **Overall Score** | 0-100 score based on all criteria |
-| **What You Did Well** | 3-5 positive achievements |
-| **Areas for Improvement** | 3-5 actionable suggestions |
-| **Design Comparison** | How well your design matches requirements |
-| **Technical Analysis** | Detailed breakdown by category |
-| **Recommendations** | Next challenges and learning resources |
+| Section                   | Description                               |
+| ------------------------- | ----------------------------------------- |
+| **Overall Score**         | 0-100 score based on all criteria         |
+| **What You Did Well**     | 3-5 positive achievements                 |
+| **Areas for Improvement** | 3-5 actionable suggestions                |
+| **Design Comparison**     | How well your design matches requirements |
+| **Technical Analysis**    | Detailed breakdown by category            |
+| **Recommendations**       | Next challenges and learning resources    |
 
 ### Step 6: Resubmit (Optional)
 
@@ -191,15 +192,16 @@ User clicks "Submit"
 
 The system intelligently prioritizes which files to fetch from GitHub to ensure relevant source code is analyzed:
 
-| Priority | File Pattern | Examples |
-|----------|--------------|----------|
+| Priority    | File Pattern                   | Examples                                 |
+| ----------- | ------------------------------ | ---------------------------------------- |
 | 0 (Highest) | `src/**/*.jsx`, `src/**/*.tsx` | `src/App.jsx`, `src/components/Card.tsx` |
-| 5 | `*.html`, `*.css` | `index.html`, `styles.css` |
-| 10 | `package.json`, `*.json` | `package.json`, `tsconfig.json` |
-| 15 | Config files | `vite.config.js`, `tailwind.config.js` |
-| 20 (Lowest) | Other files | `README.md`, `.gitignore` |
+| 5           | `*.html`, `*.css`              | `index.html`, `styles.css`               |
+| 10          | `package.json`, `*.json`       | `package.json`, `tsconfig.json`          |
+| 15          | Config files                   | `vite.config.js`, `tailwind.config.js`   |
+| 20 (Lowest) | Other files                    | `README.md`, `.gitignore`                |
 
 **Limits:**
+
 - Maximum **15 files** analyzed per submission
 - Files larger than **50KB** are skipped
 - Total code size capped at **100KB**
@@ -243,6 +245,7 @@ The system intelligently prioritizes which files to fetch from GitHub to ensure 
 The system fetches actual source code from GitHub repositories to provide precise, code-specific feedback.
 
 **Supported file types:**
+
 - HTML, CSS, SCSS, SASS, LESS
 - JavaScript, JSX, TypeScript, TSX
 - JSON, Markdown
@@ -252,6 +255,7 @@ The system fetches actual source code from GitHub repositories to provide precis
 The AI automatically detects when a user submits the **wrong project** for a challenge.
 
 **Example scenario:**
+
 - User is working on "Interactive User Profile Card" challenge
 - User accidentally submits a "Beef Recipe Card" project
 - AI detects the mismatch and:
@@ -261,6 +265,7 @@ The AI automatically detects when a user submits the **wrong project** for a cha
   - Shows a prominent warning banner on the feedback page
 
 **Mismatch output:**
+
 ```json
 {
   "submissionMismatch": {
@@ -275,6 +280,7 @@ The AI automatically detects when a user submits the **wrong project** for a cha
 ### 3. Live Site Verification
 
 When a live site URL is provided, the AI is instructed to:
+
 - Verify design matches challenge requirements
 - Check responsive behavior
 - Validate interactive functionality
@@ -283,18 +289,28 @@ When a live site URL is provided, the AI is instructed to:
 ### 4. Resubmission Comparison
 
 For users who resubmit a challenge, the system:
+
 - Fetches the previous submission's feedback automatically
 - Tracks which issues were fixed vs still need work
 - Shows score improvement
 - Highlights new skills demonstrated
 
 **Improvements tracking output:**
+
 ```json
 {
   "improvementsFromPrevious": {
     "issuesFixed": [
-      { "issue": "Add alt text to images", "wasFixed": true, "details": "All images now have descriptive alt text" },
-      { "issue": "Improve color contrast", "wasFixed": false, "details": "Some text still has low contrast ratio" }
+      {
+        "issue": "Add alt text to images",
+        "wasFixed": true,
+        "details": "All images now have descriptive alt text"
+      },
+      {
+        "issue": "Improve color contrast",
+        "wasFixed": false,
+        "details": "Some text still has low contrast ratio"
+      }
     ],
     "previousScore": 65,
     "scoreImprovement": 20,
@@ -307,15 +323,15 @@ For users who resubmit a challenge, the system:
 
 The AI generates feedback in a consistent structure:
 
-| Field | Description |
-|-------|-------------|
-| `overallScore` | 0-100 numerical score |
-| `overallRating` | `excellent`, `good`, or `needs_improvement` |
-| `whatYouDidWell` | 3-5 positive achievements |
-| `areasForImprovement` | 3-5 actionable suggestions |
-| `designComparison` | How well the submission matches the design |
-| `techAnalysis` | Detailed breakdown by category |
-| `recommendations` | Next challenges and learning resources |
+| Field                 | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `overallScore`        | 0-100 numerical score                       |
+| `overallRating`       | `excellent`, `good`, or `needs_improvement` |
+| `whatYouDidWell`      | 3-5 positive achievements                   |
+| `areasForImprovement` | 3-5 actionable suggestions                  |
+| `designComparison`    | How well the submission matches the design  |
+| `techAnalysis`        | Detailed breakdown by category              |
+| `recommendations`     | Next challenges and learning resources      |
 
 ---
 
@@ -344,6 +360,7 @@ VITE_GITHUB_TOKEN=your-github-pat
 3. Add to `.env.local` as `VITE_GITHUB_TOKEN`
 
 **Rate Limits:**
+
 - Without token: 60 requests/hour
 - With token: 5,000 requests/hour
 
@@ -464,13 +481,13 @@ src/services/
 
 ### Frontend Error States
 
-| State | Trigger | User Experience |
-|-------|---------|-----------------|
-| **Loading** | Initial page load | Skeleton animation |
-| **Processing** | AI generating feedback | "Analyzing your submission..." with progress |
-| **Timeout** | > 2 minutes polling | Error message with retry button |
-| **Error** | API/network failure | Error message with retry button |
-| **Mismatch** | Wrong project submitted | Warning banner + low score explanation |
+| State          | Trigger                 | User Experience                              |
+| -------------- | ----------------------- | -------------------------------------------- |
+| **Loading**    | Initial page load       | Skeleton animation                           |
+| **Processing** | AI generating feedback  | "Analyzing your submission..." with progress |
+| **Timeout**    | > 2 minutes polling     | Error message with retry button              |
+| **Error**      | API/network failure     | Error message with retry button              |
+| **Mismatch**   | Wrong project submitted | Warning banner + low score explanation       |
 
 ### Backend Error Handling
 
@@ -482,11 +499,13 @@ src/services/
 ### URL Validation
 
 **Client-side validation** (in submission form):
+
 - Real-time validation feedback as user types
 - Red border and error message for invalid URLs
 - Form submission blocked if URLs are invalid
 
 **Server-side validation** (before AI analysis):
+
 - GitHub URL must match pattern: `github.com/owner/repo`
 - Live site URL must be a valid HTTP/HTTPS URL
 - Localhost URLs are rejected
@@ -494,13 +513,13 @@ src/services/
 
 **Handled edge cases:**
 
-| Scenario | Behavior |
-|----------|----------|
-| Non-GitHub URL submitted | Error feedback stored, score = 0 |
-| Fake/placeholder URLs | Warning logged, analysis proceeds with caution |
-| Private GitHub repo | Falls back to live site analysis only |
-| GitHub rate limit hit | Falls back to live site analysis only |
-| Invalid live site URL | Warning added to feedback |
+| Scenario                 | Behavior                                       |
+| ------------------------ | ---------------------------------------------- |
+| Non-GitHub URL submitted | Error feedback stored, score = 0               |
+| Fake/placeholder URLs    | Warning logged, analysis proceeds with caution |
+| Private GitHub repo      | Falls back to live site analysis only          |
+| GitHub rate limit hit    | Falls back to live site analysis only          |
+| Invalid live site URL    | Warning added to feedback                      |
 
 ---
 
@@ -511,11 +530,13 @@ src/services/
 #### "Feedback is taking too long"
 
 **Causes:**
+
 - Large repository with many files
 - GitHub rate limiting
 - AI service congestion
 
 **Solutions:**
+
 1. Wait for the 2-minute timeout, then click "Retry"
 2. Refresh the page and try again
 3. Check if your GitHub repo is public
@@ -526,6 +547,7 @@ src/services/
 **Cause:** You submitted code for a different challenge
 
 **Solution:**
+
 1. Go back to the challenge page
 2. Submit the correct GitHub repository URL
 3. Make sure the repo contains the project for THIS challenge
@@ -533,11 +555,13 @@ src/services/
 #### "GitHub code not analyzed"
 
 **Causes:**
+
 - Repository is private
 - Rate limit exceeded
 - Repository URL is incorrect
 
 **Solutions:**
+
 1. Make your repository public
 2. Add a GitHub token to increase rate limits
 3. Double-check the repository URL
@@ -545,6 +569,7 @@ src/services/
 #### "Score seems too low"
 
 **Check these:**
+
 1. Did you submit the correct project? (check for mismatch warning)
 2. Is your live site accessible?
 3. Does your code follow the challenge requirements?
@@ -552,12 +577,14 @@ src/services/
 ### Debug Scripts
 
 **Manual Feedback Script:**
+
 ```bash
 # Generate feedback for a specific submission
 bun scripts/manual-feedback.ts <submission-id>
 ```
 
 **Debug Script:**
+
 ```bash
 # Check database state and fetch submission details
 bun scripts/debug-feedback.ts <submission-id>
@@ -566,6 +593,7 @@ bun scripts/debug-feedback.ts <submission-id>
 ### Log Prefixes
 
 Key log prefixes to search for in browser console:
+
 - `[generateAIFeedback]` - AI generation process
 - `[fetchRepositoryCode]` - GitHub code fetching
 - `[generateAndStoreFeedback]` - Orchestration and storage
@@ -578,26 +606,26 @@ Key log prefixes to search for in browser console:
 
 ### Metrics
 
-| Metric | Value |
-|--------|-------|
-| Average generation time | 20-40 seconds |
-| Max output tokens | 8,192 |
-| Temperature | 0.3 (deterministic) |
-| Files analyzed | Up to 15 |
-| Total code size | Up to 100KB |
-| Polling interval | 3 seconds |
-| Timeout | 2 minutes |
+| Metric                  | Value               |
+| ----------------------- | ------------------- |
+| Average generation time | 20-40 seconds       |
+| Max output tokens       | 8,192               |
+| Temperature             | 0.3 (deterministic) |
+| Files analyzed          | Up to 15            |
+| Total code size         | Up to 100KB         |
+| Polling interval        | 3 seconds           |
+| Timeout                 | 2 minutes           |
 
 ### Scoring Criteria
 
 The AI uses the following weighted criteria:
 
-| Category | Weight | What's Evaluated |
-|----------|--------|------------------|
-| **Design** | 30% | Visual accuracy, responsiveness, UI/UX |
-| **Code Quality** | 30% | Clean structure, naming, organization |
-| **Functionality** | 25% | Features work, error handling |
-| **Accessibility** | 15% | Semantic HTML, ARIA, keyboard navigation |
+| Category          | Weight | What's Evaluated                         |
+| ----------------- | ------ | ---------------------------------------- |
+| **Design**        | 30%    | Visual accuracy, responsiveness, UI/UX   |
+| **Code Quality**  | 30%    | Clean structure, naming, organization    |
+| **Functionality** | 25%    | Features work, error handling            |
+| **Accessibility** | 15%    | Semantic HTML, ARIA, keyboard navigation |
 
 ### Rating Thresholds
 

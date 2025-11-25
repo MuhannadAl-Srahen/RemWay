@@ -176,11 +176,11 @@ src/
 
 For detailed documentation, see:
 
-| Document | Description |
-|----------|-------------|
+| Document                                                 | Description                                        |
+| -------------------------------------------------------- | -------------------------------------------------- |
 | [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete architecture, features, and API reference |
-| [AI Feedback System](./docs/AI_FEEDBACK_SYSTEM.md) | AI feedback user guide and technical details |
-| [Contributing](./CONTRIBUTING.md) | Contribution guidelines |
+| [AI Feedback System](./docs/AI_FEEDBACK_SYSTEM.md)       | AI feedback user guide and technical details       |
+| [Contributing](./CONTRIBUTING.md)                        | Contribution guidelines                            |
 
 ---
 

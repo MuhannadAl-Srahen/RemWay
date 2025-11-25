@@ -45,13 +45,13 @@ PexFect is a web-based platform where developers can:
 
 ### Key Differentiators
 
-| Feature | Description |
-|---------|-------------|
-| **AI Feedback** | Gemini-powered code review with specific, actionable suggestions |
-| **Real Projects** | Build actual projects, not toy examples |
-| **Progress Tracking** | Structured learning paths with milestones |
-| **Design-First** | Figma designs provided for each challenge |
-| **Resubmission** | Improve your score based on previous feedback |
+| Feature               | Description                                                      |
+| --------------------- | ---------------------------------------------------------------- |
+| **AI Feedback**       | Gemini-powered code review with specific, actionable suggestions |
+| **Real Projects**     | Build actual projects, not toy examples                          |
+| **Progress Tracking** | Structured learning paths with milestones                        |
+| **Design-First**      | Figma designs provided for each challenge                        |
+| **Resubmission**      | Improve your score based on previous feedback                    |
 
 ---
 
@@ -188,16 +188,17 @@ User Action → Component → Hook → Service API → External API/Supabase
 
 Browse and complete frontend coding challenges with Figma designs.
 
-| Feature | Description |
-|---------|-------------|
-| **Challenge Listing** | Grid/list view with filtering and search |
-| **Difficulty Levels** | Easy, Medium, Hard |
-| **Categories** | Components, Layouts, Forms, etc. |
-| **Figma Designs** | Professional designs with view/edit access |
-| **Asset Downloads** | Starter files and assets provided |
-| **Save Challenges** | Bookmark challenges for later |
+| Feature               | Description                                |
+| --------------------- | ------------------------------------------ |
+| **Challenge Listing** | Grid/list view with filtering and search   |
+| **Difficulty Levels** | Easy, Medium, Hard                         |
+| **Categories**        | Components, Layouts, Forms, etc.           |
+| **Figma Designs**     | Professional designs with view/edit access |
+| **Asset Downloads**   | Starter files and assets provided          |
+| **Save Challenges**   | Bookmark challenges for later              |
 
 **Routes:**
+
 - `/challenges` - Challenge listing page
 - `/challenges/:id` - Challenge detail page
 
@@ -205,16 +206,17 @@ Browse and complete frontend coding challenges with Figma designs.
 
 Automated code review powered by Google Gemini.
 
-| Feature | Description |
-|---------|-------------|
-| **Code Analysis** | Reviews GitHub repository code |
-| **Design Comparison** | Compares implementation to requirements |
-| **Scoring** | 0-100 score across 4 categories |
-| **Recommendations** | Suggests next challenges and resources |
-| **Mismatch Detection** | Catches wrong project submissions |
-| **Resubmission Tracking** | Compares improvements over attempts |
+| Feature                   | Description                             |
+| ------------------------- | --------------------------------------- |
+| **Code Analysis**         | Reviews GitHub repository code          |
+| **Design Comparison**     | Compares implementation to requirements |
+| **Scoring**               | 0-100 score across 4 categories         |
+| **Recommendations**       | Suggests next challenges and resources  |
+| **Mismatch Detection**    | Catches wrong project submissions       |
+| **Resubmission Tracking** | Compares improvements over attempts     |
 
 **Routes:**
+
 - `/feedback/:submissionId` - Feedback display page
 
 **Full Documentation:** [docs/AI_FEEDBACK_SYSTEM.md](./AI_FEEDBACK_SYSTEM.md)
@@ -223,15 +225,16 @@ Automated code review powered by Google Gemini.
 
 Track progress and showcase achievements.
 
-| Feature | Description |
-|---------|-------------|
-| **Profile Page** | Public profile with bio and links |
-| **Statistics** | Challenges completed, streak, rank |
-| **Activity Feed** | Recent submissions and completions |
-| **Saved Challenges** | Bookmarked challenges |
-| **Social Links** | GitHub, Twitter, LinkedIn, website |
+| Feature              | Description                        |
+| -------------------- | ---------------------------------- |
+| **Profile Page**     | Public profile with bio and links  |
+| **Statistics**       | Challenges completed, streak, rank |
+| **Activity Feed**    | Recent submissions and completions |
+| **Saved Challenges** | Bookmarked challenges              |
+| **Social Links**     | GitHub, Twitter, LinkedIn, website |
 
 **Routes:**
+
 - `/profile` - Current user's profile
 - `/settings` - Profile settings
 
@@ -239,13 +242,14 @@ Track progress and showcase achievements.
 
 Structured progression from beginner to advanced.
 
-| Path | Duration | Technologies |
-|------|----------|--------------|
-| **Beginner** | 4-6 weeks | HTML, CSS, JavaScript |
-| **Intermediate** | 6-8 weeks | React, APIs, State Management |
-| **Advanced** | 8-10 weeks | TypeScript, Performance, Architecture |
+| Path             | Duration   | Technologies                          |
+| ---------------- | ---------- | ------------------------------------- |
+| **Beginner**     | 4-6 weeks  | HTML, CSS, JavaScript                 |
+| **Intermediate** | 6-8 weeks  | React, APIs, State Management         |
+| **Advanced**     | 8-10 weeks | TypeScript, Performance, Architecture |
 
 **Routes:**
+
 - `/roadmap` - Learning paths overview
 - `/roadmap/:pathId` - Path detail with challenges
 
@@ -253,28 +257,30 @@ Structured progression from beginner to advanced.
 
 Curated learning materials and documentation.
 
-| Category | Examples |
-|----------|----------|
-| **Documentation** | MDN, React Docs |
-| **Tutorials** | CSS Tricks, JavaScript.info |
-| **Tools** | VS Code, Figma, Chrome DevTools |
-| **Communities** | Discord, Reddit, Stack Overflow |
+| Category          | Examples                        |
+| ----------------- | ------------------------------- |
+| **Documentation** | MDN, React Docs                 |
+| **Tutorials**     | CSS Tricks, JavaScript.info     |
+| **Tools**         | VS Code, Figma, Chrome DevTools |
+| **Communities**   | Discord, Reddit, Stack Overflow |
 
 **Routes:**
+
 - `/resources` - Resource library
 
 ### 6. Progress Tracking
 
 Monitor your learning journey.
 
-| Feature | Description |
-|---------|-------------|
+| Feature              | Description                         |
+| -------------------- | ----------------------------------- |
 | **Challenge Status** | Not Started, In Progress, Completed |
-| **Completion Rate** | Percentage of path completed |
-| **Time Tracking** | Estimated vs actual time |
-| **Streak System** | Daily engagement tracking |
+| **Completion Rate**  | Percentage of path completed        |
+| **Time Tracking**    | Estimated vs actual time            |
+| **Streak System**    | Daily engagement tracking           |
 
 **Routes:**
+
 - `/progress` - Progress dashboard
 
 ---
@@ -283,46 +289,46 @@ Monitor your learning journey.
 
 ### Frontend Framework
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **React** | 19.2.0 | UI framework with automatic JSX transform |
-| **TypeScript** | 5.9.3 | Type safety with strict mode |
-| **Vite** | 7.2.4 | Build tool with HMR |
+| Technology     | Version | Purpose                                   |
+| -------------- | ------- | ----------------------------------------- |
+| **React**      | 19.2.0  | UI framework with automatic JSX transform |
+| **TypeScript** | 5.9.3   | Type safety with strict mode              |
+| **Vite**       | 7.2.4   | Build tool with HMR                       |
 
 ### Routing & State
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
+| Technology          | Version | Purpose                                |
+| ------------------- | ------- | -------------------------------------- |
 | **TanStack Router** | 1.139.3 | File-based routing with code-splitting |
-| **TanStack Query** | 5.90.10 | Server state management |
-| **TanStack Form** | 1.25.0 | Form handling with validation |
-| **Zustand** | 5.0.8 | Client state management |
+| **TanStack Query**  | 5.90.10 | Server state management                |
+| **TanStack Form**   | 1.25.0  | Form handling with validation          |
+| **Zustand**         | 5.0.8   | Client state management                |
 
 ### UI & Styling
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Tailwind CSS** | 4.1.17 | Utility-first styling (via Vite plugin) |
-| **ShadCN UI** | 0.9.5 | Radix-based component library |
-| **Radix UI** | Various | Accessible primitives |
-| **Lucide React** | 0.539.0 | Icon library |
-| **Motion** | 12.23.24 | Animation library |
+| Technology       | Version  | Purpose                                 |
+| ---------------- | -------- | --------------------------------------- |
+| **Tailwind CSS** | 4.1.17   | Utility-first styling (via Vite plugin) |
+| **ShadCN UI**    | 0.9.5    | Radix-based component library           |
+| **Radix UI**     | Various  | Accessible primitives                   |
+| **Lucide React** | 0.539.0  | Icon library                            |
+| **Motion**       | 12.23.24 | Animation library                       |
 
 ### Backend & APIs
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **Supabase** | 2.84.0 | Database, Auth, Storage |
-| **Gemini AI** | 0.24.1 | AI feedback generation |
-| **GitHub API** | REST v3 | Code fetching |
+| Technology     | Version | Purpose                 |
+| -------------- | ------- | ----------------------- |
+| **Supabase**   | 2.84.0  | Database, Auth, Storage |
+| **Gemini AI**  | 0.24.1  | AI feedback generation  |
+| **GitHub API** | REST v3 | Code fetching           |
 
 ### Development Tools
 
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **ESLint** | 9.39.1 | Code linting |
-| **Prettier** | 3.6.2 | Code formatting |
-| **TypeScript ESLint** | 8.47.0 | TypeScript-specific linting |
+| Technology            | Version | Purpose                     |
+| --------------------- | ------- | --------------------------- |
+| **ESLint**            | 9.39.1  | Code linting                |
+| **Prettier**          | 3.6.2   | Code formatting             |
+| **TypeScript ESLint** | 8.47.0  | TypeScript-specific linting |
 
 ---
 
@@ -420,6 +426,7 @@ services/[feature]/
 ```
 
 **Import Rule:** Always import from service index:
+
 ```typescript
 // ✅ Correct
 import { ChallengeGridItem, useChallenges } from '@/services/challenges'
@@ -437,6 +444,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/challenges/`
 
 **Components:**
+
 - `ChallengePageHeader` - Page title and controls
 - `ChallengeControls` - Filter/search/view toggle
 - `ChallengeGridItem` - Grid view card
@@ -449,6 +457,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 - `ChallengeSubmission` - Submission form
 
 **Hooks:**
+
 - `useChallenges()` - Fetch all challenges
 - `useChallengeFilters()` - Filter state management
 - `useSubmissionForm()` - Form handling
@@ -457,6 +466,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 - `useToggleSave()` - Toggle bookmark mutation
 
 **API Functions:**
+
 - `getChallengeById(id)` - Get single challenge
 - `submitChallengeSolution(id, data)` - Submit solution
 
@@ -465,6 +475,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/feedback/`
 
 **Components:**
+
 - `FeedbackHeader` - Score and summary
 - `FeedbackLoading` - Loading skeleton
 - `FeedbackProcessing` - Generation in progress
@@ -477,9 +488,11 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 - `ImprovementsFromPrevious` - Resubmission tracking
 
 **Hooks:**
+
 - `useSubmissionFeedback(id)` - Fetch feedback data
 
 **API Functions:**
+
 - `getSubmissionFeedback(id)` - Get feedback + submission + challenge
 - `triggerFeedbackGeneration(id)` - Start AI analysis
 - `generateAndStoreFeedback(id)` - Full generation flow
@@ -489,11 +502,13 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/ai/`
 
 **Modules:**
+
 - `api.ts` - Gemini AI integration
 - `githubFetcher.ts` - GitHub code fetching
 - `validation.ts` - URL validation utilities
 
 **Key Functions:**
+
 - `generateAIFeedback(request)` - Generate AI feedback
 - `fetchRepositoryCode(url)` - Fetch GitHub files
 - `formatCodeForAI(code)` - Format for prompt
@@ -505,15 +520,18 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/profile/`
 
 **Components:**
+
 - Profile display components
 - Activity feed
 - Statistics cards
 
 **Hooks:**
+
 - `useProfile()` - Fetch user profile
 - `useUpdateProfile()` - Update profile mutation
 
 **API Functions:**
+
 - `ProfileService.getProfile(userId)`
 - `ProfileService.updateProfile(userId, data)`
 - `ProfileService.getStats(userId)`
@@ -523,6 +541,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/home/`
 
 **Components:**
+
 - `HeroSection` - Landing hero with CTA
 - `FeatureSection` - Feature highlights
 - `HowWorkSection` - How it works steps
@@ -534,12 +553,14 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/resources/`
 
 **Components:**
+
 - `ResourceGrid` - Resource cards grid
 - `ResourceCard` - Individual resource card
 - `ResourcesSection` - Section wrapper
 - `ResourceControls` - Filter controls
 
 **Hooks:**
+
 - `useResourceManagement()` - Resource state and filtering
 
 ### Roadmap Service
@@ -547,6 +568,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 **Location:** `src/services/roadmap/`
 
 **Data:**
+
 - `learningPaths` - Beginner, Intermediate, Advanced paths
 
 ---
@@ -556,6 +578,7 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 ### Core Tables
 
 #### `profiles`
+
 ```sql
 CREATE TABLE profiles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -575,6 +598,7 @@ CREATE TABLE profiles (
 ```
 
 #### `challenges`
+
 ```sql
 CREATE TABLE challenges (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -596,6 +620,7 @@ CREATE TABLE challenges (
 ```
 
 #### `challenge_submissions`
+
 ```sql
 CREATE TABLE challenge_submissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -610,6 +635,7 @@ CREATE TABLE challenge_submissions (
 ```
 
 #### `challenge_feedback`
+
 ```sql
 CREATE TABLE challenge_feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -635,6 +661,7 @@ CREATE TABLE challenge_feedback (
 ```
 
 #### `saved_challenges`
+
 ```sql
 CREATE TABLE saved_challenges (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -647,6 +674,7 @@ CREATE TABLE saved_challenges (
 ```
 
 #### `resources`
+
 ```sql
 CREATE TABLE resources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -703,6 +731,7 @@ PexFect uses **Supabase Auth** with GitHub OAuth as the primary sign-in method.
 **Auth Subscription:** `src/lib/authSubscription.ts`
 
 A single global auth listener is initialized in `AppProvider` to:
+
 - Detect sign-in/sign-out events
 - Invalidate relevant queries on logout
 - Sync auth state across tabs
@@ -749,11 +778,11 @@ export const useChallenges = () => {
 
 **Configuration:** `src/lib/queryConfig.ts`
 
-| Constant | Values | Use Case |
-|----------|--------|----------|
-| `STALE_TIME` | SHORT (30s), MEDIUM (5m), LONG (30m) | How long data is "fresh" |
+| Constant         | Values                               | Use Case                  |
+| ---------------- | ------------------------------------ | ------------------------- |
+| `STALE_TIME`     | SHORT (30s), MEDIUM (5m), LONG (30m) | How long data is "fresh"  |
 | `CACHE_VALIDITY` | SHORT (5m), MEDIUM (30m), LONG (24h) | How long to keep in cache |
-| `queryKeys` | Factory functions | Consistent cache keys |
+| `queryKeys`      | Factory functions                    | Consistent cache keys     |
 
 ### Client State (Zustand)
 
@@ -856,6 +885,7 @@ export default defineConfig({
 ### Global Styles
 
 `src/index.css` contains:
+
 - Tailwind imports
 - CSS custom properties for theming
 - Base styles
@@ -875,9 +905,9 @@ setTheme('dark') // or 'light' or 'system'
 Use Tailwind utilities:
 
 ```tsx
-<div className="bg-card text-card-foreground rounded-xl border shadow-sm p-6">
-  <h2 className="text-lg font-bold text-foreground">Title</h2>
-  <p className="text-sm text-muted-foreground">Description</p>
+<div className='bg-card text-card-foreground rounded-xl border shadow-sm p-6'>
+  <h2 className='text-lg font-bold text-foreground'>Title</h2>
+  <p className='text-sm text-muted-foreground'>Description</p>
 </div>
 ```
 
@@ -886,7 +916,7 @@ Use Tailwind utilities:
 Mobile-first with breakpoints:
 
 ```tsx
-<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
   {/* Cards */}
 </div>
 ```
@@ -921,6 +951,7 @@ const { data, error } = await supabase
 **Location:** `src/lib/queryClient.ts`
 
 Custom configuration for:
+
 - Retry logic (skip auth errors)
 - Network mode
 - Error handling
@@ -972,7 +1003,10 @@ export default defineConfig({
       output: {
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'tanstack-vendor': ['@tanstack/react-query', '@tanstack/react-router'],
+          'tanstack-vendor': [
+            '@tanstack/react-query',
+            '@tanstack/react-router',
+          ],
           'supabase-vendor': ['@supabase/supabase-js'],
           'ui-vendor': ['@radix-ui/...'],
         },
@@ -985,6 +1019,7 @@ export default defineConfig({
 ### TypeScript Configuration
 
 `tsconfig.json`:
+
 - Strict mode enabled
 - Path aliases configured
 - ES2022 target
@@ -992,6 +1027,7 @@ export default defineConfig({
 ### ESLint Configuration
 
 `eslint.config.js`:
+
 - TypeScript ESLint rules
 - React hooks rules
 - TanStack Query rules
@@ -1008,6 +1044,7 @@ export default defineConfig({
 3. Deploy automatically on push to main
 
 **Build Settings:**
+
 - Framework: Vite
 - Build Command: `bun run build`
 - Output Directory: `dist`
@@ -1052,6 +1089,7 @@ Scope: challenges, feedback, profile, auth, ui, etc.
 ```
 
 **Examples:**
+
 ```
 feat(challenges): add filter by category
 fix(feedback): resolve cache invalidation issue
@@ -1087,4 +1125,4 @@ docs: update API reference
 
 ---
 
-*Last updated: November 2025*
+_Last updated: November 2025_
