@@ -234,13 +234,13 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
       <div className='rounded-3xl h-full w-full transition-all duration-300 group hover:shadow-2xl'>
         <div className='rounded-3xl border border-border/50 bg-card shadow-sm transition-all duration-300 flex flex-col h-full w-full px-6 md:px-8 pt-7 pb-8 relative hover:scale-[1.01] hover:shadow-xl hover:border-primary/20 active:scale-[0.98] overflow-hidden'>
           {/* Background decoration */}
-          <div className='absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-2xl -translate-y-16 translate-x-16'></div>
+          <div className='absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-primary/5 to-transparent rounded-full blur-2xl -translate-y-16 translate-x-16'></div>
           {/* Header Section */}
           <div className='mb-6 relative z-10'>
             {/* Icon and Title Section */}
             <div className='flex items-center gap-4 mb-4'>
               <div
-                className={`rounded-xl w-14 h-14 p-3 ${ICON_GRADIENTS[key]} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 flex-shrink-0`}
+                className={`rounded-xl w-14 h-14 p-3 ${ICON_GRADIENTS[key]} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 shrink-0`}
               >
                 {ICONS[key]}
               </div>
@@ -272,7 +272,7 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
           <ul className='mb-6 md:mb-8 space-y-2 md:space-y-3 relative z-10'>
             {FEATURE_LIST[key].map((item) => (
               <li key={item} className='flex items-start gap-3'>
-                <div className='w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 md:mt-2'></div>
+                <div className='w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary shrink-0 mt-1.5 md:mt-2'></div>
                 <span className='text-xs md:text-sm text-muted-foreground font-medium'>
                   {item}
                 </span>

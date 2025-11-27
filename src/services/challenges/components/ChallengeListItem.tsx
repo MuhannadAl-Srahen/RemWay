@@ -31,14 +31,14 @@ export function ChallengeListItem({
 
         <div className='flex flex-col md:flex-row '>
           {/* Image Section */}
-          <div className='relative w-full h-40 md:w-48 md:h-42 flex-shrink-0 overflow-hidden'>
+          <div className='relative w-full h-40 md:w-48 md:h-42 shrink-0 overflow-hidden'>
             <img
               src={challenge.image || '/src/assets/images/girl.jpg'}
               alt={challenge.title}
               className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
               loading='lazy'
             />
-            <div className='absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent' />
+            <div className='absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent' />
           </div>
 
           {/* Difficulty Badge */}
@@ -63,7 +63,7 @@ export function ChallengeListItem({
                     variant='ghost'
                     size='sm'
                     disabled={isSaving}
-                    className='h-8 w-8 rounded-full bg-background/70 backdrop-blur-sm transition-all duration-300 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
+                    className='h-8 w-8 rounded-full bg-background/70 backdrop-blur-sm transition-all duration-300 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed'
                     onClick={(e) => {
                       e.preventDefault()
                       e.stopPropagation()

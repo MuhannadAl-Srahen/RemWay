@@ -215,7 +215,7 @@ export function ProfileProgress() {
 
             return (
               <>
-                <div className='min-h-[225px] overflow-hidden'>
+                <div className='min-h-56 overflow-hidden'>
                   <AnimatePresence mode='wait'>
                     <motion.div
                       key={techPage}

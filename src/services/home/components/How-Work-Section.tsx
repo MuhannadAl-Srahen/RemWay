@@ -12,7 +12,7 @@ const steps = [
     description:
       'Browse through our curated collection of real-world frontend challenges designed to match your skill level and career goals.',
     icon: Search,
-    bgColor: 'bg-gradient-to-br from-primary/10 to-primary/5',
+    bgColor: 'bg-linear-to-br from-primary/10 to-primary/5',
   },
   {
     step: '02',
@@ -20,7 +20,7 @@ const steps = [
     description:
       'Create your solution using modern tools and frameworks. Submit your GitHub repository and live demo for comprehensive review.',
     icon: Code,
-    bgColor: 'bg-gradient-to-br from-primary/15 to-primary/8',
+    bgColor: 'bg-linear-to-br from-primary/15 to-primary/8',
   },
   {
     step: '03',
@@ -28,7 +28,7 @@ const steps = [
     description:
       'Receive detailed insights on code quality, design patterns, performance, and accessibility from our AI-powered review system.',
     icon: MessageSquare,
-    bgColor: 'bg-gradient-to-br from-primary/12 to-primary/6',
+    bgColor: 'bg-linear-to-br from-primary/12 to-primary/6',
   },
 ]
 
@@ -100,7 +100,7 @@ export function HowWorkSection() {
                             </div>
                           </div>
                           <div className='space-y-4 mb-6'>
-                            <div className='bg-gradient-to-r from-primary/20 to-primary/10 rounded-lg p-3'>
+                            <div className='bg-linear-to-r from-primary/20 to-primary/10 rounded-lg p-3'>
                               <div className='h-2.5 bg-primary/40 rounded-full w-full mb-2' />
                               <div className='h-2 bg-primary/30 rounded-full w-3/4' />
                             </div>
@@ -173,9 +173,9 @@ export function HowWorkSection() {
                               <div className='text-3xl'>❤️</div>
                             </div>
                             <div className='space-y-2'>
-                              <div className='h-2.5 bg-gradient-to-r from-primary/30 to-primary/10 rounded-full w-full' />
-                              <div className='h-2.5 bg-gradient-to-r from-green-500/30 to-green-500/10 rounded-full w-4/5' />
-                              <div className='h-2.5 bg-gradient-to-r from-blue-500/30 to-blue-500/10 rounded-full w-3/4' />
+                              <div className='h-2.5 bg-linear-to-r from-primary/30 to-primary/10 rounded-full w-full' />
+                              <div className='h-2.5 bg-linear-to-r from-green-500/30 to-green-500/10 rounded-full w-4/5' />
+                              <div className='h-2.5 bg-linear-to-r from-blue-500/30 to-blue-500/10 rounded-full w-3/4' />
                             </div>
                           </div>
                           <div className='bg-primary/10 border border-primary/20 rounded-lg p-4 mt-4'>

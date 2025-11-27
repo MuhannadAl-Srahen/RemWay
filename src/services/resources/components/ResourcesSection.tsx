@@ -46,7 +46,7 @@ export function ResourcesSection({
                     : 'hover:bg-muted text-muted-foreground hover:text-foreground hover:scale-[1.02]'
                 }`}
               >
-                <Icon className='h-3 w-3 md:h-4 md:w-4 flex-shrink-0' />
+                <Icon className='h-3 w-3 md:h-4 md:w-4 shrink-0' />
                 <span className='hidden sm:inline text-sm md:text-base'>
                   {tab.label}
                 </span>
@@ -59,7 +59,7 @@ export function ResourcesSection({
         </div>
 
         {/* Tab Content */}
-        <div className='min-h-[380px]'>
+        <div className='min-h-95'>
           <ResourceGrid
             items={filteredData}
             loading={loading}

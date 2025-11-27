@@ -252,7 +252,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
   // Show loading while checking authentication (small delay to avoid flicker)
   if (showLoading && isAuthLoading) {
     return (
-      <div className='min-h-[400px] flex items-center justify-center'>
+      <div className='min-h-100 flex items-center justify-center'>
         <div className='animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full'></div>
       </div>
     )
@@ -261,7 +261,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
   // Show sign-in prompt for unauthenticated users
   if (!isAuthenticated) {
     return (
-      <div className='min-h-[400px] flex items-center justify-center'>
+      <div className='min-h-100 flex items-center justify-center'>
         <Card className='w-full max-w-md bg-card text-card-foreground rounded-xl border shadow-xl text-center p-8'>
           <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6'>
             <LogIn className='h-10 w-10 text-primary' />
@@ -294,7 +294,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
   if (submitted) {
     return (
-      <div className='min-h-[400px] flex items-center justify-center'>
+      <div className='min-h-100 flex items-center justify-center'>
         <div className='w-full max-w-md bg-card text-card-foreground rounded-xl border shadow-xl text-center p-8'>
           <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6'>
             <CheckCircle className='h-10 w-10 text-primary' />

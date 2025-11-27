@@ -103,7 +103,7 @@ function RouteComponent() {
   if (isAuthLoading) {
     return (
       <PageLayout maxWidth='6xl'>
-        <div className='flex items-center justify-center min-h-[60vh]'>
+        <div className='flex items-center justify-center min-h-[60dvh]'>
           <div className='text-center space-y-4'>
             <div className='w-12 h-12 mx-auto border-4 border-primary border-t-transparent rounded-full animate-spin' />
             <p className='text-muted-foreground'>Loading...</p>
@@ -117,7 +117,7 @@ function RouteComponent() {
   if (!isAuthenticated) {
     return (
       <PageLayout maxWidth='6xl'>
-        <div className='flex items-center justify-center min-h-[60vh]'>
+        <div className='flex items-center justify-center min-h-[60dvh]'>
           <Card className='p-8 md:p-12 text-center max-w-2xl mx-auto shadow-lg border-2'>
             <div className='flex justify-center mb-6'>
               <div className='flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 ring-4 ring-primary/20'>

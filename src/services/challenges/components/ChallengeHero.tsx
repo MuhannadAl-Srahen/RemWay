@@ -62,7 +62,7 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
         />
 
         {/* Desktop Overlay Gradient - only on md+ */}
-        <div className='hidden md:block absolute inset-0 bg-gradient-to-t from-black/70 to-transparent' />
+        <div className='hidden md:block absolute inset-0 bg-linear-to-t from-black/70 to-transparent' />
 
         {/* Navigation */}
         {hasImages && challenge.images.length > 1 && (
@@ -182,7 +182,7 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
               href={challenge.livePreviewUrl}
               target='_blank'
               rel='noopener noreferrer'
-              className='inline-flex items-center justify-center gap-1.5 md:px-3 md:py-2 py-2 px-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium text-sm transition-colors duration-300 flex-shrink-0'
+              className='inline-flex items-center justify-center gap-1.5 md:px-3 md:py-2 py-2 px-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md font-medium text-sm transition-colors duration-300 shrink-0'
             >
               <Eye className='h-4 w-4' />
               <span>Preview</span>

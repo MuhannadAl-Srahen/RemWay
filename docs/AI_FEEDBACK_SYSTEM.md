@@ -56,10 +56,10 @@ The AI Feedback System analyzes user submissions by:
 
 Before submitting, you need:
 
-| Requirement           | Description                                                        | Examples                                                          |
-| --------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| **GitHub Repository** | Your source code must be **publicly accessible** on GitHub         | `https://github.com/username/my-project`                          |
-| **Live Site URL**     | Your project must be deployed and accessible online                | `https://my-project.vercel.app`, `https://my-project.netlify.app` |
+| Requirement           | Description                                                | Examples                                                          |
+| --------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| **GitHub Repository** | Your source code must be **publicly accessible** on GitHub | `https://github.com/username/my-project`                          |
+| **Live Site URL**     | Your project must be deployed and accessible online        | `https://my-project.vercel.app`, `https://my-project.netlify.app` |
 
 > ⚠️ **Important**: Your GitHub repository **must be public**. Private repositories cannot be analyzed by the AI. The system will check this before allowing submission.
 
@@ -282,7 +282,7 @@ The system intelligently prioritizes which files to fetch from GitHub:
         │               │  (Deterministic) │     │  (Parallel +    │
         │               │  temperature=0   │     │   Retry)        │
         │               └──────────────────┘     └─────────────────┘
-        │               
+        │
         │               ┌──────────────────┐
         └───────────────│  Poll Every 3s   │
                         │  for Completion  │
@@ -297,13 +297,13 @@ The system intelligently prioritizes which files to fetch from GitHub:
 
 **Fetching Features:**
 
-| Feature             | Description                                    |
-| ------------------- | ---------------------------------------------- |
-| **Timeout**         | 15 seconds per request to prevent hanging      |
-| **Retry Logic**     | Up to 3 retries with 1-second delay            |
-| **Parallel Fetch**  | 5 files fetched simultaneously for speed       |
-| **Rate Limiting**   | Detects GitHub rate limits and reports clearly |
-| **Priority Sorting**| Source files fetched before config files       |
+| Feature              | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| **Timeout**          | 15 seconds per request to prevent hanging      |
+| **Retry Logic**      | Up to 3 retries with 1-second delay            |
+| **Parallel Fetch**   | 5 files fetched simultaneously for speed       |
+| **Rate Limiting**    | Detects GitHub rate limits and reports clearly |
+| **Priority Sorting** | Source files fetched before config files       |
 
 ### 2. Repository Visibility Check ✅
 
@@ -368,7 +368,7 @@ CREATE TABLE challenge_feedback (
 );
 
 -- Unique constraint ensures one feedback per submission
-ALTER TABLE challenge_feedback 
+ALTER TABLE challenge_feedback
 ADD CONSTRAINT unique_feedback_per_submission UNIQUE (submission_id);
 ```
 
@@ -392,14 +392,14 @@ ADD CONSTRAINT unique_feedback_per_submission UNIQUE (submission_id);
 
 ## Performance
 
-| Metric                    | Value                     |
-| ------------------------- | ------------------------- |
-| Average generation time   | 20-60 seconds             |
-| Temperature               | 0 (fully deterministic)   |
-| Files analyzed            | Up to 15                  |
-| GitHub fetch timeout      | 15 seconds per request    |
-| GitHub fetch retries      | Up to 3 attempts          |
-| Parallel file fetches     | 5 at a time               |
+| Metric                  | Value                   |
+| ----------------------- | ----------------------- |
+| Average generation time | 20-60 seconds           |
+| Temperature             | 0 (fully deterministic) |
+| Files analyzed          | Up to 15                |
+| GitHub fetch timeout    | 15 seconds per request  |
+| GitHub fetch retries    | Up to 3 attempts        |
+| Parallel file fetches   | 5 at a time             |
 
 ---
 

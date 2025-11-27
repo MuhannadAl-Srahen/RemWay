@@ -23,6 +23,7 @@ Welcome to PexFect! This guide will help you get the most out of the platform.
 ### What is PexFect?
 
 PexFect is a platform where you can:
+
 - 🎯 **Practice** frontend development with real-world challenges
 - 🤖 **Get AI feedback** on your code quality and design accuracy
 - 📈 **Track your progress** through structured learning paths
@@ -47,18 +48,18 @@ Navigate to the **Challenges** page from the main menu.
 
 ### Views
 
-| View | Best For |
-|------|----------|
-| **Grid View** | Visual browsing with thumbnails |
+| View          | Best For                          |
+| ------------- | --------------------------------- |
+| **Grid View** | Visual browsing with thumbnails   |
 | **List View** | Quick scanning of many challenges |
 
 ### Filtering
 
-| Filter | Options | Use Case |
-|--------|---------|----------|
-| **Difficulty** | Beginner, Intermediate, Advanced | Match your skill level |
-| **Category** | Components, Layouts, Forms, etc. | Focus on specific skills |
-| **Search** | Any text | Find specific challenges |
+| Filter         | Options                          | Use Case                 |
+| -------------- | -------------------------------- | ------------------------ |
+| **Difficulty** | Beginner, Intermediate, Advanced | Match your skill level   |
+| **Category**   | Components, Layouts, Forms, etc. | Focus on specific skills |
+| **Search**     | Any text                         | Find specific challenges |
 
 ### Saving Challenges
 
@@ -78,12 +79,12 @@ Click the **bookmark icon** (🔖) on any challenge to save it for later. Access
 
 On the challenge detail page, you'll find:
 
-| Tab | Contains |
-|-----|----------|
-| **Overview** | Challenge description, learning outcomes, requirements |
-| **Design** | Figma design to implement |
-| **Resources** | Starter files, assets, helpful links |
-| **Submit** | Form to submit your solution |
+| Tab           | Contains                                               |
+| ------------- | ------------------------------------------------------ |
+| **Overview**  | Challenge description, learning outcomes, requirements |
+| **Design**    | Figma design to implement                              |
+| **Resources** | Starter files, assets, helpful links                   |
+| **Submit**    | Form to submit your solution                           |
 
 ### Step 3: Access the Design
 
@@ -102,18 +103,19 @@ On the challenge detail page, you'll find:
 
 #### Recommended Hosting Platforms
 
-| Platform | Best For | Free Tier |
-|----------|----------|-----------|
-| [Vercel](https://vercel.com) | React/Next.js projects | ✅ Yes |
-| [Netlify](https://netlify.com) | Static sites | ✅ Yes |
-| [GitHub Pages](https://pages.github.com) | HTML/CSS/JS | ✅ Yes |
-| [Cloudflare Pages](https://pages.cloudflare.com) | Any frontend | ✅ Yes |
+| Platform                                         | Best For               | Free Tier |
+| ------------------------------------------------ | ---------------------- | --------- |
+| [Vercel](https://vercel.com)                     | React/Next.js projects | ✅ Yes    |
+| [Netlify](https://netlify.com)                   | Static sites           | ✅ Yes    |
+| [GitHub Pages](https://pages.github.com)         | HTML/CSS/JS            | ✅ Yes    |
+| [Cloudflare Pages](https://pages.cloudflare.com) | Any frontend           | ✅ Yes    |
 
 ### Step 5: Make Your Repository Public
 
 ⚠️ **Important:** Your GitHub repository **must be public** for the AI to analyze your code.
 
 To make a repository public:
+
 1. Go to your repository on GitHub
 2. Click **Settings**
 3. Scroll to **Danger Zone**
@@ -164,21 +166,21 @@ Before submitting, ensure you have:
 
 Your score is calculated from four categories:
 
-| Category | Max Points | What's Evaluated |
-|----------|------------|------------------|
-| 🎨 **Design** | 30 | Visual accuracy, responsiveness, UI/UX |
-| 💻 **Code Quality** | 30 | Clean structure, naming, organization |
-| ⚙️ **Functionality** | 25 | Features work, error handling |
-| ♿ **Accessibility** | 15 | Semantic HTML, ARIA, keyboard navigation |
+| Category             | Max Points | What's Evaluated                         |
+| -------------------- | ---------- | ---------------------------------------- |
+| 🎨 **Design**        | 30         | Visual accuracy, responsiveness, UI/UX   |
+| 💻 **Code Quality**  | 30         | Clean structure, naming, organization    |
+| ⚙️ **Functionality** | 25         | Features work, error handling            |
+| ♿ **Accessibility** | 15         | Semantic HTML, ARIA, keyboard navigation |
 
 ### Rating Levels
 
-| Score | Rating | What It Means |
-|-------|--------|---------------|
-| 90-100 | 🌟 **Excellent** | Production-ready, follows all best practices |
-| 75-89 | ✅ **Good** | Solid implementation, minor improvements possible |
-| 60-74 | 📈 **Needs Improvement** | Core functionality works, notable issues |
-| Below 60 | ⚠️ **Poor** | Significant problems to address |
+| Score    | Rating                   | What It Means                                     |
+| -------- | ------------------------ | ------------------------------------------------- |
+| 90-100   | 🌟 **Excellent**         | Production-ready, follows all best practices      |
+| 75-89    | ✅ **Good**              | Solid implementation, minor improvements possible |
+| 60-74    | 📈 **Needs Improvement** | Core functionality works, notable issues          |
+| Below 60 | ⚠️ **Poor**              | Significant problems to address                   |
 
 ### Feedback Sections
 
@@ -206,10 +208,10 @@ Your score is calculated from four categories:
 
 ### Warning Messages
 
-| Warning | Meaning | Action |
-|---------|---------|--------|
-| ⚠️ **Wrong Project** | You submitted code for a different challenge | Resubmit with the correct repository |
-| ⚠️ **Code Not Analyzed** | Couldn't fetch your GitHub code | Make sure your repository is public |
+| Warning                  | Meaning                                      | Action                               |
+| ------------------------ | -------------------------------------------- | ------------------------------------ |
+| ⚠️ **Wrong Project**     | You submitted code for a different challenge | Resubmit with the correct repository |
+| ⚠️ **Code Not Analyzed** | Couldn't fetch your GitHub code              | Make sure your repository is public  |
 
 ---
 
@@ -235,22 +237,26 @@ When you resubmit, your new feedback will include:
 ### Tips for Higher Scores
 
 #### Design (30 points)
+
 - Match the design exactly (colors, spacing, fonts)
 - Implement responsive design for all screen sizes
 - Pay attention to small details (shadows, borders, etc.)
 
 #### Code Quality (30 points)
+
 - Use consistent naming conventions
 - Organize files logically
 - Remove unused code and console.logs
 - Add comments where helpful
 
 #### Functionality (25 points)
+
 - Test all interactive elements
 - Handle edge cases
 - Ensure smooth animations/transitions
 
 #### Accessibility (15 points)
+
 - Use semantic HTML (`<header>`, `<main>`, `<article>`, etc.)
 - Add alt text to all images
 - Ensure keyboard navigation works
@@ -267,11 +273,11 @@ Structured sequences of challenges designed to take you from beginner to advance
 
 ### Available Paths
 
-| Path | Duration | Focus |
-|------|----------|-------|
-| 🌱 **Beginner** | 2-3 weeks | HTML, CSS, JavaScript basics |
-| 🌿 **Intermediate** | 2-4 weeks | React, APIs, state management |
-| 🌳 **Advanced** | 3-5 weeks | TypeScript, performance, architecture |
+| Path                | Duration  | Focus                                 |
+| ------------------- | --------- | ------------------------------------- |
+| 🌱 **Beginner**     | 2-3 weeks | HTML, CSS, JavaScript basics          |
+| 🌿 **Intermediate** | 2-4 weeks | React, APIs, state management         |
+| 🌳 **Advanced**     | 3-5 weeks | TypeScript, performance, architecture |
 
 ### Starting a Path
 
@@ -300,12 +306,12 @@ Click your **avatar** in the top-right and select **Profile**, or navigate to `/
 
 ### Profile Information
 
-| Section | Description |
-|---------|-------------|
-| **Stats** | Challenges completed, streak, points |
-| **Activity** | Recent submissions and completions |
-| **Saved Challenges** | Your bookmarked challenges |
-| **Social Links** | Your connected accounts |
+| Section              | Description                          |
+| -------------------- | ------------------------------------ |
+| **Stats**            | Challenges completed, streak, points |
+| **Activity**         | Recent submissions and completions   |
+| **Saved Challenges** | Your bookmarked challenges           |
+| **Social Links**     | Your connected accounts              |
 
 ### Editing Your Profile
 
@@ -327,6 +333,7 @@ Click your **avatar** in the top-right and select **Profile**, or navigate to `/
 #### Q: Why can't I submit my solution?
 
 **A:** Check these requirements:
+
 - ✅ You're signed in with GitHub
 - ✅ Your repository is public
 - ✅ The repository belongs to your GitHub account
@@ -335,12 +342,14 @@ Click your **avatar** in the top-right and select **Profile**, or navigate to `/
 #### Q: Why is my repository marked as private?
 
 **A:** To change visibility:
+
 1. Go to your repo on GitHub
 2. Settings → Danger Zone → Change visibility → Make public
 
 #### Q: Why is feedback taking so long?
 
 **A:** AI analysis typically takes 20-60 seconds. If it takes more than 2 minutes:
+
 1. Click **Retry** when prompted
 2. Check if your repository is public
 3. Try again during off-peak hours
@@ -348,6 +357,7 @@ Click your **avatar** in the top-right and select **Profile**, or navigate to `/
 #### Q: Why did my score change when I resubmitted?
 
 **A:** If you updated your code, a new score is generated based on your changes. The AI uses deterministic settings, so:
+
 - **Same code** = Same score
 - **Updated code** = New score (could be higher or lower)
 
@@ -361,13 +371,13 @@ Click your **avatar** in the top-right and select **Profile**, or navigate to `/
 
 ### Error Messages
 
-| Error | Solution |
-|-------|----------|
-| "Repository must be public" | Change repo visibility in GitHub Settings |
-| "You can only submit your own repositories" | Use a repository from your GitHub account |
-| "URL already used for another challenge" | Use unique URLs for each challenge |
-| "Cannot submit official solution" | Create your own project, don't submit the demo |
-| "Invalid GitHub URL" | Use format: https://github.com/username/repo |
+| Error                                       | Solution                                       |
+| ------------------------------------------- | ---------------------------------------------- |
+| "Repository must be public"                 | Change repo visibility in GitHub Settings      |
+| "You can only submit your own repositories" | Use a repository from your GitHub account      |
+| "URL already used for another challenge"    | Use unique URLs for each challenge             |
+| "Cannot submit official solution"           | Create your own project, don't submit the demo |
+| "Invalid GitHub URL"                        | Use format: https://github.com/username/repo   |
 
 ### Still Need Help?
 
@@ -379,13 +389,13 @@ Click your **avatar** in the top-right and select **Profile**, or navigate to `/
 
 ## Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `/` | Focus search |
-| `g` then `h` | Go to Home |
+| Shortcut     | Action           |
+| ------------ | ---------------- |
+| `/`          | Focus search     |
+| `g` then `h` | Go to Home       |
 | `g` then `c` | Go to Challenges |
-| `g` then `r` | Go to Roadmap |
-| `g` then `p` | Go to Profile |
+| `g` then `r` | Go to Roadmap    |
+| `g` then `p` | Go to Profile    |
 
 ---
 

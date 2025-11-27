@@ -57,7 +57,7 @@ function RouteComponent() {
   if (error || !challenge) {
     return (
       <PageLayout>
-        <div className='flex items-center justify-center min-h-[60vh] px-4'>
+        <div className='flex items-center justify-center min-h-[60dvh] px-4'>
           <div className='text-center max-w-md'>
             <div className='mb-8'>
               <div className='relative inline-block'>
@@ -65,7 +65,7 @@ function RouteComponent() {
                   className='absolute -top-3 -left-3 text-primary/20'
                   size={40}
                 />
-                <h1 className='text-7xl font-bold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent'>
+                <h1 className='text-7xl font-bold bg-linear-to-br from-primary to-primary/60 bg-clip-text text-transparent'>
                   404
                 </h1>
                 <FileText
@@ -140,7 +140,7 @@ function RouteComponent() {
                     : 'hover:bg-muted text-muted-foreground hover:text-foreground hover:scale-[1.02]'
                 }`}
               >
-                <Icon className='h-3 w-3 md:h-4 md:w-4 flex-shrink-0' />
+                <Icon className='h-3 w-3 md:h-4 md:w-4 shrink-0' />
                 <span className='hidden sm:inline text-sm md:text-base'>
                   {tab.label}
                 </span>

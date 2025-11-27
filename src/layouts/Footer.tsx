@@ -90,7 +90,7 @@ const FooterNavigation = () => {
     <div className='flex flex-col gap-6'>
       <h3 className='text-foreground font-semibold text-lg relative'>
         Explore
-        <div className='absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full' />
+        <div className='absolute -bottom-2 left-0 w-12 h-0.5 bg-linear-to-r from-primary to-secondary rounded-full' />
       </h3>
       <ul className='space-y-3'>
         {navigationLinks.map(({ name, to }) => (
@@ -117,7 +117,7 @@ const ContactInfo = () => {
     <div>
       <h3 className='text-foreground font-semibold text-lg mb-6 relative'>
         Get in Touch
-        <div className='absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-primary to-secondary rounded-full' />
+        <div className='absolute -bottom-2 left-0 w-12 h-0.5 bg-linear-to-r from-primary to-secondary rounded-full' />
       </h3>
       <div className='space-y-3'>
         <div className='group flex items-center space-x-3 p-3 rounded-xl hover:bg-muted/30 transition-all duration-300'>

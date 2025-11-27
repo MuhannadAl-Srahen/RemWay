@@ -45,14 +45,14 @@ PexFect is a web-based platform where developers can:
 
 ### Key Differentiators
 
-| Feature               | Description                                                      |
-| --------------------- | ---------------------------------------------------------------- |
-| **AI Feedback**       | Gemini-powered code review with specific, actionable suggestions |
-| **Real Projects**     | Build actual projects, not toy examples                          |
-| **Progress Tracking** | Structured learning paths with milestones                        |
-| **Design-First**      | Figma designs provided for each challenge                        |
-| **Resubmission**      | Improve your score based on previous feedback                    |
-| **Consistent Scoring**| Deterministic AI ensures same code = same score                  |
+| Feature                | Description                                                      |
+| ---------------------- | ---------------------------------------------------------------- |
+| **AI Feedback**        | Gemini-powered code review with specific, actionable suggestions |
+| **Real Projects**      | Build actual projects, not toy examples                          |
+| **Progress Tracking**  | Structured learning paths with milestones                        |
+| **Design-First**       | Figma designs provided for each challenge                        |
+| **Resubmission**       | Improve your score based on previous feedback                    |
+| **Consistent Scoring** | Deterministic AI ensures same code = same score                  |
 
 ---
 
@@ -73,6 +73,7 @@ The home page introduces PexFect and its features:
 5. **Call to Action** - Sign up prompt
 
 **Actions Available:**
+
 - Click "Get Started" to browse challenges
 - Click "Sign In" to authenticate with GitHub
 
@@ -92,15 +93,16 @@ Browse all available frontend coding challenges.
 
 #### Filtering Challenges
 
-| Filter       | Options                              | Purpose                        |
-| ------------ | ------------------------------------ | ------------------------------ |
-| **Difficulty** | Beginner, Intermediate, Advanced   | Filter by skill level          |
-| **Category** | Components, Layouts, Forms, etc.     | Filter by challenge type       |
-| **Search**   | Text input                           | Search by title or description |
+| Filter         | Options                          | Purpose                        |
+| -------------- | -------------------------------- | ------------------------------ |
+| **Difficulty** | Beginner, Intermediate, Advanced | Filter by skill level          |
+| **Category**   | Components, Layouts, Forms, etc. | Filter by challenge type       |
+| **Search**     | Text input                       | Search by title or description |
 
 #### Challenge Card Information
 
 Each challenge card shows:
+
 - **Thumbnail** - Preview image of the design
 - **Title** - Challenge name
 - **Difficulty** - Color-coded badge (Green/Yellow/Red)
@@ -152,6 +154,7 @@ View complete details for a specific challenge.
 #### Submitting a Solution
 
 **Prerequisites:**
+
 - ✅ Signed in with GitHub
 - ✅ Public GitHub repository with your code
 - ✅ Live deployed site
@@ -162,17 +165,21 @@ View complete details for a specific challenge.
    - Scroll down or click "Submit Solution"
 
 2. **Enter GitHub Repository URL**
+
    ```
    Format: https://github.com/username/repository-name
    ```
+
    - Must be YOUR repository (ownership verified)
    - Must be PUBLIC (checked before submission)
    - Real-time validation shows ✓ or error
 
 3. **Enter Live Site URL**
+
    ```
    Format: https://your-site.vercel.app
    ```
+
    - Must be accessible
    - Cannot be localhost
    - Real-time validation shows ✓ or error
@@ -189,13 +196,13 @@ View complete details for a specific challenge.
 
 **Validation Messages:**
 
-| Issue | Error Message | Solution |
-|-------|---------------|----------|
-| Private repo | "Repository must be public" | Change repo to public in GitHub settings |
-| Invalid GitHub URL | "Must be a valid GitHub URL" | Use format: github.com/user/repo |
-| Invalid live URL | "Must be a valid URL" | Ensure https:// prefix |
-| Someone else's repo | "You can only submit your own repos" | Use a repo from your GitHub account |
-| Already used URL | "URL already used for another challenge" | Use unique URLs per challenge |
+| Issue               | Error Message                            | Solution                                 |
+| ------------------- | ---------------------------------------- | ---------------------------------------- |
+| Private repo        | "Repository must be public"              | Change repo to public in GitHub settings |
+| Invalid GitHub URL  | "Must be a valid GitHub URL"             | Use format: github.com/user/repo         |
+| Invalid live URL    | "Must be a valid URL"                    | Ensure https:// prefix                   |
+| Someone else's repo | "You can only submit your own repos"     | Use a repo from your GitHub account      |
+| Already used URL    | "URL already used for another challenge" | Use unique URLs per challenge            |
 
 ---
 
@@ -256,11 +263,11 @@ View AI-generated feedback for your submission.
 
 #### Warning Banners
 
-| Banner | Meaning | Action |
-|--------|---------|--------|
-| **Wrong Project** | You submitted code for a different challenge | Resubmit with correct repository |
-| **Code Not Available** | GitHub code couldn't be fetched | Make sure repo is public |
-| **Validation Error** | URLs are invalid | Check your URLs and resubmit |
+| Banner                 | Meaning                                      | Action                           |
+| ---------------------- | -------------------------------------------- | -------------------------------- |
+| **Wrong Project**      | You submitted code for a different challenge | Resubmit with correct repository |
+| **Code Not Available** | GitHub code couldn't be fetched              | Make sure repo is public         |
+| **Validation Error**   | URLs are invalid                             | Check your URLs and resubmit     |
 
 #### Actions
 
@@ -279,11 +286,11 @@ Structured learning paths from beginner to advanced.
 
 #### Available Paths
 
-| Path | Duration | Focus Areas |
-|------|----------|-------------|
-| **Beginner** | 2-3 weeks | HTML, CSS, JavaScript basics |
-| **Intermediate** | 2-4 weeks | React, APIs, State management |
-| **Advanced** | 3-5 weeks | TypeScript, Performance, Architecture |
+| Path             | Duration  | Focus Areas                           |
+| ---------------- | --------- | ------------------------------------- |
+| **Beginner**     | 2-3 weeks | HTML, CSS, JavaScript basics          |
+| **Intermediate** | 2-4 weeks | React, APIs, State management         |
+| **Advanced**     | 3-5 weeks | TypeScript, Performance, Architecture |
 
 #### Path Card Information
 
@@ -335,12 +342,12 @@ Challenges displayed in order with:
 
 #### Challenge Unlock Rules
 
-| Condition | Status |
-|-----------|--------|
-| Haven't started path | All challenges locked |
-| Started path | First challenge unlocked |
-| Completed challenge N | Challenge N+1 unlocked |
-| Completed all challenges | Path marked complete |
+| Condition                | Status                   |
+| ------------------------ | ------------------------ |
+| Haven't started path     | All challenges locked    |
+| Started path             | First challenge unlocked |
+| Completed challenge N    | Challenge N+1 unlocked   |
+| Completed all challenges | Path marked complete     |
 
 #### Progress Tracking
 
@@ -358,13 +365,13 @@ Curated learning resources for frontend development.
 
 #### Resource Categories
 
-| Category | Description |
-|----------|-------------|
+| Category          | Description                      |
+| ----------------- | -------------------------------- |
 | **Documentation** | Official docs (MDN, React, etc.) |
-| **Tutorials** | Step-by-step guides |
-| **Tools** | Development tools and utilities |
-| **Communities** | Forums, Discord, Stack Overflow |
-| **Courses** | Online learning platforms |
+| **Tutorials**     | Step-by-step guides              |
+| **Tools**         | Development tools and utilities  |
+| **Communities**   | Forums, Discord, Stack Overflow  |
+| **Courses**       | Online learning platforms        |
 
 #### Resource Card Information
 
@@ -433,15 +440,15 @@ Manage your account settings.
 
 #### Editable Fields
 
-| Field | Description |
-|-------|-------------|
-| **Display Name** | Your public name |
-| **Username** | Unique identifier (may be limited) |
-| **Bio** | Short description about yourself |
-| **Location** | Your city/country |
-| **Website** | Personal website URL |
-| **Twitter** | Twitter/X username |
-| **LinkedIn** | LinkedIn profile URL |
+| Field            | Description                        |
+| ---------------- | ---------------------------------- |
+| **Display Name** | Your public name                   |
+| **Username**     | Unique identifier (may be limited) |
+| **Bio**          | Short description about yourself   |
+| **Location**     | Your city/country                  |
+| **Website**      | Personal website URL               |
+| **Twitter**      | Twitter/X username                 |
+| **LinkedIn**     | LinkedIn profile URL               |
 
 #### Actions
 
@@ -466,6 +473,7 @@ Track your overall learning progress.
 #### Progress by Path
 
 Each learning path shows:
+
 - Progress bar
 - Challenges completed / total
 - Time spent (estimated)
@@ -473,6 +481,7 @@ Each learning path shows:
 #### Recent Activity
 
 Timeline of:
+
 - Submissions made
 - Feedback received
 - Challenges completed
@@ -507,30 +516,32 @@ Timeline of:
 
 ### Feature Matrix
 
-| Feature | Guest | Signed In | Description |
-|---------|-------|-----------|-------------|
-| Browse challenges | ✅ | ✅ | View all challenges |
-| View challenge details | ✅ | ✅ | See requirements, design |
-| Submit solution | ❌ | ✅ | Requires authentication |
-| View feedback | ❌ | ✅ | Your submissions only |
-| Save challenges | ❌ | ✅ | Bookmark for later |
-| View roadmap | ✅ | ✅ | Browse learning paths |
-| Start a path | ❌ | ✅ | Track progress |
-| View resources | ✅ | ✅ | All resources public |
-| Edit profile | ❌ | ✅ | Manage your info |
-| View progress | ❌ | ✅ | Track achievements |
+| Feature                | Guest | Signed In | Description              |
+| ---------------------- | ----- | --------- | ------------------------ |
+| Browse challenges      | ✅    | ✅        | View all challenges      |
+| View challenge details | ✅    | ✅        | See requirements, design |
+| Submit solution        | ❌    | ✅        | Requires authentication  |
+| View feedback          | ❌    | ✅        | Your submissions only    |
+| Save challenges        | ❌    | ✅        | Bookmark for later       |
+| View roadmap           | ✅    | ✅        | Browse learning paths    |
+| Start a path           | ❌    | ✅        | Track progress           |
+| View resources         | ✅    | ✅        | All resources public     |
+| Edit profile           | ❌    | ✅        | Manage your info         |
+| View progress          | ❌    | ✅        | Track achievements       |
 
 ### Submission System Details
 
 #### URL Validation Rules
 
 **GitHub Repository URL:**
+
 - Must start with `https://github.com/`
 - Must contain owner and repo name
 - Must be owned by the signed-in user
 - Must be public (verified via GitHub API)
 
 **Live Site URL:**
+
 - Must start with `http://` or `https://`
 - Cannot be `localhost` or `127.0.0.1`
 - Should be accessible (not verified, but checked by AI)
@@ -538,23 +549,25 @@ Timeline of:
 #### Ownership Verification
 
 The system verifies:
+
 1. Your GitHub username (from OAuth)
 2. Repository owner in the URL
 3. They must match
 
 Example:
+
 - Signed in as: `johndoe`
 - Valid URL: `https://github.com/johndoe/my-project`
 - Invalid URL: `https://github.com/someone-else/their-project`
 
 #### Duplicate Prevention
 
-| Scenario | Behavior |
-|----------|----------|
-| Same URL, same challenge | Updates existing submission |
-| Same URL, different challenge | Error: "URL already used" |
-| Different user's URL | Error: "Can only submit your own repos" |
-| Official challenge URL | Error: "Cannot submit official solution" |
+| Scenario                      | Behavior                                 |
+| ----------------------------- | ---------------------------------------- |
+| Same URL, same challenge      | Updates existing submission              |
+| Same URL, different challenge | Error: "URL already used"                |
+| Different user's URL          | Error: "Can only submit your own repos"  |
+| Official challenge URL        | Error: "Cannot submit official solution" |
 
 #### Resubmission Flow
 
@@ -569,26 +582,27 @@ Example:
 
 #### Scoring Categories
 
-| Category | Points | What's Evaluated |
-|----------|--------|------------------|
-| Design | 30 | Visual accuracy, responsiveness, UI/UX |
-| Code Quality | 30 | Structure, naming, best practices |
-| Functionality | 25 | Features work, error handling |
-| Accessibility | 15 | Semantic HTML, ARIA, keyboard |
+| Category      | Points | What's Evaluated                       |
+| ------------- | ------ | -------------------------------------- |
+| Design        | 30     | Visual accuracy, responsiveness, UI/UX |
+| Code Quality  | 30     | Structure, naming, best practices      |
+| Functionality | 25     | Features work, error handling          |
+| Accessibility | 15     | Semantic HTML, ARIA, keyboard          |
 
 #### Rating Thresholds
 
-| Score | Rating | Meaning |
-|-------|--------|---------|
-| 90-100 | Excellent | Production-ready code |
-| 75-89 | Good | Solid implementation |
-| 60-74 | Needs Improvement | Core works, has issues |
-| Below 60 | Poor | Significant problems |
-| 0-20 | Mismatch/Error | Wrong project or validation error |
+| Score    | Rating            | Meaning                           |
+| -------- | ----------------- | --------------------------------- |
+| 90-100   | Excellent         | Production-ready code             |
+| 75-89    | Good              | Solid implementation              |
+| 60-74    | Needs Improvement | Core works, has issues            |
+| Below 60 | Poor              | Significant problems              |
+| 0-20     | Mismatch/Error    | Wrong project or validation error |
 
 #### Consistency Guarantee
 
 The AI uses deterministic settings:
+
 - **temperature: 0** - No randomness
 - **topK: 1** - Most likely response
 - **topP: 1** - No sampling variance
@@ -833,18 +847,23 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 ### Core Tables
 
 #### `profiles`
+
 User profile information linked to auth.
 
 #### `challenges`
+
 All available coding challenges.
 
 #### `challenge_submissions`
+
 User submissions with GitHub and live URLs.
 
 #### `challenge_feedback`
+
 AI-generated feedback with unique constraint per submission.
 
 #### `saved_challenges`
+
 User bookmarks for challenges.
 
 ---
@@ -936,6 +955,7 @@ Includes TanStack Router, React, and Tailwind plugins with manual chunking for o
 3. Deploy automatically on push
 
 **Build Settings:**
+
 - Framework: Vite
 - Build Command: `bun run build`
 - Output Directory: `dist`
