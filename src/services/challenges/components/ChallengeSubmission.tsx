@@ -103,6 +103,12 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
             errorMessage = err.message.replace('LIVE_URL_USED: ', '')
           } else if (err.message.startsWith('OFFICIAL_URL_USED:')) {
             errorMessage = err.message.replace('OFFICIAL_URL_USED: ', '')
+          } else if (err.message.startsWith('GITHUB_OWNERSHIP_ERROR:')) {
+            errorMessage = err.message.replace('GITHUB_OWNERSHIP_ERROR: ', '')
+          } else if (err.message.startsWith('GITHUB_AUTH_REQUIRED:')) {
+            errorMessage = err.message.replace('GITHUB_AUTH_REQUIRED: ', '')
+          } else if (err.message.startsWith('INVALID_GITHUB_URL:')) {
+            errorMessage = err.message.replace('INVALID_GITHUB_URL: ', '')
           }
           // Check for "URLs already used for another challenge" errors
           else if (err.message.includes('already used for another challenge')) {
@@ -235,7 +241,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                 },
               })
             }}
-            className='w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary'
+            className='w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary'
           >
             <Github className='mr-2 h-5 w-5' />
             Sign In with GitHub
@@ -491,7 +497,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                 children={([canSubmit, isSubmittingForm]) => (
                   <Button
                     type='submit'
-                    className='w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-base py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200'
+                    className='w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-base py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200'
                     disabled={!canSubmit || isSubmitting || isSubmittingForm}
                   >
                     {isSubmitting || isSubmittingForm ? (

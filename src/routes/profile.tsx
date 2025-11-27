@@ -124,7 +124,7 @@ function RouteComponent() {
                 <LogIn className='h-10 w-10 text-primary' />
               </div>
             </div>
-            <h2 className='text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent'>
+            <h2 className='text-3xl font-bold mb-4 bg-linear-to-r from-primary to-primary/60 bg-clip-text text-transparent'>
               Sign In to View Your Profile
             </h2>
             <p className='text-muted-foreground text-lg mb-8 leading-relaxed'>

@@ -26,7 +26,7 @@ function RootComponent() {
 
 function NotFoundComponent() {
   return (
-    <div className='min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-background via-background to-muted/20'>
+    <div className='min-h-screen flex items-center justify-center px-4 bg-linear-to-br from-background via-background to-muted/20'>
       <div className='max-w-2xl w-full text-center'>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -45,7 +45,7 @@ function NotFoundComponent() {
                 className='absolute -top-4 -left-4 text-primary/20'
                 size={48}
               />
-              <h1 className='text-9xl font-bold bg-gradient-to-br from-primary to-primary/60 bg-clip-text text-transparent'>
+              <h1 className='text-9xl font-bold bg-linear-to-br from-primary to-primary/60 bg-clip-text text-transparent'>
                 404
               </h1>
               <Code2
@@ -100,7 +100,7 @@ function NotFoundComponent() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className='flex flex-col sm:flex-row gap-4 justify-center items-center'
           >
-            <Button asChild size='lg' className='min-w-[160px]'>
+            <Button asChild size='lg' className='min-w-40'>
               <Link to='/'>
                 <Home className='mr-2 h-4 w-4' />
                 Go Home
@@ -111,7 +111,7 @@ function NotFoundComponent() {
               asChild
               variant='outline'
               size='lg'
-              className='min-w-[160px]'
+              className='min-w-40'
             >
               <Link to='/challenges'>
                 <Search className='mr-2 h-4 w-4' />
@@ -123,7 +123,7 @@ function NotFoundComponent() {
               variant='ghost'
               size='lg'
               onClick={() => window.history.back()}
-              className='min-w-[160px]'
+              className='min-w-40'
             >
               <ArrowLeft className='mr-2 h-4 w-4' />
               Go Back
