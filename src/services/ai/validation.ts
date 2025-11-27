@@ -3,10 +3,18 @@
  * Validates URLs and submission data before AI analysis
  */
 
+import { parseGitHubUrl } from './githubFetcher'
+
 export interface ValidationResult {
   isValid: boolean
   errors: string[]
   warnings: string[]
+}
+
+export interface RepoVisibilityResult {
+  isPublic: boolean
+  exists: boolean
+  error?: string
 }
 
 /**
@@ -65,6 +73,82 @@ export const isSuspiciousUrl = (url: string): boolean => {
   ]
 
   return suspiciousPatterns.some((pattern) => pattern.test(url))
+}
+
+/**
+ * Check if a GitHub repository is public and accessible
+ * Uses the GitHub API to check repository visibility without authentication
+ */
+export const checkRepoVisibility = async (
+  githubUrl: string
+): Promise<RepoVisibilityResult> => {
+  if (!githubUrl || !isValidGitHubUrl(githubUrl)) {
+    return { isPublic: false, exists: false, error: 'Invalid GitHub URL format' }
+  }
+
+  const parsed = parseGitHubUrl(githubUrl)
+  if (!parsed) {
+    return { isPublic: false, exists: false, error: 'Could not parse GitHub URL' }
+  }
+
+  const { owner, repo } = parsed
+
+  try {
+    // Use GitHub API without authentication - only public repos will return 200
+    const response = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}`,
+      {
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+        },
+      }
+    )
+
+    if (response.ok) {
+      const data = await response.json()
+      // Double-check the private flag from the API response
+      if (data.private === true) {
+        return {
+          isPublic: false,
+          exists: true,
+          error: 'This repository is private. Please make it public to submit.',
+        }
+      }
+      return { isPublic: true, exists: true }
+    }
+
+    if (response.status === 404) {
+      // Could be private or doesn't exist
+      return {
+        isPublic: false,
+        exists: false,
+        error:
+          'Repository not found. It may be private or the URL may be incorrect. Please ensure your repository is public.',
+      }
+    }
+
+    if (response.status === 403) {
+      // Rate limited
+      return {
+        isPublic: false,
+        exists: false,
+        error: 'GitHub API rate limit exceeded. Please try again in a few minutes.',
+      }
+    }
+
+    return {
+      isPublic: false,
+      exists: false,
+      error: `GitHub API returned status ${response.status}. Please check the URL and try again.`,
+    }
+  } catch (error) {
+    console.error('[checkRepoVisibility] Error:', error)
+    return {
+      isPublic: false,
+      exists: false,
+      error: 'Failed to check repository visibility. Please try again.',
+    }
+  }
 }
 
 /**
