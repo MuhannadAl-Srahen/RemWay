@@ -44,7 +44,7 @@ export function ChallengeControls({
             placeholder='Search challenges...'
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className='pl-11 !h-12 bg-card shadow-sm'
+            className='pl-11 h-12! bg-card shadow-sm'
           />
         </div>
 

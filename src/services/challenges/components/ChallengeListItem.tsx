@@ -50,7 +50,7 @@ export function ChallengeListItem({
           </div>
 
           {/* Content Section */}
-          <CardContent className='flex flex-1 flex-col !p-4'>
+          <CardContent className='flex flex-1 flex-col p-4!'>
             <div className='flex flex-1 flex-col gap-3.5'>
               <div className='flex items-start gap-3 justify-between'>
                 <h3 className='mb-2 line-clamp-1 text-lg font-semibold text-card-foreground group-hover:text-primary transition-colors'>

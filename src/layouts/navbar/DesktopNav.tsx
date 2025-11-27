@@ -66,7 +66,7 @@ export const DesktopNav = ({ pathname }: DesktopNavProps) => {
         <div
           className={cn(
             'absolute top-1.5 bottom-1.5 bg-primary rounded-full shadow-lg shadow-primary/30',
-            'transition-[left,width,opacity,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]',
+            'transition-[left,width,opacity,transform] duration-500 ease-in-out',
             activeIndex < 0 && 'opacity-0 scale-95'
           )}
           style={{

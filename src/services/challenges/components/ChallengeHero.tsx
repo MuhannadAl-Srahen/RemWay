@@ -54,7 +54,7 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
 
   return (
     <div className='bg-card rounded-lg border overflow-hidden mb-6 md:mb-8 group'>
-      <div className='aspect-[4/3] sm:aspect-video relative'>
+      <div className='aspect-4/3 sm:aspect-video relative'>
         <img
           src={currentImage?.url || '/placeholder.svg'}
           alt={currentImage?.alt || challenge.title}

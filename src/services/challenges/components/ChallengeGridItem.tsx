@@ -28,7 +28,7 @@ export function ChallengeGridItem({
     >
       <Card className='flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-md transition-transform duration-300 hover:shadow-xl hover:scale-[1.02] py-0 gap-0'>
         {/* Image Section */}
-        <div className='relative aspect-[16/9] overflow-hidden rounded-t-xl'>
+        <div className='relative aspect-video overflow-hidden rounded-t-xl'>
           <img
             src={challenge.image || '/src/assets/images/girl.jpg'}
             alt={challenge.title}
