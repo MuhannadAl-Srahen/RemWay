@@ -5,6 +5,8 @@ export { DesignComparison } from './components/DesignComparison'
 export { TechAnalysis } from './components/TechAnalysis'
 export { Recommendations } from './components/Recommendations'
 export { MismatchWarning } from './components/MismatchWarning'
+export { CodeNotAvailableWarning } from './components/CodeNotAvailableWarning'
+export { LiveUrlWarning } from './components/LiveUrlWarning'
 export { ImprovementsFromPrevious } from './components/ImprovementsFromPrevious'
 export {
   FeedbackLoading,
