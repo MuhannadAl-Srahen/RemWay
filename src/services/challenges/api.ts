@@ -40,6 +40,33 @@ export const submitChallengeSolution = async (
       throw new Error('User not authenticated')
     }
 
+    // Verify that the GitHub repository belongs to the authenticated user
+    const userGithubUsername = user.user_metadata?.user_name?.toLowerCase()
+    if (!userGithubUsername) {
+      throw new Error(
+        'GITHUB_AUTH_REQUIRED: Unable to verify your GitHub identity. Please sign out and sign in again with GitHub.'
+      )
+    }
+
+    // Extract username from GitHub URL (supports various formats)
+    // e.g., https://github.com/username/repo, github.com/username/repo
+    const githubUrlMatch = submission.githubUrl.match(
+      /github\.com\/([^\/]+)\/[^\/]+/i
+    )
+    const submittedRepoOwner = githubUrlMatch?.[1]?.toLowerCase()
+
+    if (!submittedRepoOwner) {
+      throw new Error(
+        'INVALID_GITHUB_URL: Unable to extract repository owner from the GitHub URL. Please provide a valid URL (e.g., https://github.com/username/repo).'
+      )
+    }
+
+    if (submittedRepoOwner !== userGithubUsername) {
+      throw new Error(
+        `GITHUB_OWNERSHIP_ERROR: The repository "${submission.githubUrl}" belongs to "${submittedRepoOwner}", but you are signed in as "${userGithubUsername}". You can only submit repositories from your own GitHub account.`
+      )
+    }
+
     // Check if the live preview URL matches any official challenge URLs
     if (submission.liveUrl) {
       // Define the type for challenge_overview table

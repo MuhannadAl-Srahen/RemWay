@@ -109,7 +109,7 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
           <CardContent className='flex flex-col flex-1 px-6 py-5'>
             {/* Title with Icon */}
             <div className='flex items-center gap-2 mb-7'>
-              <Video className='h-5 w-5 text-primary flex-shrink-0' />
+              <Video className='h-5 w-5 text-primary shrink-0' />
               <CardTitle className='line-clamp-1 text-lg font-semibold tracking-tight text-card-foreground group-hover:text-primary transition-colors'>
                 {resource.title}
               </CardTitle>
@@ -162,7 +162,7 @@ export function ResourceCard({ resource }: { resource: ResourceItem }) {
         <CardContent className='flex flex-col flex-1 px-6 py-5'>
           {/* Title with Icon */}
           <div className='flex items-center gap-2 mb-7'>
-            <CategoryIcon className='h-5 w-5 text-primary flex-shrink-0' />
+            <CategoryIcon className='h-5 w-5 text-primary shrink-0' />
             <CardTitle className='line-clamp-1 text-lg font-semibold tracking-tight text-card-foreground group-hover:text-primary transition-colors'>
               {resource.title}
             </CardTitle>

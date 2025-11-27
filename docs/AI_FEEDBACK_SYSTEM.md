@@ -17,7 +17,7 @@ PexFect uses AI-powered feedback to provide detailed, actionable code reviews fo
 9. [Error Handling](#error-handling)
 10. [Troubleshooting](#troubleshooting)
 11. [Performance](#performance)
-12. [Future Improvements](#future-improvements)
+12. [Recent Updates](#recent-updates)
 
 ---
 
@@ -26,15 +26,17 @@ PexFect uses AI-powered feedback to provide detailed, actionable code reviews fo
 The AI Feedback System analyzes user submissions by:
 
 1. **Validating URLs** before processing (client + server side)
-2. **Fetching source code** from GitHub repositories with priority-based file selection
-3. **Comparing with previous submissions** to track improvement over time
-4. **Generating structured feedback** covering code quality, design accuracy, and accessibility
-5. **Detecting mismatches** when wrong projects are submitted
+2. **Checking repository visibility** - ensures GitHub repo is public before submission
+3. **Fetching source code** from GitHub repositories with priority-based file selection, timeout handling, and retry logic
+4. **Comparing with previous submissions** to track improvement over time
+5. **Generating structured feedback** covering code quality, design accuracy, and accessibility
+6. **Detecting mismatches** when wrong projects are submitted
+7. **Detecting stale feedback** and auto-regenerating when code is updated
 
 ### Tech Stack
 
-- **AI Model**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)
-- **Code Fetching**: GitHub REST API v3 with priority-based file selection
+- **AI Model**: Google Gemini 2.5 Pro (`gemini-2.5-pro`) with deterministic settings
+- **Code Fetching**: GitHub REST API v3 with priority-based file selection, parallel fetching, and retry logic
 - **Database**: Supabase PostgreSQL with Row Level Security
 - **Frontend**: React 19 + TanStack Query + TanStack Router
 - **Validation**: Custom URL validators with real-time feedback
@@ -54,10 +56,12 @@ The AI Feedback System analyzes user submissions by:
 
 Before submitting, you need:
 
-| Requirement           | Description                                            | Examples                                                          |
-| --------------------- | ------------------------------------------------------ | ----------------------------------------------------------------- |
-| **GitHub Repository** | Your source code must be publicly accessible on GitHub | `https://github.com/username/my-project`                          |
-| **Live Site URL**     | Your project must be deployed and accessible online    | `https://my-project.vercel.app`, `https://my-project.netlify.app` |
+| Requirement           | Description                                                | Examples                                                          |
+| --------------------- | ---------------------------------------------------------- | ----------------------------------------------------------------- |
+| **GitHub Repository** | Your source code must be **publicly accessible** on GitHub | `https://github.com/username/my-project`                          |
+| **Live Site URL**     | Your project must be deployed and accessible online        | `https://my-project.vercel.app`, `https://my-project.netlify.app` |
+
+> ⚠️ **Important**: Your GitHub repository **must be public**. Private repositories cannot be analyzed by the AI. The system will check this before allowing submission.
 
 **Recommended Deployment Platforms:**
 
@@ -72,7 +76,7 @@ Before submitting, you need:
 2. Scroll down to the "Submit Your Solution" section
 3. Enter your **GitHub Repository URL**:
    - Must be a valid GitHub URL (e.g., `https://github.com/username/repo`)
-   - Repository must be public for code analysis
+   - Repository **must be public** for code analysis
    - Real-time validation shows if URL is valid
 4. Enter your **Live Site URL**:
    - Must be a valid HTTP/HTTPS URL
@@ -87,7 +91,7 @@ After submission:
 
 1. You'll be redirected to the feedback page
 2. The system shows "Analyzing your submission..." while processing
-3. AI analysis typically takes **20-40 seconds**
+3. AI analysis typically takes **20-60 seconds**
 4. The page auto-refreshes when feedback is ready
 5. If it takes longer than 2 minutes, you'll see a timeout message with retry option
 
@@ -98,24 +102,27 @@ Your feedback includes:
 | Section                   | Description                               |
 | ------------------------- | ----------------------------------------- |
 | **Overall Score**         | 0-100 score based on all criteria         |
+| **Score Breakdown**       | Points for Design, Code, Function, A11y   |
 | **What You Did Well**     | 3-5 positive achievements                 |
 | **Areas for Improvement** | 3-5 actionable suggestions                |
 | **Design Comparison**     | How well your design matches requirements |
 | **Technical Analysis**    | Detailed breakdown by category            |
 | **Recommendations**       | Next challenges and learning resources    |
 
-### Step 6: Resubmit (Optional)
+### Step 6: Resubmit After Making Changes
 
 If you want to improve your score:
 
-1. Make changes to your code based on feedback
-2. Deploy the updated version
-3. Go back to the challenge and submit again
-4. The AI will compare your new submission against the previous one
+1. **Update your code** on GitHub (commit and push changes)
+2. Go back to the challenge page
+3. Submit again with the **same URLs**
+4. The system detects your code was updated and **generates fresh feedback**
 5. You'll see an **"Improvements from Previous"** section showing:
    - Which issues you fixed ✅
    - Which issues still need work ❌
    - Your score improvement
+
+> 💡 **Note**: The system compares timestamps. If you update your code and resubmit, new feedback will be generated automatically. If you submit without changes, you'll see your existing feedback (consistent scoring).
 
 ---
 
@@ -127,85 +134,131 @@ If you want to improve your score:
 User clicks "Submit"
         │
         ▼
-┌─────────────────────────┐
-│  Client-side Validation │
-│  - GitHub URL format    │
-│  - Live Site URL format │
-└───────────┬─────────────┘
+┌─────────────────────────────┐
+│  Client-side Validation     │
+│  - GitHub URL format        │
+│  - Live Site URL format     │
+└───────────┬─────────────────┘
             │ Valid
             ▼
-┌─────────────────────────┐
-│  Store in Database      │
-│  status = 'pending'     │
-└───────────┬─────────────┘
+┌─────────────────────────────┐
+│  Check Repository Visibility│
+│  (Must be PUBLIC)           │
+└───────────┬─────────────────┘
+            │ Public
+            ▼
+┌─────────────────────────────┐
+│  Store in Database          │
+│  - Update submitted_at      │
+│  - Link to previous if any  │
+└───────────┬─────────────────┘
             │
             ▼
-┌─────────────────────────┐
-│  Navigate to Feedback   │
-│  /feedback/:submissionId│
-└───────────┬─────────────┘
+┌─────────────────────────────┐
+│  Clear Feedback Cache       │
+│  (Prevent stale data)       │
+└───────────┬─────────────────┘
             │
             ▼
-┌─────────────────────────┐
-│  Auto-trigger Generation│
-│  (if status = pending)  │
-└───────────┬─────────────┘
+┌─────────────────────────────┐
+│  Navigate to Feedback Page  │
+│  /feedback/:submissionId    │
+└───────────┬─────────────────┘
             │
             ▼
-┌─────────────────────────────────────────┐
-│  Fetch GitHub Code (Priority-based)     │
-│  1. src/*.jsx, src/*.tsx (priority 0)   │
-│  2. *.html, *.css (priority 5)          │
-│  3. package.json (priority 10)          │
-│  4. Config files (priority 15-20)       │
-└───────────┬─────────────────────────────┘
+┌─────────────────────────────┐
+│  Check Feedback Status      │
+│  - Exists & up-to-date?     │
+│  - Stale? Regenerate        │
+│  - Missing? Generate new    │
+└───────────┬─────────────────┘
             │
             ▼
-┌─────────────────────────┐
-│  Send to Gemini AI      │
-│  - Challenge context    │
-│  - Source code          │
-│  - Previous feedback    │
-└───────────┬─────────────┘
+┌──────────────────────────────────────────┐
+│  Fetch GitHub Code (Parallel + Retry)    │
+│  - 15 second timeout per request         │
+│  - Up to 3 retries with 1s delay         │
+│  - 5 files fetched in parallel           │
+│  Priority:                               │
+│  1. src/*.jsx, src/*.tsx (priority 0)    │
+│  2. *.html, *.css (priority 5)           │
+│  3. package.json (priority 10)           │
+│  4. Config files (priority 15-20)        │
+└───────────┬──────────────────────────────┘
             │
             ▼
-┌─────────────────────────┐
-│  Parse AI Response      │
-│  - JSON validation      │
-│  - Truncation repair    │
-└───────────┬─────────────┘
+┌─────────────────────────────┐
+│  Send to Gemini AI          │
+│  - Deterministic settings   │
+│  - temperature: 0           │
+│  - Scoring rubric enforced  │
+└───────────┬─────────────────┘
             │
             ▼
-┌─────────────────────────┐
-│  Store Feedback in DB   │
-│  status = 'completed'   │
-└───────────┬─────────────┘
+┌─────────────────────────────┐
+│  Parse AI Response          │
+│  - JSON validation          │
+│  - Truncation repair        │
+└───────────┬─────────────────┘
             │
             ▼
-┌─────────────────────────┐
-│  Display to User        │
-│  (Polling detects it)   │
-└─────────────────────────┘
+┌─────────────────────────────┐
+│  Store Feedback in DB       │
+│  - Unique per submission    │
+│  - Delete old if stale      │
+└───────────┬─────────────────┘
+            │
+            ▼
+┌─────────────────────────────┐
+│  Display to User            │
+│  (Polling detects it)       │
+└─────────────────────────────┘
+```
+
+### Stale Feedback Detection
+
+The system intelligently handles code updates:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                  SUBMISSION TIMELINE                     │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│  ──────────────────────────────────────────────────▶    │
+│      │                    │                    │        │
+│   Submit              Feedback            Resubmit      │
+│   Code v1             Generated           Code v2       │
+│      │                    │                    │        │
+│  submitted_at         created_at          submitted_at  │
+│  = T1                 = T2                = T3          │
+│                                                         │
+│  IF T2 >= T1: Feedback is UP-TO-DATE (show existing)    │
+│  IF T2 < T3:  Feedback is STALE (regenerate new)        │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ### Priority-Based File Fetching
 
-The system intelligently prioritizes which files to fetch from GitHub to ensure relevant source code is analyzed:
+The system intelligently prioritizes which files to fetch from GitHub:
 
 | Priority    | File Pattern                   | Examples                                 |
 | ----------- | ------------------------------ | ---------------------------------------- |
 | 0 (Highest) | `src/**/*.jsx`, `src/**/*.tsx` | `src/App.jsx`, `src/components/Card.tsx` |
-| 5           | `*.html`, `*.css`              | `index.html`, `styles.css`               |
-| 10          | `package.json`, `*.json`       | `package.json`, `tsconfig.json`          |
-| 15          | Config files                   | `vite.config.js`, `tailwind.config.js`   |
-| 20 (Lowest) | Other files                    | `README.md`, `.gitignore`                |
+| 1           | `src/**/*.js`, `src/**/*.ts`   | `src/utils.js`, `src/hooks.ts`           |
+| 2           | `src/**/*.css`                 | `src/styles.css`, `src/App.css`          |
+| 3           | Other `src/` files             | `src/index.html`                         |
+| 4-5         | `components/` folder           | `components/Button.jsx`                  |
+| 6-9         | Root source files              | `index.html`, `style.css`                |
+| 10-13       | Config & docs                  | `package.json`, `README.md`              |
+| 20 (Lowest) | Other files                    | `.gitignore`, `LICENSE`                  |
 
 **Limits:**
 
 - Maximum **15 files** analyzed per submission
 - Files larger than **50KB** are skipped
 - Total code size capped at **100KB**
-- Excluded directories: `node_modules/`, `dist/`, `build/`, `.git/`, `vendor/`
+- Excluded directories: `node_modules/`, `dist/`, `build/`, `.git/`, `vendor/`, `.next/`, `coverage/`
 
 ---
 
@@ -213,23 +266,23 @@ The system intelligently prioritizes which files to fetch from GitHub to ensure 
 
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  User Submits   │────▶│  URL Validation  │────▶│  Store in DB    │
-│  Challenge      │     │  (Client-side)   │     │  (Pending)      │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                                          │
+│  User Submits   │────▶│  URL Validation  │────▶│  Repo Visibility│
+│  Challenge      │     │  (Client-side)   │     │  Check (GitHub) │
+└─────────────────┘     └──────────────────┘     └────────┬────────┘
+                                                          │ Public
                                                           ▼
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│  Display        │◀────│  Store Feedback  │◀────│  Navigate to    │
-│  Feedback Page  │     │  in Database     │     │  Feedback Route │
+│  Display        │◀────│  Store Feedback  │◀────│  Store Submit   │
+│  Feedback Page  │     │  in Database     │     │  Clear Cache    │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
         ▲                       ▲                        │
         │                       │                        ▼
         │               ┌──────────────────┐     ┌─────────────────┐
         │               │  Gemini AI       │◀────│  Fetch GitHub   │
-        │               │  Analysis        │     │  Source Code    │
-        │               └──────────────────┘     │  (Priority-     │
-        │                                        │   based)        │
-        │                                        └─────────────────┘
+        │               │  (Deterministic) │     │  (Parallel +    │
+        │               │  temperature=0   │     │   Retry)        │
+        │               └──────────────────┘     └─────────────────┘
+        │
         │               ┌──────────────────┐
         └───────────────│  Poll Every 3s   │
                         │  for Completion  │
@@ -240,106 +293,51 @@ The system intelligently prioritizes which files to fetch from GitHub to ensure 
 
 ## Key Features
 
-### 1. GitHub Code Analysis
+### 1. GitHub Code Analysis with Robust Fetching
 
-The system fetches actual source code from GitHub repositories to provide precise, code-specific feedback.
+**Fetching Features:**
 
-**Supported file types:**
+| Feature              | Description                                    |
+| -------------------- | ---------------------------------------------- |
+| **Timeout**          | 15 seconds per request to prevent hanging      |
+| **Retry Logic**      | Up to 3 retries with 1-second delay            |
+| **Parallel Fetch**   | 5 files fetched simultaneously for speed       |
+| **Rate Limiting**    | Detects GitHub rate limits and reports clearly |
+| **Priority Sorting** | Source files fetched before config files       |
 
-- HTML, CSS, SCSS, SASS, LESS
-- JavaScript, JSX, TypeScript, TSX
-- JSON, Markdown
+### 2. Repository Visibility Check ✅
 
-### 2. Submission Mismatch Detection ⚠️
+Before allowing submission, the system verifies your GitHub repository is public.
+
+### 3. Deterministic AI Scoring 🎯
+
+The AI uses deterministic settings to ensure **consistent, reliable scores**:
+
+```typescript
+{
+  temperature: 0,      // No randomness
+  topK: 1,             // Most likely token only
+  topP: 1,             // No nucleus sampling
+}
+```
+
+### 4. Submission Mismatch Detection ⚠️
 
 The AI automatically detects when a user submits the **wrong project** for a challenge.
 
-**Example scenario:**
+### 5. Automatic Code Update Detection 🔄
 
-- User is working on "Interactive User Profile Card" challenge
-- User accidentally submits a "Beef Recipe Card" project
-- AI detects the mismatch and:
-  - Sets `submissionMismatch.isMismatched = true`
-  - Gives a very low score (0-20)
-  - Explains clearly that the wrong project was submitted
-  - Shows a prominent warning banner on the feedback page
+When you update your code on GitHub and resubmit, new feedback is generated automatically.
 
-**Mismatch output:**
+### 6. Resubmission Comparison
 
-```json
-{
-  "submissionMismatch": {
-    "isMismatched": true,
-    "expectedProject": "Interactive User Profile Card",
-    "actualProject": "Beef Recipe Card",
-    "explanation": "The submitted code is a recipe card component, but the challenge requires an interactive user profile card."
-  }
-}
-```
-
-### 3. Live Site Verification
-
-When a live site URL is provided, the AI is instructed to:
-
-- Verify design matches challenge requirements
-- Check responsive behavior
-- Validate interactive functionality
-- Assess overall user experience
-
-### 4. Resubmission Comparison
-
-For users who resubmit a challenge, the system:
-
-- Fetches the previous submission's feedback automatically
-- Tracks which issues were fixed vs still need work
-- Shows score improvement
-- Highlights new skills demonstrated
-
-**Improvements tracking output:**
-
-```json
-{
-  "improvementsFromPrevious": {
-    "issuesFixed": [
-      {
-        "issue": "Add alt text to images",
-        "wasFixed": true,
-        "details": "All images now have descriptive alt text"
-      },
-      {
-        "issue": "Improve color contrast",
-        "wasFixed": false,
-        "details": "Some text still has low contrast ratio"
-      }
-    ],
-    "previousScore": 65,
-    "scoreImprovement": 20,
-    "overallAssessment": "Great progress! Fixed 3 out of 4 issues. Keep working on accessibility."
-  }
-}
-```
-
-### 5. Structured Feedback
-
-The AI generates feedback in a consistent structure:
-
-| Field                 | Description                                 |
-| --------------------- | ------------------------------------------- |
-| `overallScore`        | 0-100 numerical score                       |
-| `overallRating`       | `excellent`, `good`, or `needs_improvement` |
-| `whatYouDidWell`      | 3-5 positive achievements                   |
-| `areasForImprovement` | 3-5 actionable suggestions                  |
-| `designComparison`    | How well the submission matches the design  |
-| `techAnalysis`        | Detailed breakdown by category              |
-| `recommendations`     | Next challenges and learning resources      |
+For users who resubmit, the system tracks which issues were fixed vs still need work.
 
 ---
 
 ## Configuration
 
 ### Environment Variables
-
-Add these to your `.env.local`:
 
 ```env
 # Required: Gemini API Key
@@ -349,301 +347,71 @@ VITE_GEMINI_API_KEY=your-gemini-api-key
 VITE_SUPABASE_URL=your-supabase-url
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
-# Optional: GitHub Token (for higher rate limits - 5000/hour vs 60/hour)
+# Optional: GitHub Token (for higher rate limits)
 VITE_GITHUB_TOKEN=your-github-pat
 ```
-
-### GitHub Token Setup
-
-1. Go to [GitHub Settings > Developer Settings > Personal Access Tokens](https://github.com/settings/tokens)
-2. Generate a new token (classic) with `repo` scope for private repos, or no scope for public repos
-3. Add to `.env.local` as `VITE_GITHUB_TOKEN`
-
-**Rate Limits:**
-
-- Without token: 60 requests/hour
-- With token: 5,000 requests/hour
-
-### Gemini API Key Setup
-
-1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Create a new API key
-3. Add to `.env.local` as `VITE_GEMINI_API_KEY`
 
 ---
 
 ## Database Schema
-
-### `challenge_submissions` Table
-
-```sql
-CREATE TABLE challenge_submissions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  challenge_id UUID REFERENCES challenges(id),
-  github_url TEXT NOT NULL,
-  live_site_url TEXT,
-  screenshots TEXT[],
-  submitted_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
 
 ### `challenge_feedback` Table
 
 ```sql
 CREATE TABLE challenge_feedback (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  submission_id UUID REFERENCES challenge_submissions(id),
-  overall_score INTEGER,
-  overall_rating TEXT,
-  overall_good_practices TEXT[],
-  improvment_advices TEXT[],
-  best_practices JSONB,
-  code_formatting JSONB,
-  functionality JSONB,
-  accessibility JSONB,
-  recommended_resources JSONB,
-  recommended_next_challenge TEXT,
-  overall_analysis_description JSONB,
-  comparison_notes JSONB,
-  improvements_from_previous JSONB,
-  submission_mismatch JSONB,
-  ai_model_version TEXT,
-  feedback_generation_time INTEGER,
+  submission_id UUID REFERENCES challenge_submissions(id) UNIQUE NOT NULL,
+  overall_score INTEGER NOT NULL,
+  overall_rating TEXT NOT NULL,
+  -- ... other fields
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Unique constraint ensures one feedback per submission
+ALTER TABLE challenge_feedback
+ADD CONSTRAINT unique_feedback_per_submission UNIQUE (submission_id);
 ```
-
-### RLS Policies
-
-```sql
--- Users can read their own submissions
-CREATE POLICY "Users can read own submissions"
-ON challenge_submissions FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
-
--- Allow read for feedback generation (server-side)
-CREATE POLICY "Allow read submissions for feedback generation"
-ON challenge_submissions FOR SELECT
-TO anon
-USING (true);
-
--- Users can insert their own submissions
-CREATE POLICY "Users can insert own submissions"
-ON challenge_submissions FOR INSERT
-TO authenticated
-WITH CHECK (auth.uid() = user_id);
-
--- Allow feedback insert
-CREATE POLICY "Allow feedback insert for all"
-ON challenge_feedback FOR INSERT
-TO anon, authenticated
-WITH CHECK (true);
-```
-
----
-
-## Service Structure
-
-```
-src/services/
-├── ai/
-│   ├── api.ts            # AI feedback generation with Gemini
-│   ├── githubFetcher.ts  # GitHub code fetching with priority sorting
-│   ├── validation.ts     # URL validation utilities
-│   └── index.ts          # Public exports
-├── feedback/
-│   ├── api.ts            # Database operations & feedback orchestration
-│   ├── hooks/
-│   │   └── useSubmissionFeedback.ts
-│   └── components/
-│       ├── FeedbackHeader.tsx
-│       ├── FeedbackLoading.tsx
-│       ├── FeedbackProcessing.tsx
-│       ├── FeedbackError.tsx
-│       ├── FeedbackStates.tsx
-│       ├── OverallAnalysis.tsx
-│       ├── DesignComparison.tsx
-│       ├── TechAnalysis.tsx
-│       ├── Recommendations.tsx
-│       ├── MismatchWarning.tsx        # Wrong project warning
-│       └── ImprovementsFromPrevious.tsx # Resubmission tracking
-└── challenges/
-    └── components/
-        └── ChallengeSubmission.tsx  # Submission form with validation
-```
-
----
-
-## Error Handling
-
-### Frontend Error States
-
-| State          | Trigger                 | User Experience                              |
-| -------------- | ----------------------- | -------------------------------------------- |
-| **Loading**    | Initial page load       | Skeleton animation                           |
-| **Processing** | AI generating feedback  | "Analyzing your submission..." with progress |
-| **Timeout**    | > 2 minutes polling     | Error message with retry button              |
-| **Error**      | API/network failure     | Error message with retry button              |
-| **Mismatch**   | Wrong project submitted | Warning banner + low score explanation       |
-
-### Backend Error Handling
-
-1. **Retry Logic**: 2 attempts with exponential backoff (2s, 4s delays)
-2. **JSON Repair**: Attempts to fix truncated JSON responses from AI
-3. **Fallback Analysis**: If GitHub fetch fails, analyzes based on live site URL only
-4. **Validation Errors**: Returns structured error feedback (score = 0)
-
-### URL Validation
-
-**Client-side validation** (in submission form):
-
-- Real-time validation feedback as user types
-- Red border and error message for invalid URLs
-- Form submission blocked if URLs are invalid
-
-**Server-side validation** (before AI analysis):
-
-- GitHub URL must match pattern: `github.com/owner/repo`
-- Live site URL must be a valid HTTP/HTTPS URL
-- Localhost URLs are rejected
-- Suspicious/placeholder URLs are flagged with warnings
-
-**Handled edge cases:**
-
-| Scenario                 | Behavior                                       |
-| ------------------------ | ---------------------------------------------- |
-| Non-GitHub URL submitted | Error feedback stored, score = 0               |
-| Fake/placeholder URLs    | Warning logged, analysis proceeds with caution |
-| Private GitHub repo      | Falls back to live site analysis only          |
-| GitHub rate limit hit    | Falls back to live site analysis only          |
-| Invalid live site URL    | Warning added to feedback                      |
 
 ---
 
 ## Troubleshooting
 
-### Common Issues
+### "Repository must be public"
 
-#### "Feedback is taking too long"
+**Solution:** Change your repository visibility to public in GitHub Settings.
 
-**Causes:**
+### "Feedback is taking too long"
 
-- Large repository with many files
-- GitHub rate limiting
-- AI service congestion
+**Solution:** Wait for timeout, then click "Retry". Check if repo is public.
 
-**Solutions:**
+### "Wrong project detected"
 
-1. Wait for the 2-minute timeout, then click "Retry"
-2. Refresh the page and try again
-3. Check if your GitHub repo is public
-4. Try again during off-peak hours
-
-#### "Wrong project detected"
-
-**Cause:** You submitted code for a different challenge
-
-**Solution:**
-
-1. Go back to the challenge page
-2. Submit the correct GitHub repository URL
-3. Make sure the repo contains the project for THIS challenge
-
-#### "GitHub code not analyzed"
-
-**Causes:**
-
-- Repository is private
-- Rate limit exceeded
-- Repository URL is incorrect
-
-**Solutions:**
-
-1. Make your repository public
-2. Add a GitHub token to increase rate limits
-3. Double-check the repository URL
-
-#### "Score seems too low"
-
-**Check these:**
-
-1. Did you submit the correct project? (check for mismatch warning)
-2. Is your live site accessible?
-3. Does your code follow the challenge requirements?
-
-### Debug Scripts
-
-**Manual Feedback Script:**
-
-```bash
-# Generate feedback for a specific submission
-bun scripts/manual-feedback.ts <submission-id>
-```
-
-**Debug Script:**
-
-```bash
-# Check database state and fetch submission details
-bun scripts/debug-feedback.ts <submission-id>
-```
-
-### Log Prefixes
-
-Key log prefixes to search for in browser console:
-
-- `[generateAIFeedback]` - AI generation process
-- `[fetchRepositoryCode]` - GitHub code fetching
-- `[generateAndStoreFeedback]` - Orchestration and storage
-- `[getPreviousSubmission]` - Comparison logic
-- `[getFilePriority]` - File priority assignment
+**Solution:** Submit the correct GitHub repository URL for this challenge.
 
 ---
 
 ## Performance
 
-### Metrics
-
-| Metric                  | Value               |
-| ----------------------- | ------------------- |
-| Average generation time | 20-40 seconds       |
-| Max output tokens       | 8,192               |
-| Temperature             | 0.3 (deterministic) |
-| Files analyzed          | Up to 15            |
-| Total code size         | Up to 100KB         |
-| Polling interval        | 3 seconds           |
-| Timeout                 | 2 minutes           |
-
-### Scoring Criteria
-
-The AI uses the following weighted criteria:
-
-| Category          | Weight | What's Evaluated                         |
-| ----------------- | ------ | ---------------------------------------- |
-| **Design**        | 30%    | Visual accuracy, responsiveness, UI/UX   |
-| **Code Quality**  | 30%    | Clean structure, naming, organization    |
-| **Functionality** | 25%    | Features work, error handling            |
-| **Accessibility** | 15%    | Semantic HTML, ARIA, keyboard navigation |
-
-### Rating Thresholds
-
-- **Excellent** (90-100): Production-ready, follows all best practices
-- **Good** (75-89): Solid implementation, minor improvements possible
-- **Needs Improvement** (60-74): Core functionality works, notable issues
-- **Below 60**: Significant problems requiring attention
-- **0-20**: Wrong project submitted (mismatch)
+| Metric                  | Value                   |
+| ----------------------- | ----------------------- |
+| Average generation time | 20-60 seconds           |
+| Temperature             | 0 (fully deterministic) |
+| Files analyzed          | Up to 15                |
+| GitHub fetch timeout    | 15 seconds per request  |
+| GitHub fetch retries    | Up to 3 attempts        |
+| Parallel file fetches   | 5 at a time             |
 
 ---
 
-## Future Improvements
+## Recent Updates (November 2025)
 
-- [ ] Add caching for GitHub code fetches
-- [ ] Support more file types (Vue, Svelte, Angular)
-- [ ] Add screenshot comparison using vision models
-- [ ] Implement feedback regeneration on code updates
-- [ ] Add batch feedback generation for multiple submissions
-- [ ] Real-time streaming of AI feedback as it's generated
-- [ ] Email notifications when feedback is ready
-- [ ] Feedback history and progress charts
+- **Deterministic AI**: temperature=0, topK=1, topP=1 for consistent scoring
+- **Stale Feedback Detection**: Auto-regenerates when code is updated
+- **Repository Visibility Check**: Verifies repo is public before submission
+- **Improved GitHub Fetching**: Timeout, retry, and parallel fetching
+- **Aggressive Cache Management**: Prevents stale feedback display
+- **Fixed Regeneration Bug**: Only compares against different previous submissions
+
+---
+
+_Last updated: November 2025_

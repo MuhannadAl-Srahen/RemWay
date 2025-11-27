@@ -34,7 +34,7 @@ const features = [
 
 export function FeatureSection() {
   return (
-    <section className='relative py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-background to-primary/5'>
+    <section className='relative py-16 sm:py-20 lg:py-24 bg-linear-to-b from-background to-primary/5'>
       {/* Background Pattern - matching Hero section */}
       <div className='absolute inset-0 opacity-10 dark:opacity-5'>
         <div
@@ -77,7 +77,7 @@ export function FeatureSection() {
                     {/* Icon Container */}
                     <div className='flex items-center justify-center mb-6'>
                       <div className='relative'>
-                        <div className='w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center border border-primary/20 group-hover:from-primary/30 group-hover:to-primary/10 transition-all duration-300'>
+                        <div className='w-16 h-16 bg-linear-to-br from-primary/20 to-primary/5 rounded-2xl flex items-center justify-center border border-primary/20 group-hover:from-primary/30 group-hover:to-primary/10 transition-all duration-300'>
                           <feature.icon className='w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-300' />
                         </div>
                         <div className='absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-lg'>
@@ -97,7 +97,7 @@ export function FeatureSection() {
                     </div>
 
                     {/* Bottom accent */}
-                    <div className='mt-6 h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
+                    <div className='mt-6 h-1 bg-linear-to-r from-transparent via-primary/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300' />
                   </div>
                 </motion.div>
               </StaggerItem>

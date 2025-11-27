@@ -16,6 +16,58 @@ interface RepositoryStructure {
   totalSize: number
 }
 
+// Configuration constants
+const FETCH_TIMEOUT_MS = 15000 // 15 seconds per request
+const MAX_RETRIES = 3
+const RETRY_DELAY_MS = 1000 // 1 second between retries
+const CONCURRENT_FETCH_LIMIT = 5 // Fetch 5 files at a time
+
+/**
+ * Fetch with timeout and retry support
+ */
+const fetchWithRetry = async (
+  url: string,
+  options: RequestInit,
+  retries = MAX_RETRIES
+): Promise<Response> => {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+    })
+    clearTimeout(timeoutId)
+    
+    // Handle rate limiting
+    if (response.status === 403) {
+      const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining')
+      if (rateLimitRemaining === '0') {
+        const resetTime = response.headers.get('X-RateLimit-Reset')
+        console.error(
+          `[fetchWithRetry] GitHub rate limit exceeded. Resets at: ${resetTime ? new Date(parseInt(resetTime) * 1000).toISOString() : 'unknown'}`
+        )
+        throw new Error('GitHub API rate limit exceeded')
+      }
+    }
+    
+    return response
+  } catch (error) {
+    clearTimeout(timeoutId)
+    
+    if (retries > 0 && (error instanceof Error)) {
+      // Retry on timeout or network errors
+      if (error.name === 'AbortError' || error.message.includes('network')) {
+        console.warn(`[fetchWithRetry] Request failed, retrying... (${retries} attempts left)`)
+        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
+        return fetchWithRetry(url, options, retries - 1)
+      }
+    }
+    throw error
+  }
+}
+
 /**
  * Extract owner and repo from GitHub URL
  */
@@ -23,7 +75,8 @@ export const parseGitHubUrl = (
   url: string
 ): { owner: string; repo: string } | null => {
   try {
-    const match = url.match(/github\.com\/([^\/]+)\/([^\/\?#]+)/)
+    // Match github.com/owner/repo pattern
+    const match = url.match(/github\.com\/([^/]+)\/([^/?#]+)/)
     if (!match) return null
 
     return {
@@ -48,6 +101,7 @@ export const fetchRepositoryCode = async (
   }
 
   const { owner, repo } = parsed
+  console.log(`[fetchRepositoryCode] Fetching repository: ${owner}/${repo}`)
 
   try {
     // Prepare headers with optional GitHub token for private repos
@@ -65,19 +119,27 @@ export const fetchRepositoryCode = async (
       )
     }
 
-    // Fetch repository tree (file structure)
-    const treeResponse = await fetch(
-      `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`,
-      { headers }
-    )
+    // Fetch repository tree (file structure) - try 'main' branch first
+    console.log('[fetchRepositoryCode] Fetching repository tree...')
+    let treeResponse: Response
+    let branchUsed = 'main'
+    
+    try {
+      treeResponse = await fetchWithRetry(
+        `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`,
+        { headers }
+      )
+    } catch {
+      console.warn('[fetchRepositoryCode] Failed to fetch main branch, will try master')
+      treeResponse = new Response(null, { status: 404 })
+    }
 
     if (!treeResponse.ok) {
       // Check if it's a private repo issue
       if (treeResponse.status === 404 && !githubToken) {
-        console.error(
-          "[fetchRepositoryCode] Repository not found. If it's private, add VITE_GITHUB_TOKEN to .env.local"
+        console.warn(
+          "[fetchRepositoryCode] 'main' branch not found, trying 'master'..."
         )
-        return null
       }
 
       if (treeResponse.status === 401 || treeResponse.status === 403) {
@@ -88,23 +150,34 @@ export const fetchRepositoryCode = async (
       }
 
       // Try 'master' branch if 'main' fails
-      const masterResponse = await fetch(
-        `https://api.github.com/repos/${owner}/${repo}/git/trees/master?recursive=1`,
-        { headers }
-      )
-
-      if (!masterResponse.ok) {
-        console.error(
-          `[fetchRepositoryCode] Failed to fetch tree: ${masterResponse.status} ${masterResponse.statusText}`
+      try {
+        treeResponse = await fetchWithRetry(
+          `https://api.github.com/repos/${owner}/${repo}/git/trees/master?recursive=1`,
+          { headers }
         )
+        branchUsed = 'master'
+      } catch (error) {
+        console.error('[fetchRepositoryCode] Failed to fetch master branch:', error)
         return null
       }
 
-      const masterTree = await masterResponse.json()
-      return await fetchRelevantFiles(owner, repo, masterTree.tree, headers)
+      if (!treeResponse.ok) {
+        console.error(
+          `[fetchRepositoryCode] Failed to fetch tree: ${treeResponse.status} ${treeResponse.statusText}`
+        )
+        return null
+      }
     }
 
+    console.log(`[fetchRepositoryCode] Successfully fetched tree from '${branchUsed}' branch`)
     const tree = await treeResponse.json()
+    
+    if (!tree.tree || !Array.isArray(tree.tree)) {
+      console.error('[fetchRepositoryCode] Invalid tree response:', tree)
+      return null
+    }
+    
+    console.log(`[fetchRepositoryCode] Found ${tree.tree.length} items in repository`)
     return await fetchRelevantFiles(owner, repo, tree.tree, headers)
   } catch (error) {
     console.error('[fetchRepositoryCode] Error:', error)
@@ -114,6 +187,7 @@ export const fetchRepositoryCode = async (
 
 /**
  * Fetch only relevant source files (HTML, CSS, JS, TS, etc.)
+ * Uses parallel fetching for better performance
  */
 const fetchRelevantFiles = async (
   owner: string,
@@ -148,7 +222,9 @@ const fetchRelevantFiles = async (
       path.includes('dist/') ||
       path.includes('build/') ||
       path.includes('.git/') ||
-      path.includes('vendor/')
+      path.includes('vendor/') ||
+      path.includes('.next/') ||
+      path.includes('coverage/')
     ) {
       return false
     }
@@ -156,6 +232,8 @@ const fetchRelevantFiles = async (
     // Include files with relevant extensions
     return relevantExtensions.some((ext) => path.endsWith(ext))
   })
+
+  console.log(`[fetchRelevantFiles] Found ${relevantFiles.length} relevant files after filtering`)
 
   // PRIORITIZE source code files over config files
   // Sort to prioritize: src/ files, then components/, then other .jsx/.tsx/.js/.ts, then rest
@@ -216,39 +294,75 @@ const fetchRelevantFiles = async (
   const files: GitHubFile[] = []
   let totalSize = 0
 
-  // Fetch content for each file
-  for (const file of filesToFetch) {
+  // Fetch files in parallel batches for better performance
+  const fetchFileContent = async (file: any): Promise<GitHubFile | null> => {
     try {
-      const contentResponse = await fetch(
+      const contentResponse = await fetchWithRetry(
         `https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`,
         { headers }
       )
 
-      if (!contentResponse.ok) continue
+      if (!contentResponse.ok) {
+        console.warn(`[fetchRelevantFiles] Failed to fetch ${file.path}: ${contentResponse.status}`)
+        return null
+      }
 
       const contentData = await contentResponse.json()
 
       // Decode base64 content
-      const content = atob(contentData.content.replace(/\n/g, ''))
+      let content: string
+      try {
+        content = atob(contentData.content.replace(/\n/g, ''))
+      } catch (decodeError) {
+        console.warn(`[fetchRelevantFiles] Failed to decode ${file.path}:`, decodeError)
+        return null
+      }
 
       // Skip very large files (> 50KB)
-      if (content.length > 50000) continue
+      if (content.length > 50000) {
+        console.log(`[fetchRelevantFiles] Skipping large file: ${file.path} (${(content.length / 1024).toFixed(1)}KB)`)
+        return null
+      }
 
-      files.push({
+      return {
         name: file.path.split('/').pop() || file.path,
         path: file.path,
         content,
         size: content.length,
-      })
-
-      totalSize += content.length
-
-      // Stop if we've collected enough code (> 100KB total)
-      if (totalSize > 100000) break
+      }
     } catch (error) {
-      console.warn(`[fetchRelevantFiles] Failed to fetch ${file.path}:`, error)
+      console.warn(`[fetchRelevantFiles] Error fetching ${file.path}:`, error)
+      return null
     }
   }
+
+  // Process files in batches to avoid overwhelming the API
+  console.log(`[fetchRelevantFiles] Fetching ${filesToFetch.length} files in parallel batches...`)
+  
+  for (let i = 0; i < filesToFetch.length; i += CONCURRENT_FETCH_LIMIT) {
+    const batch = filesToFetch.slice(i, i + CONCURRENT_FETCH_LIMIT)
+    console.log(`[fetchRelevantFiles] Fetching batch ${Math.floor(i / CONCURRENT_FETCH_LIMIT) + 1}/${Math.ceil(filesToFetch.length / CONCURRENT_FETCH_LIMIT)}...`)
+    
+    const batchResults = await Promise.all(batch.map(fetchFileContent))
+    
+    for (const result of batchResults) {
+      if (result) {
+        files.push(result)
+        totalSize += result.size
+        
+        // Stop if we've collected enough code (> 100KB total)
+        if (totalSize > 100000) {
+          console.log(`[fetchRelevantFiles] Reached size limit (${(totalSize / 1024).toFixed(1)}KB), stopping fetch`)
+          break
+        }
+      }
+    }
+    
+    // Check if we should stop after this batch
+    if (totalSize > 100000) break
+  }
+
+  console.log(`[fetchRelevantFiles] Successfully fetched ${files.length} files (${(totalSize / 1024).toFixed(1)}KB total)`)
 
   // Build structure overview
   const structure = buildStructureOverview(files)

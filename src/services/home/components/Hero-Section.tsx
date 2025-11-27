@@ -21,7 +21,7 @@ import { supabase } from '@/lib/supabaseClient'
 
 export function HeroSection() {
   return (
-    <section className='relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background/95 to-primary/5'>
+    <section className='relative w-full min-h-screen flex items-center justify-center overflow-hidden bg-linear-to-br from-background via-background/95 to-primary/5'>
       {/* Background Grid */}
       <div className='absolute inset-0 opacity-20 dark:opacity-10'>
         <div
@@ -57,7 +57,7 @@ export function HeroSection() {
                 <h1 className='text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-[1.1] tracking-tight'>
                   Master
                   <br />
-                  <span className='bg-gradient-to-r from-primary via-primary to-primary/90 bg-clip-text text-transparent'>
+                  <span className='bg-linear-to-r from-primary via-primary to-primary/90 bg-clip-text text-transparent'>
                     Frontend
                   </span>
                   <br />

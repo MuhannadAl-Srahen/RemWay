@@ -69,10 +69,13 @@ export const useUpdateProfile = () => {
       return ProfileService.updateProfile(userId, updates)
     },
     onSuccess: (data, variables) => {
-      // Update the cache with the new profile data
+      // Update both TanStack Query cache and localStorage cache
       if (data) {
         queryClient.setQueryData(['profile', variables.userId], data)
         queryClient.setQueryData(['profile', undefined], data) // Also update current user query
+        // Update localStorage cache to prevent stale data on refresh
+        setCachedProfile(data, variables.userId)
+        setCachedProfile(data, undefined) // Also update current user cache
       }
     },
     onError: (error) => {

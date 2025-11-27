@@ -4,6 +4,8 @@ import type { ChallengeListItem } from '@/types'
 import { learningPaths } from '../data'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
 import { usePassedChallenges } from '@/services/profile/hooks/usePassedChallenges'
+import { useProfile } from '@/services/profile/hooks/useProfile'
+import { useAuth } from '@/services/challenges/hooks/useAuth'
 import {
   ArrowLeft,
   BookOpen,
@@ -44,13 +46,13 @@ const TimelineChallengeCard: React.FC<{
     <>
       {/* Image Section */}
       {/* mobile: fixed height so image fills the top of the card; md: let it size by content */}
-      <div className='relative w-full md:w-48 h-44 md:h-auto md:aspect-auto -my-6 flex-shrink-0 overflow-hidden'>
+      <div className='relative w-full md:w-48 h-44 md:h-auto md:aspect-auto -my-6 shrink-0 overflow-hidden'>
         <img
           src={challenge.image || '/src/assets/images/girl.jpg'}
           alt={challenge.title}
           className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-105'
         />
-        <div className='absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent' />
+        <div className='absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent' />
         {/* Difficulty Badge */}
         <div className='absolute top-3 left-3'>
           <Badge
@@ -165,9 +167,9 @@ const TimelineChallengeCard: React.FC<{
   return (
     <div className='relative flex w-full'>
       {/* Timeline column (hidden on mobile) */}
-      <div className='hidden md:flex flex-col items-center mr-6 min-w-[48px]'>
+      <div className='hidden md:flex flex-col items-center mr-6 min-w-12'>
         <div
-          className={`w-0.5 h-6 bg-gradient-to-b from-primary/20 to-primary/40 ${index === 0 ? 'invisible' : ''}`}
+          className={`w-0.5 h-6 bg-linear-to-b from-primary/20 to-primary/40 ${index === 0 ? 'invisible' : ''}`}
         />
         <div
           className={`rounded-full ${
@@ -187,7 +189,7 @@ const TimelineChallengeCard: React.FC<{
           )}
         </div>
         <div
-          className={`w-0.5 flex-1 bg-gradient-to-b from-primary/40 to-primary/20 ${isLast ? 'invisible' : ''}`}
+          className={`w-0.5 flex-1 bg-linear-to-b from-primary/40 to-primary/20 ${isLast ? 'invisible' : ''}`}
         />
       </div>
 
@@ -198,7 +200,7 @@ const TimelineChallengeCard: React.FC<{
           className='flex-1'
         >
           <Card
-            className={`flex-1 flex flex-col md:flex-row overflow-hidden mb-6 border border-primary/10 shadow-lg hover:shadow-2xl hover:scale-[1.01] hover:border-primary/20 transition-all duration-300 bg-gradient-to-r from-card to-card/95`}
+            className={`flex-1 flex flex-col md:flex-row overflow-hidden mb-6 border border-primary/10 shadow-lg hover:shadow-2xl hover:scale-[1.01] hover:border-primary/20 transition-all duration-300 bg-linear-to-r from-card to-card/95`}
           >
             {inner}
           </Card>
@@ -238,6 +240,14 @@ const SOLID_BG = {
 const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
   const path = learningPaths.find((p) => p.id === pathId)
 
+  // Auth and profile hooks to check if user started this path
+  const { data: authData } = useAuth()
+  const isAuthenticated = authData?.isAuthenticated ?? false
+  const userId = authData?.session?.user?.id
+  
+  const { data: profile } = useProfile(isAuthenticated ? userId : undefined)
+  const hasStartedPath = Boolean(profile?.learningPaths?.[pathId]?.started)
+
   // Use React Query hook to fetch challenges
   const { data: allChallenges = [], isLoading } = useChallenges()
 
@@ -269,7 +279,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
 
   // Determine which challenges are unlocked
   // A challenge is unlocked if:
-  // 1. It's the first challenge (index 0)
+  // 1. User has started the path AND it's the first challenge (index 0)
   // 2. It's already completed
   // 3. The previous challenge in the list is completed
   const getUnlockStatus = useMemo(() => {
@@ -279,14 +289,19 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
     ): { unlocked: boolean; completed: boolean } => {
       const isCompleted = completedChallengeIds.has(challengeId)
 
-      // First challenge is always unlocked
-      if (index === 0) {
-        return { unlocked: true, completed: isCompleted }
-      }
-
       // If this challenge is already completed, it's unlocked
       if (isCompleted) {
         return { unlocked: true, completed: true }
+      }
+
+      // User must have started the path to unlock any challenge
+      if (!hasStartedPath) {
+        return { unlocked: false, completed: false }
+      }
+
+      // First challenge is unlocked if user has started the path
+      if (index === 0) {
+        return { unlocked: true, completed: false }
       }
 
       // Check if the previous challenge is completed
@@ -300,7 +315,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
         completed: false,
       }
     }
-  }, [completedChallengeIds, pathChallenges])
+  }, [completedChallengeIds, pathChallenges, hasStartedPath])
 
   if (!path) return null
 
@@ -320,15 +335,15 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
 
       {/* Hero Section */}
       <div className='w-full max-w-5xl mx-auto mb-10 md:mb-12'>
-        <div className='bg-gradient-to-br from-primary/5 via-primary/3 to-transparent dark:from-primary/10 dark:via-primary/5 dark:to-transparent rounded-3xl border border-primary/10 p-8 md:p-12 relative overflow-hidden'>
+        <div className='bg-linear-to-br from-primary/5 via-primary/3 to-transparent dark:from-primary/10 dark:via-primary/5 dark:to-transparent rounded-3xl border border-primary/10 p-8 md:p-12 relative overflow-hidden'>
           {/* Background decoration */}
-          <div className='absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -translate-y-32 translate-x-32'></div>
+          <div className='absolute top-0 right-0 w-64 h-64 bg-linear-to-br from-primary/10 to-transparent rounded-full blur-3xl -translate-y-32 translate-x-32'></div>
 
           <div className='relative z-10'>
             <div className='flex items-center gap-6 mb-5'>
               {/* Icon */}
               <div
-                className={`rounded-2xl p-4 md:p-5 ${SOLID_BG[pathId]} shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl flex-shrink-0`}
+                className={`rounded-2xl p-4 md:p-5 ${SOLID_BG[pathId]} shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl shrink-0`}
               >
                 {ICONS[pathId]}
               </div>

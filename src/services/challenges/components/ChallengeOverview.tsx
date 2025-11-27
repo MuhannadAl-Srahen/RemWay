@@ -66,7 +66,7 @@ export function ChallengeOverview({ challenge }: ChallengeOverviewProps) {
               <ul className='space-y-2 md:space-y-3'>
                 {challenge.requirements.map((req, index) => (
                   <li key={index} className='flex items-start group'>
-                    <div className='w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full mt-1.5 md:mt-2 mr-2 md:mr-3 flex-shrink-0 transition-all duration-300 group-hover:scale-125' />
+                    <div className='w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full mt-1.5 md:mt-2 mr-2 md:mr-3 shrink-0 transition-all duration-300 group-hover:scale-125' />
                     <span className='text-xs md:text-base text-muted-foreground'>
                       {req}
                     </span>
@@ -101,7 +101,7 @@ export function ChallengeOverview({ challenge }: ChallengeOverviewProps) {
                     key={index}
                     className='text-xs md:text-sm text-muted-foreground flex items-start group'
                   >
-                    <div className='w-1 h-1 md:w-1.5 md:h-1.5 bg-primary rounded-full mt-1.5 md:mt-2 mr-1.5 md:mr-2 flex-shrink-0 transition-all duration-300 group-hover:scale-125' />
+                    <div className='w-1 h-1 md:w-1.5 md:h-1.5 bg-primary rounded-full mt-1.5 md:mt-2 mr-1.5 md:mr-2 shrink-0 transition-all duration-300 group-hover:scale-125' />
                     {tip}
                   </li>
                 ))}
@@ -132,7 +132,7 @@ export function ChallengeOverview({ challenge }: ChallengeOverviewProps) {
                     key={index}
                     className='text-xs md:text-sm text-muted-foreground flex items-start group'
                   >
-                    <div className='w-1 h-1 md:w-1.5 md:h-1.5 bg-destructive rounded-full mt-1.5 md:mt-2 mr-1.5 md:mr-2 flex-shrink-0 transition-all duration-300 group-hover:scale-125' />
+                    <div className='w-1 h-1 md:w-1.5 md:h-1.5 bg-destructive rounded-full mt-1.5 md:mt-2 mr-1.5 md:mr-2 shrink-0 transition-all duration-300 group-hover:scale-125' />
                     {pitfall}
                   </li>
                 ))}

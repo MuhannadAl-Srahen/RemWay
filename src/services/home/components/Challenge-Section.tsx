@@ -50,7 +50,7 @@ export function ChallengeSection() {
     toggleSaveMutation.mutate({ challengeId, isSaved })
   }
   return (
-    <section className='relative py-20 lg:py-32 bg-gradient-to-b from-primary/5 to-background overflow-hidden'>
+    <section className='relative py-20 lg:py-32 bg-linear-to-b from-primary/5 to-background overflow-hidden'>
       {/* Background decorations */}
       <div className='absolute inset-0 overflow-hidden'>
         <div className='absolute top-20 -left-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl' />

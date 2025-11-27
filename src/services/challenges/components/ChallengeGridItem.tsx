@@ -36,7 +36,7 @@ export function ChallengeGridItem({
           />
 
           {/* Overlay */}
-          <div className='absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent' />
+          <div className='absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent' />
 
           {/* Difficulty Badge */}
           <div className='absolute top-4 left-4'>

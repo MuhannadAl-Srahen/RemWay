@@ -20,7 +20,7 @@ import type { Challenge } from '@/types'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
 import useDelayedLoading from '@/lib/useDelayedLoading'
-import { isValidGitHubUrl, isValidLiveSiteUrl } from '@/services/ai/validation'
+import { isValidGitHubUrl, isValidLiveSiteUrl, checkRepoVisibility } from '@/services/ai/validation'
 
 interface ChallengeSubmissionProps {
   challenge: Challenge
@@ -35,6 +35,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
   const showLoading = useDelayedLoading(isAuthLoading, 160)
   const [screenshot, setScreenshot] = useState<File | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCheckingRepo, setIsCheckingRepo] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
@@ -71,6 +72,26 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
         return
       }
 
+      // Check if the repository is public before submitting
+      setIsCheckingRepo(true)
+      try {
+        const repoCheck = await checkRepoVisibility(value.githubUrl)
+        if (!repoCheck.isPublic) {
+          setError(
+            repoCheck.error ||
+              'Your GitHub repository must be public. Please change the repository visibility to public and try again.'
+          )
+          setIsCheckingRepo(false)
+          return
+        }
+      } catch (err) {
+        console.error('[ChallengeSubmission] Error checking repo visibility:', err)
+        setError('Failed to verify repository visibility. Please try again.')
+        setIsCheckingRepo(false)
+        return
+      }
+      setIsCheckingRepo(false)
+
       setIsSubmitting(true)
 
       try {
@@ -81,17 +102,37 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
         setSubmitted(true)
 
-        // COMPLETELY REMOVE the feedback cache for this submission
-        // Using removeQueries instead of invalidateQueries to ensure no stale data is shown
+        // AGGRESSIVELY CLEAR ALL FEEDBACK CACHES
+        // This ensures absolutely no stale data is shown when navigating to feedback page
+        
+        // 1. Remove specific submission feedback cache
         queryClient.removeQueries({
           queryKey: ['submissionFeedback', result.submissionId],
         })
+        
+        // 2. Remove ALL submissionFeedback queries to be safe
+        queryClient.removeQueries({
+          predicate: (query) => 
+            Array.isArray(query.queryKey) && 
+            query.queryKey[0] === 'submissionFeedback',
+        })
+        
+        // 3. Clear feedback-related cache
+        queryClient.removeQueries({
+          predicate: (query) =>
+            Array.isArray(query.queryKey) &&
+            (query.queryKey[0] === 'feedback' || 
+             String(query.queryKey[0]).includes('feedback')),
+        })
+
+        // Small delay to ensure cache is fully cleared before navigation
+        await new Promise(resolve => setTimeout(resolve, 100))
 
         setTimeout(() => {
           navigate({
             to: `/feedback/${result.submissionId}`,
           })
-        }, 2000)
+        }, 1900) // Adjusted to maintain ~2s total delay
       } catch (err) {
         let errorMessage = 'Failed to submit solution. Please try again.'
 
@@ -103,6 +144,12 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
             errorMessage = err.message.replace('LIVE_URL_USED: ', '')
           } else if (err.message.startsWith('OFFICIAL_URL_USED:')) {
             errorMessage = err.message.replace('OFFICIAL_URL_USED: ', '')
+          } else if (err.message.startsWith('GITHUB_OWNERSHIP_ERROR:')) {
+            errorMessage = err.message.replace('GITHUB_OWNERSHIP_ERROR: ', '')
+          } else if (err.message.startsWith('GITHUB_AUTH_REQUIRED:')) {
+            errorMessage = err.message.replace('GITHUB_AUTH_REQUIRED: ', '')
+          } else if (err.message.startsWith('INVALID_GITHUB_URL:')) {
+            errorMessage = err.message.replace('INVALID_GITHUB_URL: ', '')
           }
           // Check for "URLs already used for another challenge" errors
           else if (err.message.includes('already used for another challenge')) {
@@ -205,7 +252,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
   // Show loading while checking authentication (small delay to avoid flicker)
   if (showLoading && isAuthLoading) {
     return (
-      <div className='min-h-[400px] flex items-center justify-center'>
+      <div className='min-h-100 flex items-center justify-center'>
         <div className='animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full'></div>
       </div>
     )
@@ -214,7 +261,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
   // Show sign-in prompt for unauthenticated users
   if (!isAuthenticated) {
     return (
-      <div className='min-h-[400px] flex items-center justify-center'>
+      <div className='min-h-100 flex items-center justify-center'>
         <Card className='w-full max-w-md bg-card text-card-foreground rounded-xl border shadow-xl text-center p-8'>
           <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6'>
             <LogIn className='h-10 w-10 text-primary' />
@@ -235,7 +282,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                 },
               })
             }}
-            className='w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary'
+            className='w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary'
           >
             <Github className='mr-2 h-5 w-5' />
             Sign In with GitHub
@@ -247,7 +294,7 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
   if (submitted) {
     return (
-      <div className='min-h-[400px] flex items-center justify-center'>
+      <div className='min-h-100 flex items-center justify-center'>
         <div className='w-full max-w-md bg-card text-card-foreground rounded-xl border shadow-xl text-center p-8'>
           <div className='w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6'>
             <CheckCircle className='h-10 w-10 text-primary' />
@@ -491,10 +538,15 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                 children={([canSubmit, isSubmittingForm]) => (
                   <Button
                     type='submit'
-                    className='w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-base py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200'
-                    disabled={!canSubmit || isSubmitting || isSubmittingForm}
+                    className='w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-base py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200'
+                    disabled={!canSubmit || isSubmitting || isSubmittingForm || isCheckingRepo}
                   >
-                    {isSubmitting || isSubmittingForm ? (
+                    {isCheckingRepo ? (
+                      <>
+                        <div className='animate-spin w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full mr-2'></div>
+                        Checking Repository...
+                      </>
+                    ) : isSubmitting || isSubmittingForm ? (
                       <>
                         <div className='animate-spin w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full mr-2'></div>
                         Analyzing Solution...
@@ -540,6 +592,14 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                   Your project's source code hosted on GitHub for code review
                   and quality assessment.
                 </p>
+                <div className='flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-2'>
+                  <AlertCircle className='h-4 w-4 text-amber-500 shrink-0 mt-0.5' />
+                  <p className='text-xs text-amber-700 dark:text-amber-400'>
+                    <span className='font-semibold'>Important:</span> Your repository must be{' '}
+                    <span className='font-semibold'>public</span>. Private repositories cannot be
+                    analyzed by our AI.
+                  </p>
+                </div>
               </div>
 
               <div className='space-y-2'>

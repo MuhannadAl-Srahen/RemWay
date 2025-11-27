@@ -65,7 +65,7 @@ export function ChallengeListSkeleton() {
   return (
     <div className='flex gap-6 rounded-xl border border-border/40 bg-card/60 backdrop-blur-sm p-6 shadow-sm animate-in fade-in-0 duration-300'>
       {/* Image Skeleton */}
-      <div className='relative h-40 w-64 flex-shrink-0 overflow-hidden rounded-lg bg-muted/40'>
+      <div className='relative h-40 w-64 shrink-0 overflow-hidden rounded-lg bg-muted/40'>
         <Skeleton className='h-full w-full' />
 
         {/* Difficulty Badge Skeleton */}

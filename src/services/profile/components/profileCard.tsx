@@ -132,14 +132,14 @@ export function ProfileCard() {
         <div className='flex flex-col items-center text-center space-y-6'>
           {/* Avatar */}
           <div className='relative group'>
-            <div className='absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary/10 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300'></div>
+            <div className='absolute -inset-1 bg-linear-to-r from-primary/20 to-primary/10 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300'></div>
             <Avatar className='relative w-24 md:w-28 h-24 md:h-28 ring-4 ring-primary/20 transition-all duration-300 group-hover:ring-primary/40 group-hover:scale-105'>
               <AvatarImage
                 src={user.avatar}
                 alt={isEditing ? editData.fullName : user.fullName}
                 className='object-cover'
               />
-              <AvatarFallback className='bg-gradient-to-br from-primary/20 to-primary/10 text-primary text-xl md:text-2xl font-bold'>
+              <AvatarFallback className='bg-linear-to-br from-primary/20 to-primary/10 text-primary text-xl md:text-2xl font-bold'>
                 {getInitials(isEditing ? editData.fullName : user.fullName)}
               </AvatarFallback>
             </Avatar>
@@ -207,7 +207,7 @@ export function ProfileCard() {
                   onChange={(e) =>
                     setEditData((prev) => ({ ...prev, bio: e.target.value }))
                   }
-                  className='w-full p-3 text-sm text-muted-foreground leading-relaxed border border-border rounded-lg bg-background resize-none min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
+                  className='w-full p-3 text-sm text-muted-foreground leading-relaxed border border-border rounded-lg bg-background resize-none min-h-20 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
                   placeholder='Tell us about yourself...'
                 />
               </div>
@@ -369,7 +369,7 @@ export function ProfileCard() {
                       rel='noopener noreferrer'
                       className='flex items-center min-w-0'
                     >
-                      <Github className='w-4 h-4 mr-3 flex-shrink-0' />
+                      <Github className='w-4 h-4 mr-3 shrink-0' />
                       <span className='truncate'>
                         @
                         {String(
@@ -391,7 +391,7 @@ export function ProfileCard() {
                     onClick={() => setIsEditing(true)}
                     className='w-full justify-start text-muted-foreground/70 border-0 bg-transparent hover:bg-primary/5 min-w-0'
                   >
-                    <Github className='w-4 h-4 mr-3 flex-shrink-0' />
+                    <Github className='w-4 h-4 mr-3 shrink-0' />
                     <span className='truncate'>Add your GitHub</span>
                   </Button>
                 )}
@@ -411,7 +411,7 @@ export function ProfileCard() {
                       rel='noopener noreferrer'
                       className='flex items-center min-w-0'
                     >
-                      <Linkedin className='w-4 h-4 mr-3 flex-shrink-0' />
+                      <Linkedin className='w-4 h-4 mr-3 shrink-0' />
                       <span className='truncate'>
                         {(
                           editData.linkedinUrl ||
@@ -428,7 +428,7 @@ export function ProfileCard() {
                     onClick={() => setIsEditing(true)}
                     className='w-full justify-start text-muted-foreground/70 border-0 bg-transparent hover:bg-primary/5 min-w-0'
                   >
-                    <Linkedin className='w-4 h-4 mr-3 flex-shrink-0' />
+                    <Linkedin className='w-4 h-4 mr-3 shrink-0' />
                     <span className='truncate'>Add your LinkedIn</span>
                   </Button>
                 )}
@@ -448,7 +448,7 @@ export function ProfileCard() {
                       rel='noopener noreferrer'
                       className='flex items-center min-w-0'
                     >
-                      <Globe className='w-4 h-4 mr-3 flex-shrink-0' />
+                      <Globe className='w-4 h-4 mr-3 shrink-0' />
                       <span className='truncate'>
                         {(editData.website || user.website || '').replace(
                           /^https?:\/\//,
@@ -464,7 +464,7 @@ export function ProfileCard() {
                     onClick={() => setIsEditing(true)}
                     className='w-full justify-start text-muted-foreground/70 border-0 bg-transparent hover:bg-primary/5 min-w-0'
                   >
-                    <Globe className='w-4 h-4 mr-3 flex-shrink-0' />
+                    <Globe className='w-4 h-4 mr-3 shrink-0' />
                     <span className='truncate'>Add your website</span>
                   </Button>
                 )}

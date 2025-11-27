@@ -85,11 +85,18 @@ export const useProfileSubmissions = (limit: number = 20) => {
 
       if (!data) return []
 
-      // Map to ProfileSubmission type
+      // Map to ProfileSubmission type - handle feedback as array or single object
       return (data as unknown as DbSubmission[]).map((sub) => {
-        // Get the latest feedback score (first in array since we order by created_at)
-        const feedbackArr = sub.challenge_feedback || []
-        const latestFeedback = feedbackArr[0]
+        // Get the feedback score - handle both array and single object cases
+        const feedbackData = sub.challenge_feedback
+        let score: number | null = null
+        
+        if (Array.isArray(feedbackData) && feedbackData.length > 0) {
+          score = feedbackData[0]?.overall_score ?? null
+        } else if (feedbackData && typeof feedbackData === 'object') {
+          // Handle case where Supabase returns single object instead of array
+          score = (feedbackData as unknown as { overall_score: number })?.overall_score ?? null
+        }
 
         return {
           id: sub.id,
@@ -103,7 +110,7 @@ export const useProfileSubmissions = (limit: number = 20) => {
             | 'Intermediate'
             | 'Advanced',
           tags: sub.challenges?.tags || [],
-          score: latestFeedback?.overall_score ?? null,
+          score,
           thumbnailUrl: sub.challenges?.thumbnail_url || null,
         }
       })
@@ -126,6 +133,7 @@ export const useAllProfileSubmissions = () => {
     queryFn: async (): Promise<ProfileSubmission[]> => {
       if (!userId) return []
 
+      // Fetch submissions with feedback using inner join to only get submissions with feedback
       const { data, error } = await supabase
         .from('challenge_submissions')
         .select(
@@ -136,7 +144,7 @@ export const useAllProfileSubmissions = () => {
           github_url,
           live_site_url,
           submitted_at,
-          challenge_feedback (
+          challenge_feedback!inner (
             overall_score
           ),
           challenges (
@@ -154,32 +162,42 @@ export const useAllProfileSubmissions = () => {
         throw error
       }
 
-      if (!data) return []
+      if (!data || data.length === 0) {
+        console.log('[useAllProfileSubmissions] No submissions found for user:', userId)
+        return []
+      }
 
-      return (data as unknown as DbSubmission[])
-        .filter(
-          (sub) => sub.challenge_feedback && sub.challenge_feedback.length > 0
-        )
-        .map((sub) => {
-          const feedbackArr = sub.challenge_feedback || []
-          const latestFeedback = feedbackArr[0]
+      console.log('[useAllProfileSubmissions] Raw data:', data)
 
-          return {
-            id: sub.id,
-            challengeId: sub.challenge_id,
-            challengeTitle: sub.challenge_title,
-            githubUrl: sub.github_url,
-            liveUrl: sub.live_site_url,
-            submittedAt: sub.submitted_at || new Date().toISOString(),
-            difficulty: (sub.challenges?.difficulty || 'Beginner') as
-              | 'Beginner'
-              | 'Intermediate'
-              | 'Advanced',
-            tags: sub.challenges?.tags || [],
-            score: latestFeedback?.overall_score ?? null,
-            thumbnailUrl: sub.challenges?.thumbnail_url || null,
-          }
-        })
+      // Map to ProfileSubmission type - handle feedback as array or single object
+      return (data as unknown as DbSubmission[]).map((sub) => {
+        // Get the feedback score - handle both array and single object cases
+        const feedbackData = sub.challenge_feedback
+        let score: number | null = null
+        
+        if (Array.isArray(feedbackData) && feedbackData.length > 0) {
+          score = feedbackData[0]?.overall_score ?? null
+        } else if (feedbackData && typeof feedbackData === 'object') {
+          // Handle case where Supabase returns single object instead of array
+          score = (feedbackData as unknown as { overall_score: number })?.overall_score ?? null
+        }
+
+        return {
+          id: sub.id,
+          challengeId: sub.challenge_id,
+          challengeTitle: sub.challenge_title,
+          githubUrl: sub.github_url,
+          liveUrl: sub.live_site_url,
+          submittedAt: sub.submitted_at || new Date().toISOString(),
+          difficulty: (sub.challenges?.difficulty || 'Beginner') as
+            | 'Beginner'
+            | 'Intermediate'
+            | 'Advanced',
+          tags: sub.challenges?.tags || [],
+          score,
+          thumbnailUrl: sub.challenges?.thumbnail_url || null,
+        }
+      })
     },
     staleTime: STALE_TIME.MEDIUM, // 2 minutes
     gcTime: CACHE_VALIDITY.MEDIUM, // 10 minutes

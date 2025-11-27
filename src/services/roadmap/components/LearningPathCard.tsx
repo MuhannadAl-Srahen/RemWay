@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 // Link removed: card CTA handles navigation via Continue Path when started
 import type { LearningPath } from '../../../types/roadmap'
 
-import { BookOpen, Zap, Trophy } from 'lucide-react'
+import { BookOpen, Zap, Trophy, AlertTriangle } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import {
   useProfile,
@@ -12,6 +12,19 @@ import { usePassedChallenges } from '@/services/profile/hooks/usePassedChallenge
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
+import { useAuth } from '@/services/challenges/hooks/useAuth'
+import { AuthPromptDialog } from '@/components/ui/auth-prompt-dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { supabase } from '@/lib/supabaseClient'
 
 const ICON_GRADIENTS = {
   beginner: 'bg-primary/10',
@@ -73,11 +86,34 @@ interface LearningPathCardProps {
 
 const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
   const key = path.id as keyof typeof ICONS
-  const { data: profile, isLoading: isProfileLoading } = useProfile(undefined)
+  const [showAuthDialog, setShowAuthDialog] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  
+  // Auth check - fast and cached
+  const { data: authData, isLoading: isAuthLoading } = useAuth()
+  const isAuthenticated = authData?.isAuthenticated ?? false
+  const userId = authData?.session?.user?.id
+  
+  // Only fetch profile when authenticated
+  const { data: profile, isLoading: isProfileLoading } = useProfile(
+    isAuthenticated ? userId : undefined
+  )
   const updateProfile = useUpdateProfile()
   const started = Boolean(profile?.learningPaths?.[path.id]?.started)
+  
+  // Check if user has already started ANY other path
+  const startedPaths = profile?.learningPaths 
+    ? Object.entries(profile.learningPaths)
+        .filter(([, data]) => data?.started)
+        .map(([pathId]) => pathId)
+    : []
+  const hasOtherStartedPath = startedPaths.length > 0 && !startedPaths.includes(path.id)
+  const otherStartedPathName = hasOtherStartedPath 
+    ? startedPaths[0].charAt(0).toUpperCase() + startedPaths[0].slice(1) + ' Path'
+    : null
 
   // Use real submission data for passed challenges (score >= 45)
+  // Only load when authenticated
   const { passedChallengeIds, isLoading: isSubmissionsLoading } =
     usePassedChallenges()
 
@@ -115,21 +151,96 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
       ? Math.round((completedCount / totalForDifficulty) * 100)
       : 0
 
-  const isLoading =
-    isProfileLoading || isSubmissionsLoading || isChallengesLoading
+  // Only show loading for challenges (essential) - don't wait for profile/submissions for initial render
+  const isLoading = isChallengesLoading
+  // User-specific loading (for progress display)
+  const isUserDataLoading = isAuthLoading || (isAuthenticated && (isProfileLoading || isSubmissionsLoading))
+
+  // Handle sign in
+  const handleSignIn = async () => {
+    setShowAuthDialog(false)
+    await supabase.auth.signInWithOAuth({
+      provider: 'github',
+      options: {
+        redirectTo: window.location.origin + '/roadmap',
+      },
+    })
+  }
+
+  // Handle starting the path
+  const handleStartPath = () => {
+    if (!profile?.id) return
+    
+    // Merge with existing learningPaths instead of replacing
+    const existingPaths = profile.learningPaths || {}
+    const updatedPaths = {
+      ...existingPaths,
+      [path.id]: {
+        started: true,
+        progress: 0,
+        completedChallenges: [],
+      },
+    }
+    updateProfile.mutate({
+      userId: profile.id,
+      updates: { learningPaths: updatedPaths },
+    })
+    setShowConfirmDialog(false)
+  }
 
   return (
-    <Link to={CTA_LINKS[key]} className='w-full h-full'>
+    <>
+      <AuthPromptDialog
+        open={showAuthDialog}
+        onOpenChange={setShowAuthDialog}
+        onSignIn={handleSignIn}
+        variant='roadmap'
+      />
+      
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className='flex items-center gap-2'>
+              {hasOtherStartedPath && (
+                <AlertTriangle className='h-5 w-5 text-amber-500' />
+              )}
+              {hasOtherStartedPath ? 'Switch Learning Path?' : 'Start Learning Path?'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {hasOtherStartedPath ? (
+                <>
+                  You already have the <span className='font-semibold text-foreground'>{otherStartedPathName}</span> in progress. 
+                  Starting this path won't reset your progress, but we recommend focusing on one path at a time for the best learning experience.
+                </>
+              ) : (
+                <>
+                  Are you sure you want to start the <span className='font-semibold text-foreground'>{path.title}</span>? 
+                  You can always switch paths later, and your progress will be saved.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleStartPath}>
+              {hasOtherStartedPath ? 'Start Anyway' : 'Start Path'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <Link to={CTA_LINKS[key]} className='w-full h-full'>
       <div className='rounded-3xl h-full w-full transition-all duration-300 group hover:shadow-2xl'>
         <div className='rounded-3xl border border-border/50 bg-card shadow-sm transition-all duration-300 flex flex-col h-full w-full px-6 md:px-8 pt-7 pb-8 relative hover:scale-[1.01] hover:shadow-xl hover:border-primary/20 active:scale-[0.98] overflow-hidden'>
           {/* Background decoration */}
-          <div className='absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/5 to-transparent rounded-full blur-2xl -translate-y-16 translate-x-16'></div>
+          <div className='absolute top-0 right-0 w-32 h-32 bg-linear-to-br from-primary/5 to-transparent rounded-full blur-2xl -translate-y-16 translate-x-16'></div>
           {/* Header Section */}
           <div className='mb-6 relative z-10'>
             {/* Icon and Title Section */}
             <div className='flex items-center gap-4 mb-4'>
               <div
-                className={`rounded-xl w-14 h-14 p-3 ${ICON_GRADIENTS[key]} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 flex-shrink-0`}
+                className={`rounded-xl w-14 h-14 p-3 ${ICON_GRADIENTS[key]} flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-110 shrink-0`}
               >
                 {ICONS[key]}
               </div>
@@ -161,7 +272,7 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
           <ul className='mb-6 md:mb-8 space-y-2 md:space-y-3 relative z-10'>
             {FEATURE_LIST[key].map((item) => (
               <li key={item} className='flex items-start gap-3'>
-                <div className='w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary flex-shrink-0 mt-1.5 md:mt-2'></div>
+                <div className='w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-primary shrink-0 mt-1.5 md:mt-2'></div>
                 <span className='text-xs md:text-sm text-muted-foreground font-medium'>
                   {item}
                 </span>
@@ -179,7 +290,7 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
               </span>
             </div>
             <div className='flex-1 bg-card rounded-xl py-2 md:py-3 px-3 md:px-4 flex flex-col items-center justify-center border border-border/50 shadow-sm transition-all duration-300 hover:shadow-md'>
-              {isLoading ? (
+              {isLoading || isUserDataLoading ? (
                 <Skeleton className='h-5 w-12 mb-1' />
               ) : (
                 <span className='text-base md:text-lg font-bold text-primary leading-none'>
@@ -197,24 +308,18 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
               <div className='w-full'>
                 <Button
                   className={`w-full ${CTA_COLORS[key]}`}
-                  onClick={async (e) => {
+                  onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
-                    if (!profile?.id) return
-                    // Merge with existing learningPaths instead of replacing
-                    const existingPaths = profile.learningPaths || {}
-                    const updatedPaths = {
-                      ...existingPaths,
-                      [path.id]: {
-                        started: true,
-                        progress: 0,
-                        completedChallenges: [],
-                      },
+                    
+                    // If not authenticated, show sign-in dialog
+                    if (!isAuthenticated) {
+                      setShowAuthDialog(true)
+                      return
                     }
-                    updateProfile.mutate({
-                      userId: profile.id,
-                      updates: { learningPaths: updatedPaths },
-                    })
+                    
+                    // Show confirmation dialog
+                    setShowConfirmDialog(true)
                   }}
                   aria-label={`Start ${key} path`}
                 >
@@ -225,7 +330,7 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
               <div className='w-full'>
                 {/* Progress line (no numeric percent shown) */}
                 <div className='w-full bg-muted rounded-full h-3 overflow-hidden border border-border/40'>
-                  {isLoading ? (
+                  {isLoading || isUserDataLoading ? (
                     <Skeleton className='h-full w-1/3' />
                   ) : (
                     <div
@@ -240,7 +345,7 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
                   <div className='text-sm font-semibold text-foreground'>
                     {path.duration}
                   </div>
-                  {isLoading ? (
+                  {isLoading || isUserDataLoading ? (
                     <Skeleton className='h-4 w-20' />
                   ) : (
                     <div className='text-sm text-muted-foreground'>
@@ -254,6 +359,7 @@ const LearningPathCard: React.FC<LearningPathCardProps> = ({ path }) => {
         </div>
       </div>
     </Link>
+    </>
   )
 }
 

@@ -84,7 +84,7 @@ export function ChallengeResources({ challenge }: ChallengeResourcesProps) {
                 <CardContent className='flex flex-col flex-1 px-6 py-5'>
                   {/* Title with Icon */}
                   <div className='flex items-center gap-2 mb-4'>
-                    <Video className='h-5 w-5 text-primary flex-shrink-0' />
+                    <Video className='h-5 w-5 text-primary shrink-0' />
                     <CardTitle className='line-clamp-1 text-lg font-semibold tracking-tight text-card-foreground group-hover:text-primary transition-colors'>
                       {video.title}
                     </CardTitle>

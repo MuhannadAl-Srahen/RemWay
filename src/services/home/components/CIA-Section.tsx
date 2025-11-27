@@ -47,7 +47,7 @@ export function CIASection() {
                         'Track your growth with detailed analytics',
                       ].map((feature, index) => (
                         <div key={index} className='flex items-center gap-3'>
-                          <div className='w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0'>
+                          <div className='w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center shrink-0'>
                             <div className='w-2 h-2 bg-primary rounded-full' />
                           </div>
                           <span className='text-foreground font-medium'>
@@ -167,7 +167,7 @@ export function CIASection() {
                           {/* Task List */}
                           <div className='space-y-1.5 sm:space-y-2'>
                             <div className='flex items-center gap-2 text-[10px] sm:text-xs'>
-                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0'>
+                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex items-center justify-center shrink-0'>
                                 <span className='text-white text-[8px] sm:text-[10px]'>
                                   ✓
                                 </span>
@@ -177,7 +177,7 @@ export function CIASection() {
                               </span>
                             </div>
                             <div className='flex items-center gap-2 text-[10px] sm:text-xs'>
-                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0'>
+                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full flex items-center justify-center shrink-0'>
                                 <span className='text-white text-[8px] sm:text-[10px]'>
                                   ✓
                                 </span>
@@ -187,7 +187,7 @@ export function CIASection() {
                               </span>
                             </div>
                             <div className='flex items-center gap-2 text-[10px] sm:text-xs'>
-                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-primary rounded-full flex items-center justify-center flex-shrink-0'>
+                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-primary rounded-full flex items-center justify-center shrink-0'>
                                 <span className='text-white text-[8px] sm:text-[10px]'>
                                   3
                                 </span>
@@ -197,13 +197,13 @@ export function CIASection() {
                               </span>
                             </div>
                             <div className='flex items-center gap-2 text-[10px] sm:text-xs'>
-                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-muted/50 border border-muted rounded-full flex-shrink-0'></div>
+                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-muted/50 border border-muted rounded-full shrink-0'></div>
                               <span className='text-muted-foreground'>
                                 Implement contact form
                               </span>
                             </div>
                             <div className='flex items-center gap-2 text-[10px] sm:text-xs'>
-                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-muted/50 border border-muted rounded-full flex-shrink-0'></div>
+                              <div className='w-3 h-3 sm:w-4 sm:h-4 bg-muted/50 border border-muted rounded-full shrink-0'></div>
                               <span className='text-muted-foreground'>
                                 Deploy to Vercel
                               </span>
@@ -214,7 +214,7 @@ export function CIASection() {
                         {/* AI Feedback Section */}
                         <div className='bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4'>
                           <div className='flex items-center gap-2 mb-2'>
-                            <div className='w-5 h-5 sm:w-6 sm:h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0'>
+                            <div className='w-5 h-5 sm:w-6 sm:h-6 bg-primary/10 rounded-full flex items-center justify-center shrink-0'>
                               <span className='text-primary text-[10px] sm:text-xs'>
                                 🤖
                               </span>

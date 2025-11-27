@@ -11,7 +11,7 @@ function Skeleton({
         'before:absolute before:inset-0',
         'before:-translate-x-full',
         'before:animate-shimmer-slide',
-        'before:bg-gradient-to-r',
+        'before:bg-linear-to-r',
         'before:from-transparent before:via-white/20 before:to-transparent',
         'dark:before:via-white/10',
         className
