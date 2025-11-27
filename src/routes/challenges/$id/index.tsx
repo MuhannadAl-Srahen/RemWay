@@ -13,8 +13,26 @@ import {
   ChallengeSubmission,
 } from '@/services/challenges'
 import { ChallengeDetailSkeleton } from '@/components/ui/challenge-detail-skeleton'
+import { motion, AnimatePresence } from 'motion/react'
 
 type TabType = 'overview' | 'design' | 'resources' | 'submission'
+
+// Animation variants for tab transitions
+const tabContentVariants = {
+  initial: { opacity: 0, y: 15, scale: 0.98 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.4 },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    scale: 0.98,
+    transition: { duration: 0.25 },
+  },
+}
 
 export const Route = createFileRoute('/challenges/$id/')({
   component: RouteComponent,
@@ -110,34 +128,68 @@ function RouteComponent() {
   return (
     <PageLayout maxWidth='6xl'>
       {/* Back Button */}
-      <Link to='/challenges'>
-        <Button
-          variant='ghost'
-          className='mb-4 md:mb-6 transition-all duration-300 hover:scale-105'
-        >
-          <ArrowLeft className='mr-2 h-4 w-4' />
-          <span className='hidden sm:inline text-base'>Back to Challenges</span>
-          <span className='sm:hidden'>Back</span>
-        </Button>
-      </Link>
+      <motion.div
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      >
+        <Link to='/challenges'>
+          <Button
+            variant='ghost'
+            className='mb-4 md:mb-6 transition-all duration-300 hover:scale-105'
+          >
+            <ArrowLeft className='mr-2 h-4 w-4' />
+            <span className='hidden sm:inline text-base'>Back to Challenges</span>
+            <span className='sm:hidden'>Back</span>
+          </Button>
+        </Link>
+      </motion.div>
 
       {/* Hero Section */}
-      <ChallengeHero challenge={challenge} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1, ease: 'easeOut' }}
+      >
+        <ChallengeHero challenge={challenge} />
+      </motion.div>
 
       {/* Custom Tabs */}
-      <div className='w-full'>
+      <motion.div
+        className='w-full'
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2, ease: 'easeOut' }}
+      >
         {/* Tab List */}
-        <div className='grid grid-cols-4 mb-6 md:mb-8 bg-card border shadow-sm h-10 md:h-12 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md'>
+        <div className='relative grid grid-cols-4 mb-6 md:mb-8 bg-card border shadow-sm h-10 md:h-12 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-md'>
+          {/* Sliding indicator */}
+          <motion.div
+            className='absolute inset-y-0 bg-primary/10 rounded-lg'
+            layoutId='activeTab'
+            style={{
+              width: '25%',
+            }}
+            initial={false}
+            animate={{
+              x: `${tabs.findIndex((t) => t.id === activeTab) * 100}%`,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 400,
+              damping: 35,
+            }}
+          />
           {tabs.map((tab) => {
             const Icon = tab.icon
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center justify-center gap-1 md:gap-2 h-full transition-all duration-200 relative px-1 cursor-pointer ${
+                className={`relative z-10 flex items-center justify-center gap-1 md:gap-2 h-full transition-all duration-200 px-1 cursor-pointer ${
                   activeTab === tab.id
-                    ? 'bg-primary/10 text-primary scale-100'
-                    : 'hover:bg-muted text-muted-foreground hover:text-foreground hover:scale-[1.02]'
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Icon className='h-3 w-3 md:h-4 md:w-4 shrink-0' />
@@ -153,19 +205,28 @@ function RouteComponent() {
         </div>
 
         {/* Tab Contents */}
-        <div className='space-y-4 md:space-y-6'>
-          {activeTab === 'overview' && (
-            <ChallengeOverview challenge={challenge} />
-          )}
-          {activeTab === 'design' && <ChallengeDesign challenge={challenge} />}
-          {activeTab === 'resources' && (
-            <ChallengeResources challenge={challenge} />
-          )}
-          {activeTab === 'submission' && (
-            <ChallengeSubmission challenge={challenge} />
-          )}
-        </div>
-      </div>
+        <AnimatePresence mode='wait'>
+          <motion.div
+            key={activeTab}
+            variants={tabContentVariants}
+            initial='initial'
+            animate='animate'
+            exit='exit'
+            className='space-y-4 md:space-y-6'
+          >
+            {activeTab === 'overview' && (
+              <ChallengeOverview challenge={challenge} />
+            )}
+            {activeTab === 'design' && <ChallengeDesign challenge={challenge} />}
+            {activeTab === 'resources' && (
+              <ChallengeResources challenge={challenge} />
+            )}
+            {activeTab === 'submission' && (
+              <ChallengeSubmission challenge={challenge} />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
     </PageLayout>
   )
 }

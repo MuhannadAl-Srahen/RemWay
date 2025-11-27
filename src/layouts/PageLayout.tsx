@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { motion } from 'motion/react'
 
 interface PageLayoutProps {
   children: ReactNode
   className?: string
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '6xl' | '7xl' | 'full'
   padding?: 'sm' | 'md' | 'lg' | 'xl'
+  animate?: boolean
 }
 
 const maxWidthClasses = {
@@ -31,19 +33,41 @@ export const PageLayout = ({
   className,
   maxWidth = '7xl',
   padding = 'lg',
+  animate = true,
 }: PageLayoutProps) => {
+  const content = (
+    <div
+      className={cn(
+        'mx-auto',
+        maxWidthClasses[maxWidth],
+        paddingClasses[padding]
+      )}
+    >
+      {children}
+    </div>
+  )
+
+  if (!animate) {
+    return (
+      <div className={cn('bg-background min-h-screen mt-18', className)}>
+        <div className='container mx-auto px-4'>{content}</div>
+      </div>
+    )
+  }
+
   return (
     <div className={cn('bg-background min-h-screen mt-18', className)}>
       <div className='container mx-auto px-4'>
-        <div
-          className={cn(
-            'mx-auto',
-            maxWidthClasses[maxWidth],
-            paddingClasses[padding]
-          )}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.5,
+            ease: [0.25, 0.46, 0.45, 0.94],
+          }}
         >
-          {children}
-        </div>
+          {content}
+        </motion.div>
       </div>
     </div>
   )
