@@ -163,7 +163,7 @@ export function FeedbackProcessing({
 
           <p className='text-sm text-muted-foreground text-center max-w-md mb-2'>
             Our AI is carefully reviewing your code and design. This typically
-            takes 15-30 seconds.
+            takes 30 - 60 seconds.
           </p>
 
           <p className='text-xs text-muted-foreground mb-8'>

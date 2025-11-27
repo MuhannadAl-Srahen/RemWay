@@ -120,11 +120,16 @@ export const getSubmissionFeedback = async (
 
     // Determine status based on feedback existence AND staleness
     let status: FeedbackStatus = 'pending'
+    let feedbackToReturn = feedbackData // The feedback to return to the client
+    
     if (feedbackData && !feedbackIsStale) {
       status = 'completed'
     } else if (feedbackIsStale) {
       // Feedback exists but is stale - treat as pending for regeneration
+      // IMPORTANT: Don't return stale feedback to the client
       status = 'pending'
+      feedbackToReturn = null // Clear stale feedback so UI shows loading state
+      console.log('[getSubmissionFeedback] 🔄 Returning null feedback (stale) to trigger regeneration')
     } else if (submission.status === 'pending') {
       // Check if submission is recent (within 5 minutes)
       const submittedAt = new Date(submission.submitted_at)
@@ -148,30 +153,33 @@ export const getSubmissionFeedback = async (
       status: submission.status,
     }
 
+    // Use feedbackToReturn (which is null if stale) instead of feedbackData
+    const feedbackToFormat = feedbackToReturn as any
+
     return {
       submission: submissionFormatted,
-      feedback: feedbackData
+      feedback: feedbackToReturn
         ? {
-            id: feedback.id,
-            submission_id: feedback.submission_id,
-            overall_score: feedback.overall_score,
-            overall_rating: feedback.overall_rating,
-            overall_good_practices: feedback.overall_good_practices || [],
-            improvment_advices: feedback.improvment_advices || [],
-            best_practices: feedback.best_practices || [],
-            code_formatting: feedback.code_formatting || [],
-            functionality: feedback.functionality || [],
-            accessibility: feedback.accessibility || [],
-            recommended_resources: feedback.recommended_resources,
-            recommended_next_challenge: feedback.recommended_next_challenge,
-            comparison_notes: feedback.comparison_notes,
-            submission_mismatch: feedback.submission_mismatch || null,
+            id: feedbackToFormat.id,
+            submission_id: feedbackToFormat.submission_id,
+            overall_score: feedbackToFormat.overall_score,
+            overall_rating: feedbackToFormat.overall_rating,
+            overall_good_practices: feedbackToFormat.overall_good_practices || [],
+            improvment_advices: feedbackToFormat.improvment_advices || [],
+            best_practices: feedbackToFormat.best_practices || [],
+            code_formatting: feedbackToFormat.code_formatting || [],
+            functionality: feedbackToFormat.functionality || [],
+            accessibility: feedbackToFormat.accessibility || [],
+            recommended_resources: feedbackToFormat.recommended_resources,
+            recommended_next_challenge: feedbackToFormat.recommended_next_challenge,
+            comparison_notes: feedbackToFormat.comparison_notes,
+            submission_mismatch: feedbackToFormat.submission_mismatch || null,
             previous_feedback_summary:
-              feedback.previous_feedback_summary || null,
+              feedbackToFormat.previous_feedback_summary || null,
             improvements_from_previous:
-              feedback.improvements_from_previous || null,
-            ai_model_version: feedback.ai_model_version,
-            created_at: feedback.created_at,
+              feedbackToFormat.improvements_from_previous || null,
+            ai_model_version: feedbackToFormat.ai_model_version,
+            created_at: feedbackToFormat.created_at,
           }
         : null,
       status,
@@ -267,40 +275,13 @@ export const generateAndStoreFeedback = async (
   submissionId: string
 ): Promise<{ success: boolean; error?: string }> => {
   try {
-    // 0. First, fetch any existing feedback for this submission (for comparison on resubmission)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // 0. Check if feedback already exists for this submission
     const { data: existingFeedback } = await (
       supabase.from('challenge_feedback') as any
     )
       .select('*')
       .eq('submission_id', submissionId)
       .maybeSingle()
-
-    let previousFeedbackSummary = null
-    if (existingFeedback) {
-      // Store the previous feedback for comparison
-      previousFeedbackSummary = {
-        previous_score: existingFeedback.overall_score,
-        issues_to_fix: existingFeedback.improvment_advices || [],
-        previous_best_practices: existingFeedback.best_practices || [],
-        previous_code_formatting: existingFeedback.code_formatting || [],
-        previous_functionality: existingFeedback.functionality || [],
-        previous_accessibility: existingFeedback.accessibility || [],
-      }
-      console.log(
-        '[generateAndStoreFeedback] 📋 Found previous feedback for comparison:',
-        previousFeedbackSummary
-      )
-
-      // Delete the old feedback so we can insert new one
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from('challenge_feedback') as any)
-        .delete()
-        .eq('submission_id', submissionId)
-      console.log(
-        '[generateAndStoreFeedback] 🗑️ Deleted old feedback for regeneration'
-      )
-    }
 
     // 1. Fetch submission with challenge details and overview
     const { data: submission, error: submissionError } = await supabase
@@ -324,6 +305,39 @@ export const generateAndStoreFeedback = async (
       submission,
       submissionError,
     })
+
+    // Check if feedback exists and is still valid (created AFTER submission was last updated)
+    // If the user resubmits, submitted_at will be newer than feedback.created_at
+    if (existingFeedback && submission) {
+      const submissionData = submission as any
+      const submittedAt = new Date(submissionData.submitted_at)
+      const feedbackCreatedAt = new Date(existingFeedback.created_at)
+      
+      // Only skip regeneration if feedback is NEWER than submission
+      // This means the code hasn't changed since feedback was generated
+      if (feedbackCreatedAt >= submittedAt) {
+        console.log(
+          '[generateAndStoreFeedback] ✅ Feedback is up-to-date, skipping regeneration'
+        )
+        console.log(
+          `[generateAndStoreFeedback] Submission: ${submittedAt.toISOString()}, Feedback: ${feedbackCreatedAt.toISOString()}`
+        )
+        return { success: true }
+      } else {
+        console.log(
+          '[generateAndStoreFeedback] ⚠️ Submission was updated after feedback - regenerating'
+        )
+        console.log(
+          `[generateAndStoreFeedback] Submission: ${submittedAt.toISOString()}, Feedback: ${feedbackCreatedAt.toISOString()}`
+        )
+        // Delete old feedback before regenerating
+        await supabase
+          .from('challenge_feedback')
+          .delete()
+          .eq('submission_id', submissionId)
+        console.log('[generateAndStoreFeedback] 🗑️ Deleted stale feedback')
+      }
+    }
 
     if (submissionError) {
       console.error(
@@ -481,19 +495,46 @@ export const generateAndStoreFeedback = async (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const requirements = (overview as any)?.requirements || []
 
-    // 2. Check for previous submission
+    // 2. Check for previous submission (a DIFFERENT submission for the same challenge)
     const previousSubmission = await getPreviousSubmission(
       submissionData.challenge_id,
       submissionData.profile_id,
       submissionId
     )
 
+    // 2.1 If there's a previous submission, get its feedback for comparison
+    let previousFeedbackSummary = null
+    if (previousSubmission) {
+      const { data: prevFeedback } = await (
+        supabase.from('challenge_feedback') as any
+      )
+        .select('*')
+        .eq('submission_id', previousSubmission.id)
+        .maybeSingle()
+
+      if (prevFeedback) {
+        previousFeedbackSummary = {
+          previous_score: prevFeedback.overall_score,
+          issues_to_fix: prevFeedback.improvment_advices || [],
+          previous_best_practices: prevFeedback.best_practices || [],
+          previous_code_formatting: prevFeedback.code_formatting || [],
+          previous_functionality: prevFeedback.functionality || [],
+          previous_accessibility: prevFeedback.accessibility || [],
+        }
+        console.log(
+          '[generateAndStoreFeedback] 📋 Found previous submission feedback for comparison:',
+          { previousSubmissionId: previousSubmission.id, previousScore: prevFeedback.overall_score }
+        )
+      }
+    }
+
     // 3. Generate AI feedback
     const startTime = Date.now()
     const aiFeedback = await generateAIFeedback({
       submission: submissionData,
       previousSubmission: previousSubmission || undefined,
-      previousFeedback: previousFeedbackSummary || undefined, // Include previous feedback for comparison
+      // Only pass previousFeedback if there's a DIFFERENT previous submission with feedback
+      previousFeedback: previousFeedbackSummary || undefined,
       challengeDescription: submissionData.challenge.description,
       designRequirements: requirements,
       techRequirements: requirements,
@@ -553,7 +594,7 @@ export const generateAndStoreFeedback = async (
             explanation: aiFeedback.submissionMismatch.explanation,
           }
         : null,
-      // Store previous feedback summary for reference
+      // Store previous feedback summary for reference (only if comparing to a different submission)
       previous_feedback_summary: previousFeedbackSummary || null,
       // Store improvements tracking from AI analysis
       improvements_from_previous: aiFeedback.improvementsFromPrevious
