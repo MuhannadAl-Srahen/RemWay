@@ -13,10 +13,13 @@ import {
   FeedbackProcessing,
   FeedbackError,
   MismatchWarning,
+  CodeNotAvailableWarning,
+  LiveUrlWarning,
   ImprovementsFromPrevious,
 } from '@/services/feedback'
+import { useChallenges } from '@/services/challenges'
 import type { TechCategory } from '@/services/feedback/components/TechAnalysis'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/feedback/$submissionId')({
@@ -32,6 +35,84 @@ function RouteComponent() {
   const [hasTriggered, setHasTriggered] = useState(false)
   const [generationError, setGenerationError] = useState<string | null>(null)
   const [generationTimedOut, setGenerationTimedOut] = useState(false)
+
+  // Fetch real challenges from database (must be called before any conditional returns)
+  const { data: allChallenges = [] } = useChallenges()
+
+  // Find recommended next challenge from real challenges
+  // This useMemo must be called before any early returns to follow Rules of Hooks
+  const nextChallenges = useMemo(() => {
+    // Return empty if we don't have the required data yet
+    if (!data?.feedback || !data?.challenge || allChallenges.length === 0) {
+      return []
+    }
+
+    const feedback = data.feedback
+    const challenge = data.challenge
+
+    // Get the AI's recommended challenge title (if any)
+    const recommendedTitle = feedback.recommended_next_challenge
+
+    // Current challenge difficulty for fallback logic
+    const currentDifficulty = challenge.difficulty?.toLowerCase() || 'beginner'
+
+    // Map difficulty to component format
+    const mapDifficulty = (d: string): 'easy' | 'medium' | 'hard' => {
+      const lower = d.toLowerCase()
+      if (lower === 'beginner' || lower === 'easy') return 'easy'
+      if (lower === 'intermediate' || lower === 'medium') return 'medium'
+      return 'hard'
+    }
+
+    // Filter out the current challenge
+    const otherChallenges = allChallenges.filter((c) => c.id !== challenge.id)
+
+    if (otherChallenges.length === 0) return []
+
+    // Try to find the AI-recommended challenge by title (fuzzy match)
+    let recommended = recommendedTitle
+      ? otherChallenges.find(
+          (c) =>
+            c.title.toLowerCase().includes(recommendedTitle.toLowerCase()) ||
+            recommendedTitle.toLowerCase().includes(c.title.toLowerCase())
+        )
+      : null
+
+    // Fallback: find a challenge of same or next difficulty level
+    if (!recommended) {
+      const difficultyOrder = ['beginner', 'easy', 'intermediate', 'medium', 'advanced', 'hard']
+      const currentIdx = difficultyOrder.findIndex((d) => d === currentDifficulty)
+
+      // Prefer same difficulty, then next level up
+      recommended = otherChallenges.find(
+        (c) => c.difficulty?.toLowerCase() === currentDifficulty
+      )
+
+      if (!recommended && currentIdx < difficultyOrder.length - 1) {
+        const nextDifficulty = difficultyOrder[currentIdx + 1]
+        recommended = otherChallenges.find(
+          (c) => c.difficulty?.toLowerCase() === nextDifficulty
+        )
+      }
+
+      // Final fallback: just pick the first available challenge
+      if (!recommended) {
+        recommended = otherChallenges[0]
+      }
+    }
+
+    if (!recommended) return []
+
+    return [
+      {
+        id: recommended.id,
+        title: recommended.title,
+        difficulty: mapDifficulty(recommended.difficulty || 'easy'),
+        technologies: recommended.tags || [],
+        description: recommended.description || 'Practice your frontend skills with this challenge',
+      },
+    ]
+  }, [allChallenges, data?.feedback, data?.challenge])
 
   // Reset state when submissionId changes (for resubmissions)
   useEffect(() => {
@@ -283,16 +364,6 @@ function RouteComponent() {
     }
   )
 
-  const nextChallenge = {
-    id: 'next-challenge-id',
-    title: 'Blog Preview Card',
-    difficulty: 'easy' as const,
-    technologies: ['HTML', 'CSS', 'Flexbox'],
-    description: 'Build a responsive blog preview card component',
-  }
-
-  const nextChallenges = [nextChallenge]
-
   const learningResources = (feedback.recommended_resources || []).map(
     (resource: unknown) => {
       const r = resource as {
@@ -310,6 +381,32 @@ function RouteComponent() {
 
   // Check for submission mismatch
   const hasMismatch = feedback.submission_mismatch?.is_mismatched === true
+
+  // Check if code wasn't available (score capped due to fetch failure)
+  // This is indicated by a low score (<=40) combined with feedback mentioning code not available
+  const codeNotAvailable =
+    feedback.overall_score <= 40 &&
+    (feedback.improvment_advices?.some(
+      (advice: string) =>
+        advice.toLowerCase().includes('source code could not be fetched') ||
+        advice.toLowerCase().includes('no source code files') ||
+        advice.toLowerCase().includes('repository is public')
+    ) ||
+      feedback.best_practices?.some(
+        (item: unknown) =>
+          typeof item === 'string' &&
+          item.toLowerCase().includes('code not available')
+      ))
+
+  // Check if live URL had issues
+  const liveUrlNotAccessible =
+    submission.live_url &&
+    feedback.improvment_advices?.some(
+      (advice: string) =>
+        advice.toLowerCase().includes('live site url') ||
+        advice.toLowerCase().includes('live url could not') ||
+        advice.toLowerCase().includes('deployment is working')
+    )
 
   // Check for improvements from previous submission
   const hasImprovements =
@@ -338,6 +435,16 @@ function RouteComponent() {
             actualProject={feedback.submission_mismatch.actual_project}
             explanation={feedback.submission_mismatch.explanation}
           />
+        )}
+
+        {/* Show code not available warning if score was capped due to fetch failure */}
+        {codeNotAvailable && !hasMismatch && submission.github_url && (
+          <CodeNotAvailableWarning githubUrl={submission.github_url} />
+        )}
+
+        {/* Show live URL warning if the live site couldn't be accessed */}
+        {liveUrlNotAccessible && !hasMismatch && submission.live_url && (
+          <LiveUrlWarning liveUrl={submission.live_url} />
         )}
 
         {/* Show improvements from previous submission if this is a resubmission */}
