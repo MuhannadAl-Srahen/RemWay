@@ -7,18 +7,18 @@ A modern frontend coding challenge platform built to help developers master fron
 ## Table of Contents
 
 1. [Project Overview](#project-overview)
-2. [Getting Started](#getting-started)
-3. [Architecture](#architecture)
-4. [Features](#features)
-5. [Tech Stack](#tech-stack)
-6. [Project Structure](#project-structure)
-7. [Core Modules](#core-modules)
-8. [Database Schema](#database-schema)
-9. [Authentication](#authentication)
-10. [State Management](#state-management)
-11. [Routing](#routing)
-12. [Styling](#styling)
-13. [API Reference](#api-reference)
+2. [User Manual](#user-manual)
+3. [Complete Feature Guide](#complete-feature-guide)
+4. [Getting Started (Developers)](#getting-started-developers)
+5. [Architecture](#architecture)
+6. [Tech Stack](#tech-stack)
+7. [Project Structure](#project-structure)
+8. [Core Modules](#core-modules)
+9. [Database Schema](#database-schema)
+10. [Authentication](#authentication)
+11. [State Management](#state-management)
+12. [Routing](#routing)
+13. [Styling](#styling)
 14. [Configuration](#configuration)
 15. [Deployment](#deployment)
 16. [Contributing](#contributing)
@@ -52,10 +52,588 @@ PexFect is a web-based platform where developers can:
 | **Progress Tracking** | Structured learning paths with milestones                        |
 | **Design-First**      | Figma designs provided for each challenge                        |
 | **Resubmission**      | Improve your score based on previous feedback                    |
+| **Consistent Scoring**| Deterministic AI ensures same code = same score                  |
 
 ---
 
-## Getting Started
+## User Manual
+
+This section explains how to use every feature of PexFect as an end user.
+
+### 🏠 Home Page
+
+**URL:** `/`
+
+The home page introduces PexFect and its features:
+
+1. **Hero Section** - Welcome message and main call-to-action
+2. **Features** - Overview of platform capabilities
+3. **How It Works** - Step-by-step guide
+4. **Featured Challenges** - Popular challenges to get started
+5. **Call to Action** - Sign up prompt
+
+**Actions Available:**
+- Click "Get Started" to browse challenges
+- Click "Sign In" to authenticate with GitHub
+
+---
+
+### 🎯 Challenges
+
+**URL:** `/challenges`
+
+Browse all available frontend coding challenges.
+
+#### Viewing Challenges
+
+1. **Grid View** - Card-based layout showing challenge thumbnails
+2. **List View** - Compact list format for quick scanning
+3. **Toggle** - Switch between views using the view toggle button
+
+#### Filtering Challenges
+
+| Filter       | Options                              | Purpose                        |
+| ------------ | ------------------------------------ | ------------------------------ |
+| **Difficulty** | Beginner, Intermediate, Advanced   | Filter by skill level          |
+| **Category** | Components, Layouts, Forms, etc.     | Filter by challenge type       |
+| **Search**   | Text input                           | Search by title or description |
+
+#### Challenge Card Information
+
+Each challenge card shows:
+- **Thumbnail** - Preview image of the design
+- **Title** - Challenge name
+- **Difficulty** - Color-coded badge (Green/Yellow/Red)
+- **Category** - Challenge type
+- **Estimated Time** - How long it typically takes
+- **Save Button** - Bookmark for later (requires sign-in)
+
+#### Saving Challenges
+
+1. Click the bookmark icon on any challenge card
+2. If not signed in, you'll be prompted to sign in
+3. Saved challenges appear in your profile
+
+---
+
+### 📋 Challenge Detail Page
+
+**URL:** `/challenges/:id`
+
+View complete details for a specific challenge.
+
+#### Sections
+
+1. **Hero Section**
+   - Challenge title and difficulty
+   - Category and estimated time
+   - Figma design access button
+   - Save/bookmark button
+
+2. **Overview Tab**
+   - Challenge description
+   - Learning outcomes (what you'll learn)
+   - Requirements checklist
+   - Technical specifications
+
+3. **Design Tab**
+   - Embedded Figma preview
+   - Design access type (View/Edit)
+   - Download design assets button
+
+4. **Resources Tab**
+   - Starter files download
+   - Asset files (images, icons)
+   - Helpful documentation links
+
+5. **Submit Tab** (Requires Sign-In)
+   - Submission form for your solution
+
+#### Submitting a Solution
+
+**Prerequisites:**
+- ✅ Signed in with GitHub
+- ✅ Public GitHub repository with your code
+- ✅ Live deployed site
+
+**Steps:**
+
+1. **Navigate to Submit Tab**
+   - Scroll down or click "Submit Solution"
+
+2. **Enter GitHub Repository URL**
+   ```
+   Format: https://github.com/username/repository-name
+   ```
+   - Must be YOUR repository (ownership verified)
+   - Must be PUBLIC (checked before submission)
+   - Real-time validation shows ✓ or error
+
+3. **Enter Live Site URL**
+   ```
+   Format: https://your-site.vercel.app
+   ```
+   - Must be accessible
+   - Cannot be localhost
+   - Real-time validation shows ✓ or error
+
+4. **Upload Screenshot (Optional)**
+   - Drag & drop or click to upload
+   - Max 10MB, PNG/JPG format
+   - Shows preview after upload
+
+5. **Click "Submit for AI Review"**
+   - Button shows "Checking Repository..." briefly
+   - Then "Analyzing Solution..." during submission
+   - Redirects to feedback page automatically
+
+**Validation Messages:**
+
+| Issue | Error Message | Solution |
+|-------|---------------|----------|
+| Private repo | "Repository must be public" | Change repo to public in GitHub settings |
+| Invalid GitHub URL | "Must be a valid GitHub URL" | Use format: github.com/user/repo |
+| Invalid live URL | "Must be a valid URL" | Ensure https:// prefix |
+| Someone else's repo | "You can only submit your own repos" | Use a repo from your GitHub account |
+| Already used URL | "URL already used for another challenge" | Use unique URLs per challenge |
+
+---
+
+### 📊 Feedback Page
+
+**URL:** `/feedback/:submissionId`
+
+View AI-generated feedback for your submission.
+
+#### Loading States
+
+1. **Initial Load** - Skeleton loading animation
+2. **Processing** - "Analyzing your submission..." with animated indicator
+3. **Complete** - Full feedback displayed
+4. **Timeout** - "Taking longer than expected" with retry button
+5. **Error** - Error message with retry option
+
+#### Feedback Sections
+
+1. **Header**
+   - Overall score (0-100)
+   - Rating badge (Excellent/Good/Needs Improvement)
+   - Challenge name and thumbnail
+   - Links to view code and live preview
+
+2. **Score Breakdown** (if available)
+   - Design Implementation: X/30
+   - Code Quality: X/30
+   - Functionality: X/25
+   - Accessibility: X/15
+
+3. **What You Did Well** ✅
+   - 3-5 positive points about your submission
+   - Encouragement for good practices
+
+4. **Areas for Improvement** 📈
+   - 3-5 actionable suggestions
+   - Specific code/design improvements
+
+5. **Design Comparison**
+   - How well your implementation matches the design
+   - Notes on visual accuracy, responsiveness
+
+6. **Technical Analysis**
+   - **Best Practices** - Code organization, patterns
+   - **Code Formatting** - Style, naming, structure
+   - **Functionality** - Features, error handling
+   - **Accessibility** - Semantic HTML, ARIA, keyboard nav
+
+7. **Recommendations**
+   - **Next Challenges** - Suggested challenges based on skill level
+   - **Learning Resources** - Articles, tutorials, documentation
+
+8. **Improvements from Previous** (Resubmissions only)
+   - Issues you fixed ✅
+   - Issues still to address ❌
+   - Score change (+X or -X points)
+
+#### Warning Banners
+
+| Banner | Meaning | Action |
+|--------|---------|--------|
+| **Wrong Project** | You submitted code for a different challenge | Resubmit with correct repository |
+| **Code Not Available** | GitHub code couldn't be fetched | Make sure repo is public |
+| **Validation Error** | URLs are invalid | Check your URLs and resubmit |
+
+#### Actions
+
+- **View Code** - Opens GitHub repository
+- **View Live Site** - Opens deployed preview
+- **Back to Challenge** - Return to challenge page
+- **Resubmit** - Submit an improved version
+
+---
+
+### 🗺️ Learning Paths (Roadmap)
+
+**URL:** `/roadmap`
+
+Structured learning paths from beginner to advanced.
+
+#### Available Paths
+
+| Path | Duration | Focus Areas |
+|------|----------|-------------|
+| **Beginner** | 2-3 weeks | HTML, CSS, JavaScript basics |
+| **Intermediate** | 2-4 weeks | React, APIs, State management |
+| **Advanced** | 3-5 weeks | TypeScript, Performance, Architecture |
+
+#### Path Card Information
+
+- Path name and icon
+- Brief description
+- Duration estimate
+- Number of challenges
+- Your progress (if started)
+
+#### Starting a Path
+
+1. **Click on a Path Card** to view details
+2. **If not started:**
+   - See path overview and challenges
+   - Click "Start This Path" button
+3. **Confirmation Dialog:**
+   - If you have another path in progress, you'll be warned
+   - Confirm to start the new path
+4. **If not signed in:**
+   - Prompted to sign in with GitHub
+
+---
+
+### 📚 Path Detail Page
+
+**URL:** `/roadmap/:pathId`
+
+View all challenges in a learning path.
+
+#### Path Header
+
+- Path name and icon
+- Description
+- Duration and challenge count
+- Start/Continue button
+- Progress bar (if started)
+
+#### Challenge List
+
+Challenges displayed in order with:
+
+1. **Challenge Number** - Sequence in path
+2. **Thumbnail** - Challenge preview
+3. **Title and Description**
+4. **Difficulty Badge**
+5. **Lock/Unlock Status**
+   - 🔓 **Unlocked** - Can be started
+   - 🔒 **Locked** - Complete previous challenge first
+
+#### Challenge Unlock Rules
+
+| Condition | Status |
+|-----------|--------|
+| Haven't started path | All challenges locked |
+| Started path | First challenge unlocked |
+| Completed challenge N | Challenge N+1 unlocked |
+| Completed all challenges | Path marked complete |
+
+#### Progress Tracking
+
+- Progress percentage shown in header
+- Completed challenges marked with ✓
+- Current challenge highlighted
+
+---
+
+### 📖 Resources
+
+**URL:** `/resources`
+
+Curated learning resources for frontend development.
+
+#### Resource Categories
+
+| Category | Description |
+|----------|-------------|
+| **Documentation** | Official docs (MDN, React, etc.) |
+| **Tutorials** | Step-by-step guides |
+| **Tools** | Development tools and utilities |
+| **Communities** | Forums, Discord, Stack Overflow |
+| **Courses** | Online learning platforms |
+
+#### Resource Card Information
+
+- Title and description
+- Resource type badge
+- Category
+- External link button
+
+#### Filtering Resources
+
+- Filter by category
+- Filter by type
+- Search by keyword
+
+---
+
+### 👤 Profile Page
+
+**URL:** `/profile`
+
+View and manage your user profile.
+
+#### Profile Sections
+
+1. **Profile Header**
+   - Avatar (from GitHub)
+   - Display name
+   - Username
+   - Bio
+   - Location
+
+2. **Statistics**
+   - Challenges completed
+   - Current streak
+   - Total points
+   - Rank/level
+
+3. **Social Links**
+   - GitHub (auto-linked)
+   - Twitter/X
+   - LinkedIn
+   - Personal website
+
+4. **Activity Feed**
+   - Recent submissions
+   - Challenges started
+   - Achievements unlocked
+
+5. **Saved Challenges**
+   - Bookmarked challenges
+   - Quick access to continue
+
+#### Actions
+
+- **Edit Profile** - Go to settings
+- **View Submission** - Click on any activity item
+- **Remove Saved Challenge** - Click bookmark to unsave
+
+---
+
+### ⚙️ Settings Page
+
+**URL:** `/settings`
+
+Manage your account settings.
+
+#### Editable Fields
+
+| Field | Description |
+|-------|-------------|
+| **Display Name** | Your public name |
+| **Username** | Unique identifier (may be limited) |
+| **Bio** | Short description about yourself |
+| **Location** | Your city/country |
+| **Website** | Personal website URL |
+| **Twitter** | Twitter/X username |
+| **LinkedIn** | LinkedIn profile URL |
+
+#### Actions
+
+- **Save Changes** - Update your profile
+- **Sign Out** - Log out of your account
+
+---
+
+### 📈 Progress Page
+
+**URL:** `/progress`
+
+Track your overall learning progress.
+
+#### Progress Overview
+
+- Total challenges completed
+- Points earned
+- Current learning path
+- Completion percentage
+
+#### Progress by Path
+
+Each learning path shows:
+- Progress bar
+- Challenges completed / total
+- Time spent (estimated)
+
+#### Recent Activity
+
+Timeline of:
+- Submissions made
+- Feedback received
+- Challenges completed
+- Paths started/completed
+
+---
+
+### 🔐 Authentication
+
+#### Sign In
+
+1. Click "Sign In" button (top-right)
+2. Click "Sign In with GitHub"
+3. Authorize PexFect on GitHub
+4. Redirected back to the page you were on
+
+#### Sign Out
+
+1. Click your avatar (top-right)
+2. Click "Sign Out"
+3. Redirected to home page
+
+#### What's Linked from GitHub
+
+- **Avatar** - Your GitHub profile picture
+- **Username** - Your GitHub username
+- **Email** - For notifications (private)
+
+---
+
+## Complete Feature Guide
+
+### Feature Matrix
+
+| Feature | Guest | Signed In | Description |
+|---------|-------|-----------|-------------|
+| Browse challenges | ✅ | ✅ | View all challenges |
+| View challenge details | ✅ | ✅ | See requirements, design |
+| Submit solution | ❌ | ✅ | Requires authentication |
+| View feedback | ❌ | ✅ | Your submissions only |
+| Save challenges | ❌ | ✅ | Bookmark for later |
+| View roadmap | ✅ | ✅ | Browse learning paths |
+| Start a path | ❌ | ✅ | Track progress |
+| View resources | ✅ | ✅ | All resources public |
+| Edit profile | ❌ | ✅ | Manage your info |
+| View progress | ❌ | ✅ | Track achievements |
+
+### Submission System Details
+
+#### URL Validation Rules
+
+**GitHub Repository URL:**
+- Must start with `https://github.com/`
+- Must contain owner and repo name
+- Must be owned by the signed-in user
+- Must be public (verified via GitHub API)
+
+**Live Site URL:**
+- Must start with `http://` or `https://`
+- Cannot be `localhost` or `127.0.0.1`
+- Should be accessible (not verified, but checked by AI)
+
+#### Ownership Verification
+
+The system verifies:
+1. Your GitHub username (from OAuth)
+2. Repository owner in the URL
+3. They must match
+
+Example:
+- Signed in as: `johndoe`
+- Valid URL: `https://github.com/johndoe/my-project`
+- Invalid URL: `https://github.com/someone-else/their-project`
+
+#### Duplicate Prevention
+
+| Scenario | Behavior |
+|----------|----------|
+| Same URL, same challenge | Updates existing submission |
+| Same URL, different challenge | Error: "URL already used" |
+| Different user's URL | Error: "Can only submit your own repos" |
+| Official challenge URL | Error: "Cannot submit official solution" |
+
+#### Resubmission Flow
+
+1. Update code on GitHub
+2. Go back to challenge page
+3. Submit with same URLs
+4. System detects code change (timestamp comparison)
+5. Old feedback deleted, new feedback generated
+6. New feedback shows comparison with previous
+
+### AI Feedback System
+
+#### Scoring Categories
+
+| Category | Points | What's Evaluated |
+|----------|--------|------------------|
+| Design | 30 | Visual accuracy, responsiveness, UI/UX |
+| Code Quality | 30 | Structure, naming, best practices |
+| Functionality | 25 | Features work, error handling |
+| Accessibility | 15 | Semantic HTML, ARIA, keyboard |
+
+#### Rating Thresholds
+
+| Score | Rating | Meaning |
+|-------|--------|---------|
+| 90-100 | Excellent | Production-ready code |
+| 75-89 | Good | Solid implementation |
+| 60-74 | Needs Improvement | Core works, has issues |
+| Below 60 | Poor | Significant problems |
+| 0-20 | Mismatch/Error | Wrong project or validation error |
+
+#### Consistency Guarantee
+
+The AI uses deterministic settings:
+- **temperature: 0** - No randomness
+- **topK: 1** - Most likely response
+- **topP: 1** - No sampling variance
+
+**Result:** Same code → Same score (every time)
+
+### Learning Path System
+
+#### Path Progression
+
+```
+Not Started → Started → In Progress → Completed
+     │            │           │            │
+     └── Start ───┴── Complete challenges ─┘
+```
+
+#### Challenge Unlocking
+
+```
+Path Started?
+    │
+    ├── No → All challenges LOCKED
+    │
+    └── Yes → First challenge UNLOCKED
+                    │
+              Complete it
+                    │
+                    ▼
+              Next challenge UNLOCKED
+                    │
+              (repeat until done)
+                    │
+                    ▼
+              Path COMPLETE! 🎉
+```
+
+#### Progress Calculation
+
+```
+Progress % = (Completed Challenges / Total Challenges) × 100
+```
+
+---
+
+## Getting Started (Developers)
 
 ### Prerequisites
 
@@ -113,14 +691,6 @@ bun run format
 bun run lint
 ```
 
-### First Run Checklist
-
-- [ ] Supabase project created with required tables
-- [ ] Environment variables configured
-- [ ] Development server starts without errors
-- [ ] Can sign in with GitHub OAuth
-- [ ] Challenges load from database
-
 ---
 
 ## Architecture
@@ -164,125 +734,6 @@ User Action → Component → Hook → Service API → External API/Supabase
                               Component Re-render
 ```
 
-### Request Lifecycle Example
-
-```
-1. User clicks "Submit Solution"
-2. ChallengeSubmission component handles form
-3. Form validates URLs (client-side)
-4. submitChallengeSolution() API called
-5. Supabase stores submission
-6. Navigate to /feedback/:submissionId
-7. useSubmissionFeedback() hook fetches data
-8. If pending → triggerFeedbackGeneration()
-9. GitHub code fetched → Gemini analysis
-10. Feedback stored → Poll detects completion
-11. UI updates with feedback
-```
-
----
-
-## Features
-
-### 1. Challenge System
-
-Browse and complete frontend coding challenges with Figma designs.
-
-| Feature               | Description                                |
-| --------------------- | ------------------------------------------ |
-| **Challenge Listing** | Grid/list view with filtering and search   |
-| **Difficulty Levels** | Easy, Medium, Hard                         |
-| **Categories**        | Components, Layouts, Forms, etc.           |
-| **Figma Designs**     | Professional designs with view/edit access |
-| **Asset Downloads**   | Starter files and assets provided          |
-| **Save Challenges**   | Bookmark challenges for later              |
-
-**Routes:**
-
-- `/challenges` - Challenge listing page
-- `/challenges/:id` - Challenge detail page
-
-### 2. AI Feedback System
-
-Automated code review powered by Google Gemini.
-
-| Feature                   | Description                             |
-| ------------------------- | --------------------------------------- |
-| **Code Analysis**         | Reviews GitHub repository code          |
-| **Design Comparison**     | Compares implementation to requirements |
-| **Scoring**               | 0-100 score across 4 categories         |
-| **Recommendations**       | Suggests next challenges and resources  |
-| **Mismatch Detection**    | Catches wrong project submissions       |
-| **Resubmission Tracking** | Compares improvements over attempts     |
-
-**Routes:**
-
-- `/feedback/:submissionId` - Feedback display page
-
-**Full Documentation:** [docs/AI_FEEDBACK_SYSTEM.md](./AI_FEEDBACK_SYSTEM.md)
-
-### 3. User Profiles
-
-Track progress and showcase achievements.
-
-| Feature              | Description                        |
-| -------------------- | ---------------------------------- |
-| **Profile Page**     | Public profile with bio and links  |
-| **Statistics**       | Challenges completed, streak, rank |
-| **Activity Feed**    | Recent submissions and completions |
-| **Saved Challenges** | Bookmarked challenges              |
-| **Social Links**     | GitHub, Twitter, LinkedIn, website |
-
-**Routes:**
-
-- `/profile` - Current user's profile
-- `/settings` - Profile settings
-
-### 4. Learning Paths (Roadmap)
-
-Structured progression from beginner to advanced.
-
-| Path             | Duration   | Technologies                          |
-| ---------------- | ---------- | ------------------------------------- |
-| **Beginner**     | 4-6 weeks  | HTML, CSS, JavaScript                 |
-| **Intermediate** | 6-8 weeks  | React, APIs, State Management         |
-| **Advanced**     | 8-10 weeks | TypeScript, Performance, Architecture |
-
-**Routes:**
-
-- `/roadmap` - Learning paths overview
-- `/roadmap/:pathId` - Path detail with challenges
-
-### 5. Resources
-
-Curated learning materials and documentation.
-
-| Category          | Examples                        |
-| ----------------- | ------------------------------- |
-| **Documentation** | MDN, React Docs                 |
-| **Tutorials**     | CSS Tricks, JavaScript.info     |
-| **Tools**         | VS Code, Figma, Chrome DevTools |
-| **Communities**   | Discord, Reddit, Stack Overflow |
-
-**Routes:**
-
-- `/resources` - Resource library
-
-### 6. Progress Tracking
-
-Monitor your learning journey.
-
-| Feature              | Description                         |
-| -------------------- | ----------------------------------- |
-| **Challenge Status** | Not Started, In Progress, Completed |
-| **Completion Rate**  | Percentage of path completed        |
-| **Time Tracking**    | Estimated vs actual time            |
-| **Streak System**    | Daily engagement tracking           |
-
-**Routes:**
-
-- `/progress` - Progress dashboard
-
 ---
 
 ## Tech Stack
@@ -322,14 +773,6 @@ Monitor your learning journey.
 | **Gemini AI**  | 0.24.1  | AI feedback generation  |
 | **GitHub API** | REST v3 | Code fetching           |
 
-### Development Tools
-
-| Technology            | Version | Purpose                     |
-| --------------------- | ------- | --------------------------- |
-| **ESLint**            | 9.39.1  | Code linting                |
-| **Prettier**          | 3.6.2   | Code formatting             |
-| **TypeScript ESLint** | 8.47.0  | TypeScript-specific linting |
-
 ---
 
 ## Project Structure
@@ -341,71 +784,23 @@ pexfect/
 │   ├── AI_FEEDBACK_SYSTEM.md  # AI system documentation
 │   └── PROJECT_DOCUMENTATION.md # This file
 ├── scripts/                   # Utility scripts
-│   ├── debug-feedback.ts      # Debug tool for feedback
-│   └── manual-feedback.ts     # Manual feedback generation
 ├── src/
-│   ├── assets/               # Images, icons, fonts
-│   │   ├── icons/
-│   │   └── images/
+│   ├── assets/               # Images, icons
 │   ├── components/           # Shared UI components
 │   │   └── ui/              # ShadCN components
-│   │       ├── button.tsx
-│   │       ├── card.tsx
-│   │       ├── input.tsx
-│   │       ├── skeleton.tsx
-│   │       └── ...
 │   ├── layouts/             # Page layouts
-│   │   ├── MainLayout.tsx   # Primary app layout
-│   │   ├── Navbar.tsx       # Navigation bar
-│   │   ├── Footer.tsx       # Site footer
-│   │   ├── PageLayout.tsx   # Standard page wrapper
-│   │   └── navbar/          # Navbar sub-components
 │   ├── lib/                 # Utilities and config
-│   │   ├── supabaseClient.ts
-│   │   ├── queryClient.ts
-│   │   ├── queryConfig.ts
-│   │   ├── authSubscription.ts
-│   │   └── utils.ts
 │   ├── providers/           # React context providers
-│   │   └── AppProvider.tsx  # Query + Theme providers
 │   ├── routes/              # TanStack Router pages
-│   │   ├── __root.tsx       # Root layout
-│   │   ├── index.tsx        # Home page
-│   │   ├── profile.tsx
-│   │   ├── progress.tsx
-│   │   ├── challenges/
-│   │   │   ├── index.tsx    # Challenge list
-│   │   │   └── $id/
-│   │   │       └── index.tsx # Challenge detail
-│   │   ├── feedback/
-│   │   │   └── $submissionId.tsx
-│   │   ├── resources/
-│   │   ├── roadmap/
-│   │   └── settings/
 │   ├── services/            # Feature modules
-│   │   ├── ai/              # AI feedback service
-│   │   ├── challenges/      # Challenge features
-│   │   ├── feedback/        # Feedback display
-│   │   ├── home/            # Landing page
-│   │   ├── profile/         # User profiles
-│   │   ├── resources/       # Learning resources
-│   │   └── roadmap/         # Learning paths
 │   ├── styles/              # CSS files
-│   │   └── profile.css
 │   ├── types/               # TypeScript definitions
-│   │   ├── challenge.ts
-│   │   ├── profile.ts
-│   │   ├── feedback.ts
-│   │   ├── roadmap.ts
-│   │   └── supabase.ts
 │   ├── main.tsx             # App entry point
-│   ├── index.css            # Global styles + Tailwind
-│   └── routeTree.gen.ts     # Auto-generated routes
+│   └── index.css            # Global styles
 ├── .env.local               # Environment variables
 ├── package.json
 ├── tsconfig.json
-├── vite.config.ts
-└── README.md
+└── vite.config.ts
 ```
 
 ### Service Module Pattern
@@ -414,15 +809,11 @@ Each service follows a consistent structure:
 
 ```
 services/[feature]/
-├── api.ts              # Supabase queries and mutations
+├── api.ts              # Database queries and mutations
 ├── index.ts            # Public exports
 ├── components/         # Feature-specific components
-│   ├── ComponentA.tsx
-│   └── ComponentB.tsx
 ├── hooks/              # Custom React hooks
-│   └── useFeature.ts
-├── lib/                # Helper utilities
-└── utils/              # Pure utility functions
+└── lib/                # Helper utilities
 ```
 
 **Import Rule:** Always import from service index:
@@ -437,324 +828,38 @@ import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGri
 
 ---
 
-## Core Modules
-
-### Challenges Service
-
-**Location:** `src/services/challenges/`
-
-**Components:**
-
-- `ChallengePageHeader` - Page title and controls
-- `ChallengeControls` - Filter/search/view toggle
-- `ChallengeGridItem` - Grid view card
-- `ChallengeListItem` - List view row
-- `ChallengeView` - Container with view switching
-- `ChallengeHero` - Detail page header
-- `ChallengeOverview` - Requirements and outcomes
-- `ChallengeDesign` - Figma embed and preview
-- `ChallengeResources` - Assets and downloads
-- `ChallengeSubmission` - Submission form
-
-**Hooks:**
-
-- `useChallenges()` - Fetch all challenges
-- `useChallengeFilters()` - Filter state management
-- `useSubmissionForm()` - Form handling
-- `useAuth()` - Authentication state
-- `useSavedChallenges()` - Bookmark management
-- `useToggleSave()` - Toggle bookmark mutation
-
-**API Functions:**
-
-- `getChallengeById(id)` - Get single challenge
-- `submitChallengeSolution(id, data)` - Submit solution
-
-### Feedback Service
-
-**Location:** `src/services/feedback/`
-
-**Components:**
-
-- `FeedbackHeader` - Score and summary
-- `FeedbackLoading` - Loading skeleton
-- `FeedbackProcessing` - Generation in progress
-- `FeedbackError` - Error state with retry
-- `OverallAnalysis` - What you did well/improve
-- `DesignComparison` - Design vs implementation
-- `TechAnalysis` - Category breakdown
-- `Recommendations` - Next steps
-- `MismatchWarning` - Wrong project banner
-- `ImprovementsFromPrevious` - Resubmission tracking
-
-**Hooks:**
-
-- `useSubmissionFeedback(id)` - Fetch feedback data
-
-**API Functions:**
-
-- `getSubmissionFeedback(id)` - Get feedback + submission + challenge
-- `triggerFeedbackGeneration(id)` - Start AI analysis
-- `generateAndStoreFeedback(id)` - Full generation flow
-
-### AI Service
-
-**Location:** `src/services/ai/`
-
-**Modules:**
-
-- `api.ts` - Gemini AI integration
-- `githubFetcher.ts` - GitHub code fetching
-- `validation.ts` - URL validation utilities
-
-**Key Functions:**
-
-- `generateAIFeedback(request)` - Generate AI feedback
-- `fetchRepositoryCode(url)` - Fetch GitHub files
-- `formatCodeForAI(code)` - Format for prompt
-- `isValidGitHubUrl(url)` - Validate GitHub URL
-- `isValidLiveSiteUrl(url)` - Validate live URL
-
-### Profile Service
-
-**Location:** `src/services/profile/`
-
-**Components:**
-
-- Profile display components
-- Activity feed
-- Statistics cards
-
-**Hooks:**
-
-- `useProfile()` - Fetch user profile
-- `useUpdateProfile()` - Update profile mutation
-
-**API Functions:**
-
-- `ProfileService.getProfile(userId)`
-- `ProfileService.updateProfile(userId, data)`
-- `ProfileService.getStats(userId)`
-
-### Home Service
-
-**Location:** `src/services/home/`
-
-**Components:**
-
-- `HeroSection` - Landing hero with CTA
-- `FeatureSection` - Feature highlights
-- `HowWorkSection` - How it works steps
-- `ChallengeSection` - Featured challenges
-- `CIASection` - Call to action
-
-### Resources Service
-
-**Location:** `src/services/resources/`
-
-**Components:**
-
-- `ResourceGrid` - Resource cards grid
-- `ResourceCard` - Individual resource card
-- `ResourcesSection` - Section wrapper
-- `ResourceControls` - Filter controls
-
-**Hooks:**
-
-- `useResourceManagement()` - Resource state and filtering
-
-### Roadmap Service
-
-**Location:** `src/services/roadmap/`
-
-**Data:**
-
-- `learningPaths` - Beginner, Intermediate, Advanced paths
-
----
-
 ## Database Schema
 
 ### Core Tables
 
 #### `profiles`
-
-```sql
-CREATE TABLE profiles (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  username TEXT UNIQUE NOT NULL,
-  full_name TEXT,
-  avatar_url TEXT,
-  bio TEXT,
-  location TEXT,
-  website TEXT,
-  github_username TEXT,
-  twitter_username TEXT,
-  linkedin_url TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+User profile information linked to auth.
 
 #### `challenges`
-
-```sql
-CREATE TABLE challenges (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  description TEXT NOT NULL,
-  difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')),
-  category TEXT NOT NULL,
-  tags TEXT[] DEFAULT '{}',
-  design_url TEXT NOT NULL,
-  figma_access_type TEXT CHECK (figma_access_type IN ('view', 'edit')),
-  assets_url TEXT,
-  estimated_time INTEGER,
-  learning_outcomes TEXT[],
-  preview_image TEXT,
-  thumbnail_url TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+All available coding challenges.
 
 #### `challenge_submissions`
-
-```sql
-CREATE TABLE challenge_submissions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  challenge_id UUID REFERENCES challenges(id),
-  github_url TEXT NOT NULL,
-  live_site_url TEXT,
-  screenshots TEXT[],
-  submitted_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+User submissions with GitHub and live URLs.
 
 #### `challenge_feedback`
-
-```sql
-CREATE TABLE challenge_feedback (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  submission_id UUID REFERENCES challenge_submissions(id),
-  overall_score INTEGER,
-  overall_rating TEXT,
-  overall_good_practices TEXT[],
-  improvment_advices TEXT[],
-  best_practices JSONB,
-  code_formatting JSONB,
-  functionality JSONB,
-  accessibility JSONB,
-  recommended_resources JSONB,
-  recommended_next_challenge TEXT,
-  overall_analysis_description JSONB,
-  comparison_notes JSONB,
-  improvements_from_previous JSONB,
-  submission_mismatch JSONB,
-  ai_model_version TEXT,
-  feedback_generation_time INTEGER,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
+AI-generated feedback with unique constraint per submission.
 
 #### `saved_challenges`
-
-```sql
-CREATE TABLE saved_challenges (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
-  challenge_id UUID REFERENCES challenges(id),
-  saved_at TIMESTAMPTZ DEFAULT NOW(),
-  notes TEXT,
-  UNIQUE(user_id, challenge_id)
-);
-```
-
-#### `resources`
-
-```sql
-CREATE TABLE resources (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  description TEXT,
-  url TEXT NOT NULL,
-  type TEXT,
-  category TEXT,
-  tags TEXT[],
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-```
-
-### Row Level Security (RLS)
-
-All tables have RLS enabled with appropriate policies:
-
-```sql
--- Example: Users can only read their own profile
-CREATE POLICY "Users can read own profile"
-ON profiles FOR SELECT
-TO authenticated
-USING (auth.uid() = user_id);
-
--- Example: Users can update their own profile
-CREATE POLICY "Users can update own profile"
-ON profiles FOR UPDATE
-TO authenticated
-USING (auth.uid() = user_id);
-```
+User bookmarks for challenges.
 
 ---
 
 ## Authentication
 
-### Provider
-
-PexFect uses **Supabase Auth** with GitHub OAuth as the primary sign-in method.
+PexFect uses **Supabase Auth** with GitHub OAuth.
 
 ### Flow
 
-```
 1. User clicks "Sign In with GitHub"
-2. Supabase redirects to GitHub OAuth
+2. Redirected to GitHub OAuth
 3. User authorizes the app
-4. GitHub redirects back with auth code
-5. Supabase exchanges code for session
-6. User profile created/updated in profiles table
-7. Session stored in localStorage
-```
-
-### Implementation
-
-**Auth Subscription:** `src/lib/authSubscription.ts`
-
-A single global auth listener is initialized in `AppProvider` to:
-
-- Detect sign-in/sign-out events
-- Invalidate relevant queries on logout
-- Sync auth state across tabs
-
-**Auth Hook:** `src/services/challenges/hooks/useAuth.ts`
-
-```typescript
-const { data, isLoading } = useAuth()
-// data.isAuthenticated - boolean
-// data.user - User object or null
-```
-
-### Protected Routes
-
-Components check authentication and show appropriate UI:
-
-```typescript
-const { isAuthenticated, isLoading } = useAuth()
-
-if (isLoading) return <Skeleton />
-if (!isAuthenticated) return <SignInPrompt />
-return <AuthenticatedContent />
-```
+4. Redirected back with session
+5. Profile created/updated
 
 ---
 
@@ -762,57 +867,21 @@ return <AuthenticatedContent />
 
 ### Server State (TanStack Query)
 
-For all data fetched from APIs:
-
-```typescript
-// Query hook example
-export const useChallenges = () => {
-  return useQuery({
-    queryKey: queryKeys.challenges,
-    queryFn: getChallenges,
-    staleTime: STALE_TIME.MEDIUM,
-    gcTime: CACHE_VALIDITY.MEDIUM,
-  })
-}
-```
-
-**Configuration:** `src/lib/queryConfig.ts`
-
-| Constant         | Values                               | Use Case                  |
-| ---------------- | ------------------------------------ | ------------------------- |
-| `STALE_TIME`     | SHORT (30s), MEDIUM (5m), LONG (30m) | How long data is "fresh"  |
-| `CACHE_VALIDITY` | SHORT (5m), MEDIUM (30m), LONG (24h) | How long to keep in cache |
-| `queryKeys`      | Factory functions                    | Consistent cache keys     |
+For all data from APIs with caching and refetching.
 
 ### Client State (Zustand)
 
-For UI state that doesn't come from the server:
-
-```typescript
-// Filter state example
-const useFilterStore = create((set) => ({
-  difficulty: [],
-  category: [],
-  setDifficulty: (d) => set({ difficulty: d }),
-}))
-```
+For UI state like filters and preferences.
 
 ### Local State (useState)
 
-For component-specific state:
-
-```typescript
-const [isOpen, setIsOpen] = useState(false)
-const [searchTerm, setSearchTerm] = useState('')
-```
+For component-specific state.
 
 ---
 
 ## Routing
 
-### TanStack Router
-
-File-based routing with automatic code-splitting:
+File-based routing with TanStack Router:
 
 ```
 routes/
@@ -836,148 +905,17 @@ routes/
     └── index.tsx        → /settings
 ```
 
-### Route Definition
-
-```typescript
-// routes/challenges/$id/index.tsx
-export const Route = createFileRoute('/challenges/$id/')({
-  component: ChallengeDetailPage,
-})
-
-function ChallengeDetailPage() {
-  const { id } = Route.useParams() // Type-safe params
-  // ...
-}
-```
-
-### Navigation
-
-```typescript
-import { useNavigate, Link } from '@tanstack/react-router'
-
-// Programmatic navigation
-const navigate = useNavigate()
-navigate({ to: '/challenges/$id', params: { id: '123' } })
-
-// Link component
-<Link to="/challenges/$id" params={{ id: '123' }}>
-  View Challenge
-</Link>
-```
-
 ---
 
 ## Styling
 
 ### Tailwind CSS v4
 
-Configured via Vite plugin (no tailwind.config.js):
-
-```typescript
-// vite.config.ts
-import tailwindcss from '@tailwindcss/vite'
-
-export default defineConfig({
-  plugins: [tailwindcss()],
-})
-```
-
-### Global Styles
-
-`src/index.css` contains:
-
-- Tailwind imports
-- CSS custom properties for theming
-- Base styles
+Configured via Vite plugin with CSS custom properties for theming.
 
 ### Theme System
 
-Using `next-themes` for dark mode:
-
-```typescript
-// Toggle theme
-const { theme, setTheme } = useTheme()
-setTheme('dark') // or 'light' or 'system'
-```
-
-### Component Styling
-
-Use Tailwind utilities:
-
-```tsx
-<div className='bg-card text-card-foreground rounded-xl border shadow-sm p-6'>
-  <h2 className='text-lg font-bold text-foreground'>Title</h2>
-  <p className='text-sm text-muted-foreground'>Description</p>
-</div>
-```
-
-### Responsive Design
-
-Mobile-first with breakpoints:
-
-```tsx
-<div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-  {/* Cards */}
-</div>
-```
-
----
-
-## API Reference
-
-### Supabase Client
-
-**Location:** `src/lib/supabaseClient.ts`
-
-```typescript
-import { supabase } from '@/lib/supabaseClient'
-
-// Query data
-const { data, error } = await supabase
-  .from('challenges')
-  .select('*')
-  .eq('difficulty', 'easy')
-
-// Insert data
-const { data, error } = await supabase
-  .from('challenge_submissions')
-  .insert({ ... })
-  .select()
-  .single()
-```
-
-### Query Client
-
-**Location:** `src/lib/queryClient.ts`
-
-Custom configuration for:
-
-- Retry logic (skip auth errors)
-- Network mode
-- Error handling
-
-### Service APIs
-
-Each service exposes functions in `api.ts`:
-
-```typescript
-// challenges/api.ts
-export const getChallenges = async (): Promise<Challenge[]>
-export const getChallengeById = async (id: string): Promise<Challenge | null>
-export const submitChallengeSolution = async (id: string, data: SubmissionData): Promise<{ submissionId: string }>
-
-// feedback/api.ts
-export const getSubmissionFeedback = async (id: string): Promise<FeedbackResponse>
-export const triggerFeedbackGeneration = async (id: string): Promise<void>
-export const generateAndStoreFeedback = async (id: string): Promise<void>
-
-// profile/api.ts
-export const ProfileService = {
-  getProfile: async (userId: string): Promise<Profile>,
-  updateProfile: async (userId: string, data: ProfileUpdate): Promise<Profile>,
-  getStats: async (userId: string): Promise<ProfileStats>,
-}
-```
+Using `next-themes` for dark mode support.
 
 ---
 
@@ -985,53 +923,7 @@ export const ProfileService = {
 
 ### Vite Configuration
 
-`vite.config.ts`:
-
-```typescript
-export default defineConfig({
-  plugins: [
-    tanstackRouter({ autoCodeSplitting: true }),
-    react(),
-    tailwindcss(),
-  ],
-  resolve: {
-    alias: { '@': path.resolve(__dirname, './src') },
-  },
-  server: { port: 5000 },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'tanstack-vendor': [
-            '@tanstack/react-query',
-            '@tanstack/react-router',
-          ],
-          'supabase-vendor': ['@supabase/supabase-js'],
-          'ui-vendor': ['@radix-ui/...'],
-        },
-      },
-    },
-  },
-})
-```
-
-### TypeScript Configuration
-
-`tsconfig.json`:
-
-- Strict mode enabled
-- Path aliases configured
-- ES2022 target
-
-### ESLint Configuration
-
-`eslint.config.js`:
-
-- TypeScript ESLint rules
-- React hooks rules
-- TanStack Query rules
-- Prettier integration
+Includes TanStack Router, React, and Tailwind plugins with manual chunking for optimal bundle sizes.
 
 ---
 
@@ -1040,31 +932,13 @@ export default defineConfig({
 ### Vercel (Recommended)
 
 1. Connect GitHub repository to Vercel
-2. Configure environment variables in Vercel dashboard
-3. Deploy automatically on push to main
+2. Configure environment variables
+3. Deploy automatically on push
 
 **Build Settings:**
-
 - Framework: Vite
 - Build Command: `bun run build`
 - Output Directory: `dist`
-
-### Environment Variables for Production
-
-```env
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-production-anon-key
-VITE_GEMINI_API_KEY=your-production-gemini-key
-VITE_GITHUB_TOKEN=your-github-pat
-```
-
-### Supabase Setup
-
-1. Create production Supabase project
-2. Run database migrations
-3. Configure RLS policies
-4. Set up GitHub OAuth in Supabase Auth settings
-5. Update redirect URLs for production domain
 
 ---
 
@@ -1085,43 +959,7 @@ VITE_GITHUB_TOKEN=your-github-pat
 type(scope): description
 
 Types: feat, fix, refactor, docs, style, test, chore
-Scope: challenges, feedback, profile, auth, ui, etc.
 ```
-
-**Examples:**
-
-```
-feat(challenges): add filter by category
-fix(feedback): resolve cache invalidation issue
-docs: update API reference
-```
-
-### Code Standards
-
-- TypeScript strict mode (no `any`)
-- Import from service index, not deep paths
-- Use query keys from `queryConfig.ts`
-- Follow existing component patterns
-- Add loading and error states
-- Consider mobile-first design
-
-### Pull Request Checklist
-
-- [ ] Code follows project patterns
-- [ ] TypeScript types properly defined
-- [ ] No console.log statements
-- [ ] Error handling implemented
-- [ ] Loading states shown
-- [ ] Responsive design works
-- [ ] Build passes without errors
-
----
-
-## Additional Documentation
-
-- [AI Feedback System](./AI_FEEDBACK_SYSTEM.md) - Complete AI system documentation
-- [README.md](../README.md) - Quick start guide
-- [CONTRIBUTING.md](../CONTRIBUTING.md) - Contribution guidelines
 
 ---
 
