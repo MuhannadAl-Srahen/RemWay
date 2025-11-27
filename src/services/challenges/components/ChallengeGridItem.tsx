@@ -26,7 +26,7 @@ export function ChallengeGridItem({
       href={`/challenges/${challenge.id}`}
       className='block h-full group cursor-pointer'
     >
-      <Card className='flex h-full flex-col overflow-hidden rounded-xl border border-border/50 bg-card shadow-md transition-transform duration-300 hover:shadow-xl hover:scale-[1.02] py-0 gap-0'>
+      <Card className='flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-md transition-transform duration-300 hover:shadow-xl hover:scale-[1.02] py-0 gap-0'>
         {/* Image Section */}
         <div className='relative aspect-[16/9] overflow-hidden rounded-t-xl'>
           <img
@@ -34,9 +34,6 @@ export function ChallengeGridItem({
             alt={challenge.title}
             className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
           />
-
-          {/* Overlay */}
-          <div className='absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent' />
 
           {/* Difficulty Badge */}
           <div className='absolute top-4 left-4'>

@@ -49,9 +49,9 @@ export function ChallengeControls({
         </div>
 
         {/* Filters */}
-        <div className='flex gap-2'>
+        <div className='flex gap-3'>
           <Select value={selectedDifficulty} onValueChange={onDifficultyChange}>
-            <SelectTrigger className='!h-12 w-36 bg-card border-b border-shadow-sm'>
+            <SelectTrigger className='h-12 min-w-44 bg-card border border-border rounded-xl px-4 text-sm font-medium cursor-pointer transition-all duration-300 hover:border-primary/50 hover:bg-accent/50 focus:ring-2 focus:ring-primary/20 data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20'>
               <SelectValue placeholder='All Difficulties' />
             </SelectTrigger>
             <SelectContent>
@@ -63,7 +63,7 @@ export function ChallengeControls({
           </Select>
 
           <Select value={selectedLanguage} onValueChange={onLanguageChange}>
-            <SelectTrigger className='!h-12 w-36 bg-card border-b border-shadow-sm'>
+            <SelectTrigger className='h-12 min-w-44 bg-card border border-border rounded-xl px-4 text-sm font-medium cursor-pointer transition-all duration-300 hover:border-primary/50 hover:bg-accent/50 focus:ring-2 focus:ring-primary/20 data-[state=open]:border-primary data-[state=open]:ring-2 data-[state=open]:ring-primary/20'>
               <SelectValue placeholder='All Languages' />
             </SelectTrigger>
             <SelectContent>

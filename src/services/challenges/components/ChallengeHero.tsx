@@ -61,9 +61,6 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
           className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
         />
 
-        {/* Desktop Overlay Gradient - only on md+ */}
-        <div className='hidden md:block absolute inset-0 bg-linear-to-t from-black/70 to-transparent' />
-
         {/* Navigation */}
         {hasImages && challenge.images.length > 1 && (
           <>

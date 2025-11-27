@@ -1,6 +1,7 @@
-import { Link } from '@tanstack/react-router'
+import { Link, useSearch } from '@tanstack/react-router'
 import { Map, BookOpen, Swords, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useRef, useState, useEffect, useCallback } from 'react'
 
 const navItems = [
   { name: 'Challenges', href: '/challenges', icon: Swords },
@@ -14,49 +15,101 @@ interface DesktopNavProps {
 }
 
 export const DesktopNav = ({ pathname }: DesktopNavProps) => {
+  // Get search params to check for profile?tab=progress
+  const search = useSearch({ strict: false }) as { tab?: string } | undefined
+  
+  // Refs for each nav item to calculate positions
+  const navRefs = useRef<(HTMLAnchorElement | null)[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+  
+  // State for the sliding indicator position/size
+  const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0 })
+
+  const getIsActive = useCallback((item: typeof navItems[number]) => {
+    // Special case: Progress redirects to /profile?tab=progress
+    if (item.href === '/progress') {
+      return pathname === '/progress' || 
+             (pathname === '/profile' && search?.tab === 'progress')
+    }
+    return pathname === item.href || pathname.startsWith(`${item.href}/`)
+  }, [pathname, search?.tab])
+
+  // Find active index
+  const activeIndex = navItems.findIndex((item) => getIsActive(item))
+
+  // Update indicator position when active item changes
+  useEffect(() => {
+    if (activeIndex >= 0 && navRefs.current[activeIndex] && containerRef.current) {
+      const activeEl = navRefs.current[activeIndex]
+      const containerEl = containerRef.current
+      
+      if (activeEl) {
+        const containerRect = containerEl.getBoundingClientRect()
+        const activeRect = activeEl.getBoundingClientRect()
+        
+        setIndicatorStyle({
+          left: activeRect.left - containerRect.left,
+          width: activeRect.width,
+        })
+      }
+    }
+  }, [activeIndex, pathname, search?.tab])
+
   return (
-    <div className='hidden md:flex items-center space-x-2'>
-      {navItems.map((item) => {
-        const Icon = item.icon
-        const isActive =
-          pathname === item.href || pathname.startsWith(`${item.href}/`)
-        return (
-          <Link
-            key={item.name}
-            to={item.href}
-            className='group relative flex items-center space-x-2 px-4 py-2 transition-all duration-300 rounded-xl cursor-pointer hover:bg-muted/30 active:scale-95'
-          >
-            <Icon
+    <nav className='hidden md:flex items-center'>
+      {/* Navigation pill container */}
+      <div 
+        ref={containerRef}
+        className='relative flex items-center gap-1 p-1.5 rounded-full bg-muted/60 backdrop-blur-md border border-border/50 shadow-sm'
+      >
+        {/* Animated sliding background - smooth like profile page tabs */}
+        <div
+          className={cn(
+            'absolute top-1.5 bottom-1.5 bg-primary rounded-full shadow-lg shadow-primary/30',
+            'transition-[left,width,opacity,transform] duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]',
+            activeIndex < 0 && 'opacity-0 scale-95'
+          )}
+          style={{
+            left: indicatorStyle.left,
+            width: indicatorStyle.width,
+            transform: activeIndex >= 0 ? 'scale(1)' : 'scale(0.95)',
+          }}
+        />
+
+        {navItems.map((item, index) => {
+          const Icon = item.icon
+          const isActive = getIsActive(item)
+          
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              ref={(el) => { navRefs.current[index] = el }}
               className={cn(
-                'w-4 h-4 transition-all duration-300',
+                'group relative z-10 flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer select-none',
+                'transition-all duration-200 ease-out',
+                'active:scale-[0.97]',
                 isActive
-                  ? 'text-primary scale-110'
-                  : 'text-muted-foreground group-hover:text-primary group-hover:scale-110'
-              )}
-            />
-            <span
-              className={cn(
-                'text-sm font-medium transition-all duration-300',
-                isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground group-hover:text-foreground'
+                  ? 'text-primary-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              {item.name}
-            </span>
-
-            {/* Enhanced indicator line with smooth animations */}
-            <div
-              className={cn(
-                'absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-0.5 rounded-full bg-linear-to-r from-primary to-secondary transition-all duration-300 ease-out',
-                isActive
-                  ? 'w-14 opacity-100 shadow-lg shadow-primary/30 animate-in slide-in-from-bottom-1'
-                  : 'w-0 opacity-0 group-hover:w-8 group-hover:opacity-80 group-hover:shadow-md group-hover:shadow-primary/20'
-              )}
-            />
-          </Link>
-        )
-      })}
-    </div>
+              <Icon
+                className={cn(
+                  'w-4 h-4 shrink-0',
+                  'transition-all duration-200 ease-out',
+                  isActive 
+                    ? 'text-primary-foreground' 
+                    : 'group-hover:text-primary group-hover:scale-110'
+                )}
+              />
+              <span className='text-sm font-medium whitespace-nowrap'>
+                {item.name}
+              </span>
+            </Link>
+          )
+        })}
+      </div>
+    </nav>
   )
 }
