@@ -1,14 +1,13 @@
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
-import { CheckCircle, ChevronLeft, ChevronRight, Inbox } from 'lucide-react'
-import { useState } from 'react'
+import { CheckCircle, Inbox } from 'lucide-react'
 import { useProfileSubmissions } from '@/services/profile/hooks/useProfileSubmissions'
 import { useProfileStats } from '@/services/profile/hooks/useProfileStats'
+import { Pagination } from '@/components/ui/pagination'
+import { usePagination } from '@/lib/usePagination'
+import { motion, AnimatePresence } from 'motion/react'
 import '@/styles/profile.css'
-
-const ITEMS_PER_PAGE = 3
 
 /**
  * Format a timestamp into a human-readable relative time
@@ -37,27 +36,29 @@ function formatRelativeTime(dateStr: string): string {
   })
 }
 
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+}
+
 export function RecentActivityTab() {
-  const [currentPage, setCurrentPage] = useState(1)
   const { data: submissions = [], isLoading } = useProfileSubmissions(50)
   const { data: profileStats, isLoading: isStatsLoading } = useProfileStats()
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const currentSubmissions = submissions.slice(startIndex, endIndex)
-  const totalPages = Math.ceil(submissions.length / ITEMS_PER_PAGE)
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1)
-    }
-  }
-
-  const goToPrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1)
-    }
-  }
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    totalItems,
+    paginatedItems: currentSubmissions,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination(submissions, {
+    storageKey: 'profile-recent-activity',
+    defaultItemsPerPage: 5,
+    scrollTopOffset: 400,
+  })
 
   return (
     <div className='space-y-6'>
@@ -210,12 +211,24 @@ export function RecentActivityTab() {
 
         {/* Submissions List */}
         {!isLoading && submissions.length > 0 && (
-          <div className='divide-y divide-border'>
-            {currentSubmissions.map((submission) => (
-              <div
-                key={submission.id}
-                className='p-4 relative overflow-hidden transition-all duration-300 hover:bg-muted/50 cursor-pointer group'
-              >
+          <AnimatePresence mode='wait'>
+            <motion.div
+              key={currentPage}
+              initial='hidden'
+              animate='visible'
+              exit='exit'
+              transition={{ duration: 0.3 }}
+              className='divide-y divide-border'
+            >
+              {currentSubmissions.map((submission, index) => (
+                <motion.div
+                  key={submission.id}
+                  variants={itemVariants}
+                  initial='hidden'
+                  animate='visible'
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className='p-4 relative overflow-hidden transition-all duration-300 hover:bg-muted/50 cursor-pointer group'
+                >
                 <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
                   <div className='flex-1 min-w-0'>
                     <div className='flex items-center gap-3 mb-3'>
@@ -276,48 +289,25 @@ export function RecentActivityTab() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
+        </AnimatePresence>
         )}
 
         {/* Pagination Controls */}
-        {!isLoading && totalPages > 1 && (
+        {!isLoading && submissions.length > 0 && (
           <div className='p-4 border-t border-border bg-muted/10'>
-            <div className='flex items-center justify-between'>
-              <div className='text-sm text-muted-foreground'>
-                Showing {startIndex + 1}-
-                {Math.min(endIndex, submissions.length)} of {submissions.length}{' '}
-                submissions
-              </div>
-              <div className='flex items-center gap-2'>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={goToPrevPage}
-                  disabled={currentPage === 1}
-                  className='flex items-center gap-1'
-                >
-                  <ChevronLeft className='w-4 h-4' />
-                  Previous
-                </Button>
-                <div className='flex items-center gap-1 mx-2'>
-                  <span className='text-sm font-medium'>{currentPage}</span>
-                  <span className='text-sm text-muted-foreground'>of</span>
-                  <span className='text-sm font-medium'>{totalPages}</span>
-                </div>
-                <Button
-                  variant='outline'
-                  size='sm'
-                  onClick={goToNextPage}
-                  disabled={currentPage === totalPages}
-                  className='flex items-center gap-1'
-                >
-                  Next
-                  <ChevronRight className='w-4 h-4' />
-                </Button>
-              </div>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+              itemsPerPageOptions={[3, 5, 10, 15]}
+              className='mt-0'
+            />
           </div>
         )}
       </Card>

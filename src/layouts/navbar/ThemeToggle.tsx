@@ -42,26 +42,30 @@ export const ThemeToggle = ({
       variant='ghost'
       size='icon'
       className={cn(
-        'hidden md:flex h-11 w-11 rounded-full transition-all duration-300 group cursor-pointer hover:scale-105 active:scale-95 hover:bg-muted/30',
+        'hidden md:flex h-10 w-10 rounded-full cursor-pointer select-none',
+        'transition-all duration-300 ease-out',
+        'hover:bg-muted/60 hover:scale-110 hover:shadow-md',
+        'active:scale-95',
+        'focus:outline-none focus:ring-2 focus:ring-primary/30',
         className
       )}
       aria-label='Toggle theme'
     >
-      <div className='relative overflow-hidden'>
+      <div className='relative'>
         <SunIcon
           className={cn(
-            'transition-all duration-500 ease-out',
+            'h-5 w-5 transition-all duration-500 ease-out',
             theme === 'dark'
-              ? 'rotate-180 scale-0 opacity-0'
-              : 'rotate-0 scale-100 opacity-100 text-amber-500 group-hover:rotate-12 group-hover:scale-110'
+              ? 'rotate-90 scale-0 opacity-0'
+              : 'rotate-0 scale-100 opacity-100 text-amber-500 hover:rotate-45'
           )}
         />
         <MoonStarIcon
           className={cn(
-            ' absolute inset-0 transition-all duration-500 ease-out',
+            'h-5 w-5 absolute inset-0 transition-all duration-500 ease-out',
             theme === 'dark'
-              ? 'rotate-0 scale-100 opacity-100 text-blue-400 group-hover:-rotate-12 group-hover:scale-110'
-              : '-rotate-180 scale-0 opacity-0'
+              ? 'rotate-0 scale-100 opacity-100 text-blue-400'
+              : '-rotate-90 scale-0 opacity-0'
           )}
         />
       </div>

@@ -2,6 +2,7 @@ import { learningPaths } from '../data'
 import LearningPathCard from './LearningPathCard'
 import { PageHeader } from '@/layouts/PageHeader'
 import { Target, Code2, BadgeCheck } from 'lucide-react'
+import { motion } from 'motion/react'
 
 interface WhyFollowCardProps {
   icon: React.ReactNode
@@ -30,39 +31,81 @@ const WhyFollowCard: React.FC<WhyFollowCardProps> = ({
     </p>
   </div>
 )
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 25, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+    },
+  },
+}
+
 const WhyFollowSection = () => (
   <section className='w-full mt-16 md:mt-20 px-4'>
     <div className='max-w-7xl mx-auto'>
-      <div className='text-center mb-12 md:mb-16'>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className='text-center mb-12 md:mb-16'
+      >
         <h2 className='text-3xl md:text-4xl font-bold mb-4 md:mb-6 text-foreground'>
           Why Follow Our Roadmap?
         </h2>
         <p className='text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto'>
           Unlock your potential with a proven, step-by-step learning journey
         </p>
-      </div>
-      <div className='grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12'>
-        <WhyFollowCard
-          icon={<Target className='w-12 h-12 md:w-14 md:h-14 text-primary' />}
-          iconBg='bg-primary/10'
-          title='Progressive Learning'
-          desc='Guided step-by-step challenges that build skills, reinforce concepts, and track progress with practical milestones.'
-        />
-        <WhyFollowCard
-          icon={<Code2 className='w-12 h-12 md:w-14 md:h-14 text-primary' />}
-          iconBg='bg-primary/10'
-          title='Real Projects'
-          desc='Build real projects for your portfolio, practice teamwork, deploy features, and demonstrate production-ready skills.'
-        />
-        <WhyFollowCard
-          icon={
-            <BadgeCheck className='w-12 h-12 md:w-14 md:h-14 text-primary' />
-          }
-          iconBg='bg-primary/10'
-          title='AI Feedback'
-          desc='Get instant AI feedback on code, design, testing, and accessibility to improve quality and readability.'
-        />
-      </div>
+      </motion.div>
+      <motion.div
+        className='grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12'
+        variants={containerVariants}
+        initial='hidden'
+        whileInView='visible'
+        viewport={{ once: true }}
+      >
+        <motion.div variants={itemVariants}>
+          <WhyFollowCard
+            icon={<Target className='w-12 h-12 md:w-14 md:h-14 text-primary' />}
+            iconBg='bg-primary/10'
+            title='Progressive Learning'
+            desc='Guided step-by-step challenges that build skills, reinforce concepts, and track progress with practical milestones.'
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <WhyFollowCard
+            icon={<Code2 className='w-12 h-12 md:w-14 md:h-14 text-primary' />}
+            iconBg='bg-primary/10'
+            title='Real Projects'
+            desc='Build real projects for your portfolio, practice teamwork, deploy features, and demonstrate production-ready skills.'
+          />
+        </motion.div>
+        <motion.div variants={itemVariants}>
+          <WhyFollowCard
+            icon={
+              <BadgeCheck className='w-12 h-12 md:w-14 md:h-14 text-primary' />
+            }
+            iconBg='bg-primary/10'
+            title='AI Feedback'
+            desc='Get instant AI feedback on code, design, testing, and accessibility to improve quality and readability.'
+          />
+        </motion.div>
+      </motion.div>
     </div>
   </section>
 )
@@ -77,11 +120,18 @@ const RoadmapOverview = () => {
 
       {/* Learning Paths Grid */}
       <div className='w-full max-w-7xl mx-auto mb-16 px-4'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'>
+        <motion.div
+          className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8'
+          variants={containerVariants}
+          initial='hidden'
+          animate='visible'
+        >
           {learningPaths.map((path) => (
-            <LearningPathCard key={path.id} path={path} />
+            <motion.div key={path.id} variants={itemVariants}>
+              <LearningPathCard path={path} />
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
 
       <WhyFollowSection />

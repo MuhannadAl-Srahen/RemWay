@@ -26,7 +26,7 @@ export function ChallengeListItem({
       href={`/challenges/${challenge.id}`}
       className='block group focus:outline-none focus-visible:ring focus-visible:ring-primary/50 rounded-xl cursor-pointer'
     >
-      <Card className='overflow-hidden rounded-xl border border-border/50 bg-card shadow-sm hover:shadow-xl transition-transform duration-300 relative hover:scale-[1.02] py-0'>
+      <Card className='overflow-hidden rounded-xl border border-border bg-card shadow-sm hover:shadow-xl transition-transform duration-300 relative hover:scale-[1.02] py-0'>
         {/* Like button */}
 
         <div className='flex flex-col md:flex-row '>
@@ -38,7 +38,6 @@ export function ChallengeListItem({
               className='h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'
               loading='lazy'
             />
-            <div className='absolute inset-0 bg-linear-to-t from-black/50 via-black/20 to-transparent' />
           </div>
 
           {/* Difficulty Badge */}
@@ -51,7 +50,7 @@ export function ChallengeListItem({
           </div>
 
           {/* Content Section */}
-          <CardContent className='flex flex-1 flex-col !p-4'>
+          <CardContent className='flex flex-1 flex-col p-4!'>
             <div className='flex flex-1 flex-col gap-3.5'>
               <div className='flex items-start gap-3 justify-between'>
                 <h3 className='mb-2 line-clamp-1 text-lg font-semibold text-card-foreground group-hover:text-primary transition-colors'>

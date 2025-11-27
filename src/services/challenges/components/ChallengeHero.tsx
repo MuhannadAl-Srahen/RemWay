@@ -54,15 +54,12 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
 
   return (
     <div className='bg-card rounded-lg border overflow-hidden mb-6 md:mb-8 group'>
-      <div className='aspect-[4/3] sm:aspect-video relative'>
+      <div className='aspect-4/3 sm:aspect-video relative'>
         <img
           src={currentImage?.url || '/placeholder.svg'}
           alt={currentImage?.alt || challenge.title}
           className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
         />
-
-        {/* Desktop Overlay Gradient - only on md+ */}
-        <div className='hidden md:block absolute inset-0 bg-linear-to-t from-black/70 to-transparent' />
 
         {/* Navigation */}
         {hasImages && challenge.images.length > 1 && (

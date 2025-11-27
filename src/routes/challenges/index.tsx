@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { PageLayout } from '@/layouts'
 import {
@@ -18,6 +18,8 @@ import {
   useSavedChallenges,
   useToggleSave,
 } from '@/services/challenges/hooks/useSavedChallenges'
+import { Pagination } from '@/components/ui/pagination'
+import { usePagination } from '@/lib/usePagination'
 
 export const Route = createFileRoute('/challenges/')({
   component: RouteComponent,
@@ -61,6 +63,27 @@ function RouteComponent() {
     setSelectedLanguage,
     clearFilters,
   } = useChallengeFilters(allChallenges)
+
+  // Pagination - 9 items per page for grid (3x3), 6 for list
+  const defaultPerPage = viewMode === 'grid' ? 9 : 6
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    totalItems,
+    paginatedItems: paginatedChallenges,
+    handlePageChange,
+    handleItemsPerPageChange,
+    resetPage,
+  } = usePagination(filteredChallenges, {
+    storageKey: 'challenges',
+    defaultItemsPerPage: defaultPerPage,
+  })
+
+  // Reset page when filters change
+  useEffect(() => {
+    resetPage()
+  }, [searchTerm, selectedDifficulty, selectedLanguage, resetPage])
 
   const handleToggleSave = async (challengeId: string) => {
     // Must be authenticated to save
@@ -140,18 +163,29 @@ function RouteComponent() {
           onAction={clearFilters}
         />
       ) : (
-        <ChallengeView
-          challenges={filteredChallenges}
-          savedChallenges={savedChallenges}
-          savingChallengeId={
-            toggleSaveMutation.isPending
-              ? (toggleSaveMutation.variables?.challengeId ?? null)
-              : null
-          }
-          onToggleSave={handleToggleSave}
-          viewMode={viewMode}
-          isAuthenticated={isAuthenticated}
-        />
+        <>
+          <ChallengeView
+            challenges={paginatedChallenges}
+            savedChallenges={savedChallenges}
+            savingChallengeId={
+              toggleSaveMutation.isPending
+                ? (toggleSaveMutation.variables?.challengeId ?? null)
+                : null
+            }
+            onToggleSave={handleToggleSave}
+            viewMode={viewMode}
+            isAuthenticated={isAuthenticated}
+          />
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+            itemsPerPageOptions={viewMode === 'grid' ? [6, 9, 12, 18] : [4, 6, 8, 12]}
+          />
+        </>
       )}
     </PageLayout>
   )

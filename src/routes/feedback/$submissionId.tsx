@@ -21,10 +21,35 @@ import { useChallenges } from '@/services/challenges'
 import type { TechCategory } from '@/services/feedback/components/TechAnalysis'
 import { useEffect, useState, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
+import { motion, AnimatePresence } from 'motion/react'
 
 export const Route = createFileRoute('/feedback/$submissionId')({
   component: RouteComponent,
 })
+
+// Animation variants for staggered content
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+    },
+  },
+}
 
 function RouteComponent() {
   const { submissionId } = Route.useParams()
@@ -415,8 +440,18 @@ function RouteComponent() {
     feedback.improvements_from_previous.issues_fixed.length > 0
 
   return (
-    <div className='min-h-screen bg-background pt-20 pb-20'>
-      <div className='py-8'>
+    <motion.div
+      className='min-h-screen bg-background pt-20 pb-20'
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+    >
+      <motion.div
+        className='py-8'
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
         <FeedbackHeader
           challengeTitle={challenge.title}
           challengeId={challenge.id}
@@ -425,71 +460,100 @@ function RouteComponent() {
           githubUrl={submission.github_url || undefined}
           overallScore={feedback.overall_score}
         />
-      </div>
+      </motion.div>
 
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6'>
+      <motion.div
+        className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6'
+        variants={containerVariants}
+        initial='hidden'
+        animate='visible'
+      >
         {/* Show mismatch warning if wrong project was submitted */}
-        {hasMismatch && feedback.submission_mismatch && (
-          <MismatchWarning
-            expectedProject={feedback.submission_mismatch.expected_project}
-            actualProject={feedback.submission_mismatch.actual_project}
-            explanation={feedback.submission_mismatch.explanation}
-          />
-        )}
+        <AnimatePresence>
+          {hasMismatch && feedback.submission_mismatch && (
+            <motion.div variants={itemVariants}>
+              <MismatchWarning
+                expectedProject={feedback.submission_mismatch.expected_project}
+                actualProject={feedback.submission_mismatch.actual_project}
+                explanation={feedback.submission_mismatch.explanation}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Show code not available warning if score was capped due to fetch failure */}
-        {codeNotAvailable && !hasMismatch && submission.github_url && (
-          <CodeNotAvailableWarning githubUrl={submission.github_url} />
-        )}
+        <AnimatePresence>
+          {codeNotAvailable && !hasMismatch && submission.github_url && (
+            <motion.div variants={itemVariants}>
+              <CodeNotAvailableWarning githubUrl={submission.github_url} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Show live URL warning if the live site couldn't be accessed */}
-        {liveUrlNotAccessible && !hasMismatch && submission.live_url && (
-          <LiveUrlWarning liveUrl={submission.live_url} />
-        )}
+        <AnimatePresence>
+          {liveUrlNotAccessible && !hasMismatch && submission.live_url && (
+            <motion.div variants={itemVariants}>
+              <LiveUrlWarning liveUrl={submission.live_url} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Show improvements from previous submission if this is a resubmission */}
-        {hasImprovements && feedback.improvements_from_previous && (
-          <ImprovementsFromPrevious
-            issuesFixed={feedback.improvements_from_previous.issues_fixed.map(
-              (item: {
-                issue: string
-                was_fixed?: boolean
-                wasFixed?: boolean
-                details: string
-              }) => ({
-                issue: item.issue,
-                was_fixed: item.was_fixed ?? item.wasFixed ?? false,
-                details: item.details,
-              })
-            )}
-            previousScore={feedback.improvements_from_previous.previous_score}
-            currentScore={feedback.overall_score}
-            overallAssessment={
-              feedback.improvements_from_previous.overall_assessment
+        <AnimatePresence>
+          {hasImprovements && feedback.improvements_from_previous && (
+            <motion.div variants={itemVariants}>
+              <ImprovementsFromPrevious
+                issuesFixed={feedback.improvements_from_previous.issues_fixed.map(
+                  (item: {
+                    issue: string
+                    was_fixed?: boolean
+                    wasFixed?: boolean
+                    details: string
+                  }) => ({
+                    issue: item.issue,
+                    was_fixed: item.was_fixed ?? item.wasFixed ?? false,
+                    details: item.details,
+                  })
+                )}
+                previousScore={feedback.improvements_from_previous.previous_score}
+                currentScore={feedback.overall_score}
+                overallAssessment={
+                  feedback.improvements_from_previous.overall_assessment
+                }
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.div variants={itemVariants}>
+          <OverallAnalysis
+            whatYouDidWell={feedback.overall_good_practices}
+            areasForImprovement={feedback.improvment_advices}
+          />
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <DesignComparison
+            originalDesignImage={challenge.thumbnail_url || undefined}
+            userResultImage={submission.screenshots?.[0] || undefined}
+          />
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <TechAnalysis categories={techAnalysis} />
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Recommendations
+            nextChallenges={nextChallenges}
+            learningResources={learningResources}
+            onStartChallenge={(id) =>
+              navigate({ to: '/challenges/$id', params: { id } })
             }
           />
-        )}
-
-        <OverallAnalysis
-          whatYouDidWell={feedback.overall_good_practices}
-          areasForImprovement={feedback.improvment_advices}
-        />
-
-        <DesignComparison
-          originalDesignImage={challenge.thumbnail_url || undefined}
-          userResultImage={submission.screenshots?.[0] || undefined}
-        />
-
-        <TechAnalysis categories={techAnalysis} />
-
-        <Recommendations
-          nextChallenges={nextChallenges}
-          learningResources={learningResources}
-          onStartChallenge={(id) =>
-            navigate({ to: '/challenges/$id', params: { id } })
-          }
-        />
-      </div>
-    </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }

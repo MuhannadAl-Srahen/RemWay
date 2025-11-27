@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { ChallengeGridItem } from '@/services/challenges/components/ChallengeGridItem'
@@ -9,14 +8,35 @@ import {
 } from '@/services/challenges/hooks/useSavedChallenges'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
 import { supabase } from '@/lib/supabaseClient'
-import { Heart, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Heart, ArrowRight } from 'lucide-react'
+import { Pagination } from '@/components/ui/pagination'
+import { usePagination } from '@/lib/usePagination'
+import { motion, AnimatePresence } from 'motion/react'
 import type { ChallengeListItem } from '@/types'
 
-const ITEMS_PER_PAGE = 4
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.4 },
+  },
+}
 
 export function SavedChallenges() {
   const navigate = useNavigate()
-  const [currentPage, setCurrentPage] = useState(1)
 
   // Use React Query hooks
   const { data: authData, isLoading: isAuthLoading } = useAuth()
@@ -35,39 +55,20 @@ export function SavedChallenges() {
     (challenge) => savedChallengeIds.includes(challenge.id)
   )
 
-  // Pagination logic
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const endIndex = startIndex + ITEMS_PER_PAGE
-  const currentChallenges = savedChallenges.slice(startIndex, endIndex)
-  const totalPages = Math.ceil(savedChallenges.length / ITEMS_PER_PAGE)
-
-  // Safety check: if current page is empty but there are challenges, go to last page
-  useEffect(() => {
-    if (
-      savedChallenges.length > 0 &&
-      currentChallenges.length === 0 &&
-      currentPage > 1
-    ) {
-      setCurrentPage(Math.max(1, totalPages))
-    }
-  }, [
-    savedChallenges.length,
-    currentChallenges.length,
+  // Pagination with usePagination hook
+  const {
     currentPage,
+    itemsPerPage,
     totalPages,
-  ])
-
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1)
-    }
-  }
-
-  const goToPrevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1)
-    }
-  }
+    totalItems,
+    paginatedItems: currentChallenges,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination(savedChallenges, {
+    storageKey: 'profile-saved-challenges',
+    defaultItemsPerPage: 2,
+    scrollTopOffset: 400,
+  })
 
   const handleToggleSave = async (challengeId: string) => {
     // Must be authenticated to save
@@ -89,22 +90,7 @@ export function SavedChallenges() {
     )
 
     // Trigger the mutation
-    toggleSaveMutation.mutate(
-      { challengeId, isSaved },
-      {
-        onSuccess: () => {
-          // Adjust pagination if current page becomes empty after unsaving
-          const newTotalPages = Math.ceil(
-            (savedChallenges.length - 1) / ITEMS_PER_PAGE
-          )
-          if (currentPage > newTotalPages && newTotalPages > 0) {
-            setCurrentPage(newTotalPages)
-          } else if (savedChallenges.length === 1) {
-            setCurrentPage(1)
-          }
-        },
-      }
-    )
+    toggleSaveMutation.mutate({ challengeId, isSaved })
   }
 
   // Show loading state
@@ -228,60 +214,45 @@ export function SavedChallenges() {
         </div>
       </div>
 
-      {/* Challenges Grid */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-        {currentChallenges.map((challenge) => (
-          <ChallengeGridItem
-            key={challenge.id}
-            challenge={challenge}
-            isSaved={savedChallengeIds.includes(challenge.id)}
-            isSaving={
-              toggleSaveMutation.isPending &&
-              toggleSaveMutation.variables?.challengeId === challenge.id
-            }
-            isAuthenticated={isAuthenticated}
-            onToggleSave={handleToggleSave}
-          />
-        ))}
-      </div>
+      {/* Challenges Grid with Animation */}
+      <AnimatePresence mode='wait'>
+        <motion.div
+          key={currentPage}
+          className='grid grid-cols-1 md:grid-cols-2 gap-6 min-h-[400px]'
+          variants={containerVariants}
+          initial='hidden'
+          animate='visible'
+        >
+          {currentChallenges.map((challenge) => (
+            <motion.div key={challenge.id} variants={itemVariants}>
+              <ChallengeGridItem
+                challenge={challenge}
+                isSaved={savedChallengeIds.includes(challenge.id)}
+                isSaving={
+                  toggleSaveMutation.isPending &&
+                  toggleSaveMutation.variables?.challengeId === challenge.id
+                }
+                isAuthenticated={isAuthenticated}
+                onToggleSave={handleToggleSave}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
+      </AnimatePresence>
 
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
+      {/* Pagination Controls - only show if needed */}
+      {(totalPages > 1 || totalItems > 2) && (
         <div className='bg-card border border-border rounded-xl p-4'>
-          <div className='flex items-center justify-between'>
-            <div className='text-sm text-muted-foreground'>
-              Showing {startIndex + 1}-
-              {Math.min(endIndex, savedChallenges.length)} of{' '}
-              {savedChallenges.length} challenges
-            </div>
-            <div className='flex items-center gap-2'>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={goToPrevPage}
-                disabled={currentPage === 1}
-                className='flex items-center gap-1'
-              >
-                <ChevronLeft className='w-4 h-4' />
-                Previous
-              </Button>
-              <div className='flex items-center gap-1 mx-2'>
-                <span className='text-sm font-medium'>{currentPage}</span>
-                <span className='text-sm text-muted-foreground'>of</span>
-                <span className='text-sm font-medium'>{totalPages}</span>
-              </div>
-              <Button
-                variant='outline'
-                size='sm'
-                onClick={goToNextPage}
-                disabled={currentPage === totalPages}
-                className='flex items-center gap-1'
-              >
-                Next
-                <ChevronRight className='w-4 h-4' />
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+            itemsPerPageOptions={[2, 4, 6, 8]}
+            className='mt-0'
+          />
         </div>
       )}
     </div>

@@ -14,6 +14,7 @@ import { useAuth } from '@/services/challenges/hooks/useAuth'
 import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { motion, AnimatePresence } from 'motion/react'
 import '@/styles/profile.css'
 
 interface TabItem {
@@ -218,8 +219,22 @@ function RouteComponent() {
                 })}
               </div>
 
-              {/* Tab Contents */}
-              <div className='space-y-4 md:space-y-6'>{renderTabContent()}</div>
+              {/* Tab Contents with Animation */}
+              <AnimatePresence mode='wait'>
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{
+                    duration: 0.3,
+                    ease: [0.25, 0.46, 0.45, 0.94],
+                  }}
+                  className='space-y-4 md:space-y-6'
+                >
+                  {renderTabContent()}
+                </motion.div>
+              </AnimatePresence>
             </div>
           </div>
         </div>

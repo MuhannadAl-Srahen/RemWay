@@ -36,10 +36,10 @@ export const UserActions = ({
     return (
       <button
         onClick={onLogin}
-        className='hidden md:flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 hover:bg-muted/50 text-muted-foreground hover:text-foreground group cursor-pointer hover:scale-105 hover:shadow-sm active:scale-95'
+        className='hidden md:flex items-center gap-2 py-2.5 px-5 rounded-full bg-primary text-primary-foreground font-medium text-sm cursor-pointer select-none transition-all duration-300 ease-out hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/25 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background'
       >
-        <Github className='h-5 w-5 group-hover:scale-110 transition-transform duration-300' />
-        <span className='text-sm font-medium'>Sign In</span>
+        <Github className='h-4 w-4 transition-transform duration-300 group-hover:rotate-12' />
+        <span>Sign In</span>
       </button>
     )
   }
@@ -61,16 +61,16 @@ export const UserActions = ({
       <DropdownMenuTrigger asChild>
         <Button
           variant='ghost'
-          className='hidden md:flex h-11 w-11 rounded-full transition-all duration-300 p-0 hover:scale-110 hover:shadow-lg cursor-pointer active:scale-95'
+          className='hidden md:flex h-10 w-10 rounded-full transition-all duration-200 p-0 hover:ring-2 hover:ring-primary/20 active:scale-95'
         >
-          <Avatar className='h-11 w-11 transition-all duration-300 ring-2 ring-transparent hover:ring-primary/20'>
+          <Avatar className='h-10 w-10 ring-2 ring-border/50'>
             <AvatarImage
               src={avatarUrl}
               alt={fullName}
               referrerPolicy='no-referrer'
               crossOrigin='anonymous'
             />
-            <AvatarFallback className='bg-primary/10 text-primary text-xs font-medium transition-colors duration-300 hover:bg-primary/20'>
+            <AvatarFallback className='bg-primary/10 text-primary text-xs font-medium'>
               {initials}
             </AvatarFallback>
           </Avatar>
