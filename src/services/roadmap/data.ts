@@ -7,11 +7,11 @@ export const learningPaths: LearningPath[] = [
     description:
       'Perfect for complete beginners. Learn HTML, CSS, and basic JavaScript through fun, hands-on projects.',
     difficulty: 'beginner',
-    duration: '4-6 weeks',
+    duration: '2-3 weeks',
     completedChallenges: 0,
     progressPercentage: 0,
     technologies: ['HTML', 'CSS', 'JavaScript'],
-    estimatedWeeks: 6,
+    estimatedWeeks: 3,
     milestones: [],
   },
   {
@@ -20,11 +20,11 @@ export const learningPaths: LearningPath[] = [
     description:
       'Ready for React and modern development? Build dynamic applications with APIs and state management.',
     difficulty: 'intermediate',
-    duration: '6-8 weeks',
+    duration: '2-4 weeks',
     completedChallenges: 0,
     progressPercentage: 0,
     technologies: ['React', 'APIs', 'State Management', 'Testing'],
-    estimatedWeeks: 8,
+    estimatedWeeks: 4,
     milestones: [],
   },
   {
@@ -33,11 +33,11 @@ export const learningPaths: LearningPath[] = [
     description:
       'Enterprise-level challenges with TypeScript, testing, and advanced patterns for production-ready code.',
     difficulty: 'advanced',
-    duration: '8-10 weeks',
+    duration: '3-5 weeks',
     completedChallenges: 0,
     progressPercentage: 0,
     technologies: ['TypeScript', 'Performance', 'Architecture', 'Deployment'],
-    estimatedWeeks: 10,
+    estimatedWeeks: 5,
     milestones: [],
   },
 ]

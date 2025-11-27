@@ -4,6 +4,8 @@ import type { ChallengeListItem } from '@/types'
 import { learningPaths } from '../data'
 import { useChallenges } from '@/services/challenges/hooks/useChallenges'
 import { usePassedChallenges } from '@/services/profile/hooks/usePassedChallenges'
+import { useProfile } from '@/services/profile/hooks/useProfile'
+import { useAuth } from '@/services/challenges/hooks/useAuth'
 import {
   ArrowLeft,
   BookOpen,
@@ -238,6 +240,14 @@ const SOLID_BG = {
 const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
   const path = learningPaths.find((p) => p.id === pathId)
 
+  // Auth and profile hooks to check if user started this path
+  const { data: authData } = useAuth()
+  const isAuthenticated = authData?.isAuthenticated ?? false
+  const userId = authData?.session?.user?.id
+  
+  const { data: profile } = useProfile(isAuthenticated ? userId : undefined)
+  const hasStartedPath = Boolean(profile?.learningPaths?.[pathId]?.started)
+
   // Use React Query hook to fetch challenges
   const { data: allChallenges = [], isLoading } = useChallenges()
 
@@ -269,7 +279,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
 
   // Determine which challenges are unlocked
   // A challenge is unlocked if:
-  // 1. It's the first challenge (index 0)
+  // 1. User has started the path AND it's the first challenge (index 0)
   // 2. It's already completed
   // 3. The previous challenge in the list is completed
   const getUnlockStatus = useMemo(() => {
@@ -279,14 +289,19 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
     ): { unlocked: boolean; completed: boolean } => {
       const isCompleted = completedChallengeIds.has(challengeId)
 
-      // First challenge is always unlocked
-      if (index === 0) {
-        return { unlocked: true, completed: isCompleted }
-      }
-
       // If this challenge is already completed, it's unlocked
       if (isCompleted) {
         return { unlocked: true, completed: true }
+      }
+
+      // User must have started the path to unlock any challenge
+      if (!hasStartedPath) {
+        return { unlocked: false, completed: false }
+      }
+
+      // First challenge is unlocked if user has started the path
+      if (index === 0) {
+        return { unlocked: true, completed: false }
       }
 
       // Check if the previous challenge is completed
@@ -300,7 +315,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
         completed: false,
       }
     }
-  }, [completedChallengeIds, pathChallenges])
+  }, [completedChallengeIds, pathChallenges, hasStartedPath])
 
   if (!path) return null
 
