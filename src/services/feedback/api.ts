@@ -60,15 +60,33 @@ export const getSubmissionFeedback = async (
       return null
     }
 
-    // Fetch feedback if it exists
-    const { data: feedbackData, error: feedbackError } = await supabase
+    // Fetch feedback if it exists - get the most recent one in case of duplicates
+    // Using .order() and .limit(1) instead of .maybeSingle() to handle multiple rows gracefully
+    const { data: feedbackResults, error: feedbackError } = await supabase
       .from('challenge_feedback')
       .select('*')
       .eq('submission_id', submissionId)
-      .maybeSingle()
+      .order('created_at', { ascending: false })
+      .limit(1)
+
+    // Get the first (most recent) feedback or null
+    const feedbackData = feedbackResults && feedbackResults.length > 0 ? feedbackResults[0] : null
 
     if (feedbackError) {
       console.error('[getSubmissionFeedback] feedback error:', feedbackError)
+    }
+
+    // If there are multiple feedback records, clean up the old ones (keep only the most recent)
+    if (feedbackResults && feedbackResults.length > 1) {
+      console.warn(
+        `[getSubmissionFeedback] Found ${feedbackResults.length} feedback records for submission ${submissionId}, cleaning up duplicates...`
+      )
+      // Note: Cleanup is done asynchronously, don't await
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const keepId = (feedbackData as any)?.id
+      cleanupDuplicateFeedback(submissionId, keepId).catch((err: unknown) =>
+        console.error('[getSubmissionFeedback] Failed to cleanup duplicates:', err)
+      )
     }
 
     // Type assertion for submission data with relations
@@ -430,14 +448,14 @@ export const generateAndStoreFeedback = async (
       }
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error: insertError } = await supabase
+      const { error: upsertError } = await supabase
         .from('challenge_feedback')
-        .insert(feedbackData as any)
+        .upsert(feedbackData as any, { onConflict: 'submission_id' })
 
-      if (insertError) {
+      if (upsertError) {
         console.error(
           '[generateAndStoreFeedback] Failed to store validation error feedback:',
-          insertError
+          upsertError
         )
         return { success: false, error: validation.errors.join('. ') }
       }
@@ -555,12 +573,14 @@ export const generateAndStoreFeedback = async (
       view_code: submissionData.github_url,
     }
 
-    const { error: insertError } = await supabase
+    // Use upsert to handle unique constraint on submission_id
+    // This replaces existing feedback if regenerated
+    const { error: upsertError } = await supabase
       .from('challenge_feedback')
-      .insert(feedbackData as any)
+      .upsert(feedbackData as any, { onConflict: 'submission_id' })
 
-    if (insertError) {
-      console.error('[generateAndStoreFeedback] insert error:', insertError)
+    if (upsertError) {
+      console.error('[generateAndStoreFeedback] upsert error:', upsertError)
       return { success: false, error: 'Failed to store feedback' }
     }
 
@@ -598,5 +618,32 @@ export const triggerFeedbackGeneration = async (
     })
   } catch (err) {
     console.error('[triggerFeedbackGeneration] error:', err)
+  }
+}
+
+/**
+ * Clean up duplicate feedback records for a submission
+ * Keeps only the most recent feedback (identified by keepId)
+ */
+const cleanupDuplicateFeedback = async (
+  submissionId: string,
+  keepId: string | undefined
+): Promise<void> => {
+  if (!keepId) return
+
+  try {
+    const { error } = await supabase
+      .from('challenge_feedback')
+      .delete()
+      .eq('submission_id', submissionId)
+      .neq('id', keepId)
+
+    if (error) {
+      console.error('[cleanupDuplicateFeedback] error:', error)
+    } else {
+      console.log('[cleanupDuplicateFeedback] ✅ Cleaned up duplicate feedback records')
+    }
+  } catch (err) {
+    console.error('[cleanupDuplicateFeedback] unexpected error:', err)
   }
 }
