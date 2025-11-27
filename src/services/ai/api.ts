@@ -42,6 +42,12 @@ export interface AIFeedbackRequest {
 
 export interface AIFeedbackResponse {
   overallScore: number
+  scoreBreakdown?: {
+    design: number
+    codeQuality: number
+    functionality: number
+    accessibility: number
+  }
   overallRating: 'excellent' | 'good' | 'needs_improvement'
   codeNotAvailable?: boolean // True when code couldn't be fetched - score should be capped
   liveUrlNotAccessible?: boolean // True when live URL is invalid or unreachable
@@ -112,6 +118,12 @@ export interface AIFeedbackResponse {
 
 const SYSTEM_PROMPT = `You are an expert frontend development mentor providing detailed, constructive feedback on coding challenge submissions. You must analyze the submission and provide precise, actionable feedback.
 
+CRITICAL RULE #0 - DETERMINISTIC SCORING:
+You MUST provide consistent, repeatable scores. The same submission should ALWAYS receive the same score.
+- Use the scoring rubric EXACTLY as specified below
+- Do NOT introduce randomness or variation
+- Base scores ONLY on objective code quality criteria
+
 CRITICAL RULE #1 - CODE AVAILABILITY CHECK:
 Before scoring, verify that source code was successfully fetched. Look for the "CODE SUCCESSFULLY FETCHED" or "CODE NOT AVAILABLE" section in the prompt.
 - If code was NOT available: Set codeNotAvailable=true, score MUST be 0-30 max
@@ -130,16 +142,32 @@ Your feedback should be:
 3. **Educational**: Explain WHY something is good or needs improvement
 4. **Actionable**: Provide clear next steps
 
-Scoring Guidelines (only for submissions WITH available code):
-- 90-100 (Excellent): Production-ready code, follows all best practices, excellent UX
-- 75-89 (Good): Solid implementation, minor improvements possible
-- 60-74 (Needs Improvement): Core functionality works but has notable issues
-- Below 60: Significant problems that need addressing
+SCORING RUBRIC (apply consistently):
+Design Implementation (30 points max):
+- 25-30: Pixel-perfect, responsive, matches design exactly
+- 18-24: Good match, minor visual differences
+- 10-17: Noticeable differences from design
+- 0-9: Significant design issues or doesn't match
 
-Scoring Guidelines (when code NOT available):
-- 0-30 max: Cannot fetch repository code
-- 0-40 max: Repository has no source code files
-- 0-20: Wrong project submitted (mismatch)
+Code Quality (30 points max):
+- 25-30: Clean, well-organized, follows best practices
+- 18-24: Good structure, minor issues
+- 10-17: Some organization issues, inconsistent patterns
+- 0-9: Poor structure, major issues
+
+Functionality (25 points max):
+- 21-25: All features work perfectly
+- 15-20: Core features work, minor bugs
+- 8-14: Some features broken
+- 0-7: Major functionality issues
+
+Accessibility (15 points max):
+- 13-15: Excellent semantic HTML, ARIA, keyboard nav
+- 9-12: Good accessibility, minor gaps
+- 5-8: Basic accessibility
+- 0-4: Poor or no accessibility
+
+Total: Add up points from each category. Be consistent!
 
 Response Format: Return a valid JSON object matching the AIFeedbackResponse interface.`
 
@@ -262,9 +290,11 @@ export const generateAIFeedback = async (
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.3,
-          topK: 40,
-          topP: 0.95,
+          // CRITICAL: Use temperature 0 for deterministic, consistent scoring
+          // This ensures the same submission always gets the same score
+          temperature: 0,
+          topK: 1, // Only consider the most likely token
+          topP: 1, // Disable nucleus sampling
           maxOutputTokens: 8192,
           responseMimeType: 'application/json',
         },
@@ -601,17 +631,27 @@ First, verify the submitted code/project actually implements "${submission.chall
 If the code is for a DIFFERENT project (e.g., recipe card instead of profile card), this is a MISMATCH.
 Set submissionMismatch.isMismatched=true and give score 0-20.
 
-**Scoring Criteria:**
-- Design (30%): Visual accuracy, responsive, UI/UX
-- Code (30%): Clean structure, naming, organization
-- Functionality (25%): Features work, error handling
-- Accessibility (15%): Semantic HTML, ARIA, keyboard nav
+**SCORING - CALCULATE DETERMINISTICALLY:**
+Use the rubric from system instructions. Calculate each category score, then sum:
+- Design (0-30 points): Visual accuracy, responsive, UI/UX
+- Code Quality (0-30 points): Clean structure, naming, organization
+- Functionality (0-25 points): Features work, error handling
+- Accessibility (0-15 points): Semantic HTML, ARIA, keyboard nav
+Total = Design + Code + Functionality + Accessibility (max 100)
+
+Include "scoreBreakdown" in your response showing how you calculated the score.
 
 ${submission.live_site_url ? `**IMPORTANT:** Visit the live site URL to verify the design implementation matches the challenge requirements and the site functions correctly.` : ''}
 
 Return JSON with:
 {
-  "overallScore": 0-100,
+  "overallScore": 0-100 (MUST equal sum of scoreBreakdown),
+  "scoreBreakdown": {
+    "design": 0-30,
+    "codeQuality": 0-30,
+    "functionality": 0-25,
+    "accessibility": 0-15
+  },
   "overallRating": "excellent"|"good"|"needs_improvement",
   "codeNotAvailable": boolean,
   "whatYouDidWell": ["3-5 concise positives"],
