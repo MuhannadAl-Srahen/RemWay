@@ -1,8 +1,26 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { ChallengeSubmissionWithChallenge } from '@/types/feedback'
 import { fetchRepositoryCode, formatCodeForAI } from './githubFetcher'
+import { isValidLiveSiteUrl, isSuspiciousUrl, checkLiveSiteAccessibility } from './validation'
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
+
+// Track the status of code fetching for accurate AI analysis
+export interface CodeFetchStatus {
+  success: boolean
+  filesCount: number
+  totalSize: number
+  error?: string
+  hasSourceCode: boolean // True if we got actual source files (not just config)
+}
+
+// Track the status of live URL for accurate AI analysis
+export interface LiveUrlStatus {
+  provided: boolean
+  valid: boolean
+  accessible: boolean
+  error?: string
+}
 
 export interface PreviousFeedbackSummary {
   previous_score: number
@@ -25,6 +43,8 @@ export interface AIFeedbackRequest {
 export interface AIFeedbackResponse {
   overallScore: number
   overallRating: 'excellent' | 'good' | 'needs_improvement'
+  codeNotAvailable?: boolean // True when code couldn't be fetched - score should be capped
+  liveUrlNotAccessible?: boolean // True when live URL is invalid or unreachable
   whatYouDidWell: string[]
   areasForImprovement: string[]
   designComparison: {
@@ -92,7 +112,14 @@ export interface AIFeedbackResponse {
 
 const SYSTEM_PROMPT = `You are an expert frontend development mentor providing detailed, constructive feedback on coding challenge submissions. You must analyze the submission and provide precise, actionable feedback.
 
-CRITICAL: First, verify that the submitted code/project MATCHES the challenge. If the user submits a completely different project (e.g., a recipe card for a profile card challenge), you MUST:
+CRITICAL RULE #1 - CODE AVAILABILITY CHECK:
+Before scoring, verify that source code was successfully fetched. Look for the "CODE SUCCESSFULLY FETCHED" or "CODE NOT AVAILABLE" section in the prompt.
+- If code was NOT available: Set codeNotAvailable=true, score MUST be 0-30 max
+- If no source code FILES found: Set codeNotAvailable=true, score MUST be 0-40 max
+- Only give scores above 40 if you have actual source code to analyze
+
+CRITICAL RULE #2 - PROJECT MISMATCH CHECK:
+Verify that the submitted code/project MATCHES the challenge. If the user submits a completely different project (e.g., a recipe card for a profile card challenge), you MUST:
 1. Set "submissionMismatch.isMismatched" to true
 2. Give a very low score (0-20) since the submission doesn't match
 3. Explain clearly in the feedback that the wrong project was submitted
@@ -103,11 +130,15 @@ Your feedback should be:
 3. **Educational**: Explain WHY something is good or needs improvement
 4. **Actionable**: Provide clear next steps
 
-Scoring Guidelines (for matching submissions):
+Scoring Guidelines (only for submissions WITH available code):
 - 90-100 (Excellent): Production-ready code, follows all best practices, excellent UX
 - 75-89 (Good): Solid implementation, minor improvements possible
 - 60-74 (Needs Improvement): Core functionality works but has notable issues
 - Below 60: Significant problems that need addressing
+
+Scoring Guidelines (when code NOT available):
+- 0-30 max: Cannot fetch repository code
+- 0-40 max: Repository has no source code files
 - 0-20: Wrong project submitted (mismatch)
 
 Response Format: Return a valid JSON object matching the AIFeedbackResponse interface.`
@@ -129,25 +160,104 @@ export const generateAIFeedback = async (
 
       // Fetch actual code from GitHub if URL is provided
       let codeAnalysis = ''
+      let codeFetchStatus: CodeFetchStatus = {
+        success: false,
+        filesCount: 0,
+        totalSize: 0,
+        hasSourceCode: false,
+      }
+
       if (request.submission.github_url) {
         console.log('[generateAIFeedback] Fetching code from GitHub...')
         const repoCode = await fetchRepositoryCode(
           request.submission.github_url
         )
 
-        if (repoCode) {
+        if (repoCode && repoCode.files.length > 0) {
           codeAnalysis = formatCodeForAI(repoCode)
+          
+          // Check if we got actual source code (not just config files)
+          const sourceExtensions = ['.html', '.css', '.scss', '.js', '.jsx', '.ts', '.tsx']
+          const sourceFiles = repoCode.files.filter(f => 
+            sourceExtensions.some(ext => f.path.toLowerCase().endsWith(ext))
+          )
+          
+          codeFetchStatus = {
+            success: true,
+            filesCount: repoCode.files.length,
+            totalSize: repoCode.totalSize,
+            hasSourceCode: sourceFiles.length > 0,
+          }
+          
           console.log(
-            `[generateAIFeedback] Fetched ${repoCode.files.length} files (${(repoCode.totalSize / 1024).toFixed(1)}KB)`
+            `[generateAIFeedback] Fetched ${repoCode.files.length} files (${sourceFiles.length} source files, ${(repoCode.totalSize / 1024).toFixed(1)}KB)`
           )
+          
+          if (sourceFiles.length === 0) {
+            console.warn('[generateAIFeedback] ⚠️ No source code files found - only config files')
+            codeFetchStatus.error = 'Repository contains no source code files (only config files found)'
+          }
         } else {
+          codeFetchStatus = {
+            success: false,
+            filesCount: 0,
+            totalSize: 0,
+            hasSourceCode: false,
+            error: 'Could not fetch repository code - repository may be private, empty, or URL is incorrect',
+          }
           console.warn(
-            '[generateAIFeedback] Could not fetch GitHub code, proceeding with URL-only analysis'
+            '[generateAIFeedback] ⚠️ Could not fetch GitHub code:',
+            codeFetchStatus.error
           )
+        }
+      } else {
+        codeFetchStatus = {
+          success: false,
+          filesCount: 0,
+          totalSize: 0,
+          hasSourceCode: false,
+          error: 'No GitHub URL provided',
         }
       }
 
-      const prompt = buildPrompt(request, codeAnalysis)
+      // Check live URL accessibility
+      const liveUrlStatus: LiveUrlStatus = {
+        provided: false,
+        valid: false,
+        accessible: false,
+      }
+
+      if (request.submission.live_site_url) {
+        liveUrlStatus.provided = true
+        
+        // Check if URL format is valid
+        if (!isValidLiveSiteUrl(request.submission.live_site_url)) {
+          liveUrlStatus.valid = false
+          liveUrlStatus.error = 'Invalid live site URL format'
+          console.warn('[generateAIFeedback] ⚠️ Invalid live URL format:', request.submission.live_site_url)
+        } else if (isSuspiciousUrl(request.submission.live_site_url)) {
+          liveUrlStatus.valid = true
+          liveUrlStatus.accessible = false
+          liveUrlStatus.error = 'Live site URL appears to be a placeholder or test URL'
+          console.warn('[generateAIFeedback] ⚠️ Suspicious live URL:', request.submission.live_site_url)
+        } else {
+          liveUrlStatus.valid = true
+          
+          // Try to check accessibility (best effort due to CORS)
+          console.log('[generateAIFeedback] Checking live site accessibility...')
+          const accessCheck = await checkLiveSiteAccessibility(request.submission.live_site_url)
+          liveUrlStatus.accessible = accessCheck.accessible
+          
+          if (!accessCheck.accessible) {
+            liveUrlStatus.error = accessCheck.error || 'Live site could not be reached'
+            console.warn('[generateAIFeedback] ⚠️ Live site not accessible:', accessCheck.error)
+          } else {
+            console.log('[generateAIFeedback] ✅ Live site appears accessible')
+          }
+        }
+      }
+
+      const prompt = buildPrompt(request, codeAnalysis, codeFetchStatus, liveUrlStatus)
 
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -256,6 +366,69 @@ export const generateAIFeedback = async (
         }
       }
 
+      // CRITICAL: Enforce score caps based on code availability
+      // This prevents the AI from giving high scores when it couldn't actually analyze the code
+      if (!codeFetchStatus.success) {
+        // No code at all - strict cap at 30
+        if (feedback.overallScore > 30) {
+          console.warn(
+            `[generateAIFeedback] ⚠️ Capping score from ${feedback.overallScore} to 30 - code not available`
+          )
+          feedback.overallScore = 30
+          feedback.codeNotAvailable = true
+          feedback.overallRating = 'needs_improvement'
+          
+          // Ensure the feedback includes the issue
+          if (!feedback.areasForImprovement.some(a => a.toLowerCase().includes('source code'))) {
+            feedback.areasForImprovement.unshift(
+              'Source code could not be fetched from GitHub. Please ensure your repository is public and contains valid source code files.'
+            )
+          }
+        }
+      } else if (!codeFetchStatus.hasSourceCode) {
+        // Repo fetched but no source code - cap at 40
+        if (feedback.overallScore > 40) {
+          console.warn(
+            `[generateAIFeedback] ⚠️ Capping score from ${feedback.overallScore} to 40 - no source code files`
+          )
+          feedback.overallScore = 40
+          feedback.codeNotAvailable = true
+          feedback.overallRating = 'needs_improvement'
+          
+          // Ensure the feedback includes the issue
+          if (!feedback.areasForImprovement.some(a => a.toLowerCase().includes('source code'))) {
+            feedback.areasForImprovement.unshift(
+              'Repository contains no source code files (.html, .css, .js, .jsx, .ts, .tsx). Please submit a repository with actual code.'
+            )
+          }
+        }
+      }
+
+      // Handle live URL issues - apply design score penalty
+      // Note: We don't cap the overall score, but ensure the AI accounts for it
+      if (liveUrlStatus.provided && (!liveUrlStatus.valid || !liveUrlStatus.accessible)) {
+        feedback.liveUrlNotAccessible = true
+        
+        // Ensure the feedback mentions the live URL issue if not already
+        const hasLiveUrlFeedback = feedback.areasForImprovement.some(
+          a => a.toLowerCase().includes('live site') || a.toLowerCase().includes('live url')
+        )
+        
+        if (!hasLiveUrlFeedback) {
+          if (!liveUrlStatus.valid) {
+            feedback.areasForImprovement.push(
+              'The provided live site URL is invalid. Please provide a valid URL (e.g., https://your-project.netlify.app).'
+            )
+          } else if (!liveUrlStatus.accessible) {
+            feedback.areasForImprovement.push(
+              'The live site URL could not be accessed. Please ensure your deployment is working and publicly accessible.'
+            )
+          }
+        }
+        
+        console.log('[generateAIFeedback] ℹ️ Live URL issue flagged:', liveUrlStatus.error)
+      }
+
       return feedback
     } catch (error) {
       lastError = error as Error
@@ -281,7 +454,9 @@ export const generateAIFeedback = async (
 
 const buildPrompt = (
   request: AIFeedbackRequest,
-  codeAnalysis: string
+  codeAnalysis: string,
+  codeFetchStatus: CodeFetchStatus,
+  liveUrlStatus: LiveUrlStatus
 ): string => {
   const {
     submission,
@@ -291,6 +466,82 @@ const buildPrompt = (
     designRequirements,
     techRequirements,
   } = request
+
+  // Build code availability section - CRITICAL for accurate scoring
+  let codeAvailabilitySection = ''
+  if (!codeFetchStatus.success) {
+    codeAvailabilitySection = `
+**⚠️ CRITICAL - CODE NOT AVAILABLE:**
+Status: FAILED to fetch source code
+Reason: ${codeFetchStatus.error || 'Unknown error'}
+
+**SCORING IMPACT - APPLY STRICT PENALTY:**
+- Since NO source code could be fetched and analyzed, you CANNOT give a score above 30/100
+- Set "codeNotAvailable" to true in your response
+- Mark all techAnalysis items as "error" status with "Unable to analyze - code not available"
+- In areasForImprovement, include: "Source code could not be fetched from GitHub. Please ensure your repository is public and contains valid source code files."
+`
+  } else if (!codeFetchStatus.hasSourceCode) {
+    codeAvailabilitySection = `
+**⚠️ WARNING - NO SOURCE CODE FILES:**
+Status: Repository fetched but contains NO source code
+Files found: ${codeFetchStatus.filesCount} (only config/documentation files)
+
+**SCORING IMPACT - APPLY PENALTY:**
+- The repository contains no actual source code (.html, .css, .js, .jsx, .ts, .tsx files)
+- Maximum score allowed: 40/100
+- This usually means the wrong repository was submitted or the code is in a different branch
+- In areasForImprovement, include: "Repository contains no source code files. Please submit a repository with actual HTML, CSS, and JavaScript/TypeScript code."
+`
+  } else {
+    codeAvailabilitySection = `
+**✅ CODE SUCCESSFULLY FETCHED:**
+Files analyzed: ${codeFetchStatus.filesCount}
+Total size: ${(codeFetchStatus.totalSize / 1024).toFixed(1)}KB
+Source code: Available for full analysis
+`
+  }
+
+  // Build live URL status section
+  let liveUrlSection = ''
+  if (!liveUrlStatus.provided) {
+    liveUrlSection = `
+**ℹ️ LIVE SITE URL - NOT PROVIDED:**
+No live site URL was submitted. Design comparison will be based on code analysis only.
+- Do NOT penalize the score for missing live URL
+- Focus analysis on code quality and structure
+`
+  } else if (!liveUrlStatus.valid) {
+    liveUrlSection = `
+**⚠️ LIVE SITE URL - INVALID FORMAT:**
+Status: The provided live site URL is not valid
+URL: ${submission.live_site_url}
+Reason: ${liveUrlStatus.error || 'Invalid URL format'}
+
+**SCORING IMPACT:**
+- Cannot verify design implementation without valid live URL
+- Reduce design score by 10-15 points
+- In areasForImprovement, include: "Please provide a valid, accessible live site URL for accurate design feedback."
+`
+  } else if (!liveUrlStatus.accessible) {
+    liveUrlSection = `
+**⚠️ LIVE SITE URL - NOT ACCESSIBLE:**
+Status: The live site URL could not be reached
+URL: ${submission.live_site_url}
+Reason: ${liveUrlStatus.error || 'Site unreachable'}
+
+**SCORING IMPACT:**
+- Cannot verify design implementation if site is down
+- Reduce design score by 10-15 points
+- In areasForImprovement, include: "The live site URL could not be accessed. Please ensure your deployment is working and the URL is correct."
+`
+  } else {
+    liveUrlSection = `
+**✅ LIVE SITE URL - ACCESSIBLE:**
+URL: ${submission.live_site_url}
+Status: Site appears to be accessible for design verification
+`
+  }
 
   // Build comparison section if previous submission exists
   let comparisonSection = ''
@@ -341,7 +592,9 @@ GitHub: ${submission.github_url}
 ${submission.live_site_url ? `Live Site: ${submission.live_site_url}` : ''}
 ${comparisonSection}
 ${previousFeedbackSection}
-${codeAnalysis ? `**Source Code:**\n${codeAnalysis}\n` : `**Note:** Source code not available (GitHub rate limit or private repo). Base analysis on live site: ${submission.live_site_url}\n`}
+${codeAvailabilitySection}
+${liveUrlSection}
+${codeAnalysis ? `**Source Code:**\n${codeAnalysis}\n` : ''}
 
 **CRITICAL - MISMATCH CHECK:**
 First, verify the submitted code/project actually implements "${submission.challenge.title}".
@@ -360,6 +613,7 @@ Return JSON with:
 {
   "overallScore": 0-100,
   "overallRating": "excellent"|"good"|"needs_improvement",
+  "codeNotAvailable": boolean,
   "whatYouDidWell": ["3-5 concise positives"],
   "areasForImprovement": ["3-5 concise improvements"],
   "designComparison": {
