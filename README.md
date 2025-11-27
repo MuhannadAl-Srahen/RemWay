@@ -1,6 +1,6 @@
 # PexFect
 
-**PexFect** is a modern frontend coding challenge platform built with React 19, TanStack Router, TanStack Query, Tailwind CSS v4, ShadCN UI, Zustand, and Supabase. It features an advanced theming system, modular routing, efficient state and data management, and **AI-powered feedback** using Google Gemini 2.5 Flash.
+**PexFect** is a modern frontend coding challenge platform built with React 19, TanStack Router, TanStack Query, Tailwind CSS v4, ShadCN UI, Zustand, and Supabase. It features an advanced theming system, modular routing, efficient state and data management, and **AI-powered feedback** using Google Gemini 2.5 Pro.
 
 ---
 
@@ -13,7 +13,7 @@
 - **ShadCN UI** components for a polished, accessible UI
 - **Zustand** for lightweight client-side state management
 - **Supabase** as a backend and authentication provider
-- **AI Feedback System** with Gemini 2.5 Flash for automated challenge assessment
+- **AI Feedback System** with Gemini 2.5 Pro for automated challenge assessment
 - **Resubmission Tracking** with improvement comparison across attempts
 - **Mismatch Detection** to catch wrong project submissions
 - Modular project structure for scalability and maintainability

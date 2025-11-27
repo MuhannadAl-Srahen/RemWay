@@ -123,7 +123,7 @@ export const generateAIFeedback = async (
       console.log(`[generateAIFeedback] Attempt ${attempt}/${maxRetries}`)
 
       const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.5-pro',
         systemInstruction: SYSTEM_PROMPT,
       })
 
@@ -216,11 +216,12 @@ export const generateAIFeedback = async (
       }
 
       console.log('[generateAIFeedback] ✅ Parsed feedback structure:', {
-        hasScore: !!feedback.overallScore,
+        hasScore: typeof feedback.overallScore === 'number',
+        scoreValue: feedback.overallScore,
         hasRating: !!feedback.overallRating,
-        hasWhatYouDidWell: !!feedback.whatYouDidWell,
+        hasWhatYouDidWell: Array.isArray(feedback.whatYouDidWell),
         whatYouDidWellCount: feedback.whatYouDidWell?.length || 0,
-        hasAreasForImprovement: !!feedback.areasForImprovement,
+        hasAreasForImprovement: Array.isArray(feedback.areasForImprovement),
         areasCount: feedback.areasForImprovement?.length || 0,
         hasTechAnalysis: !!feedback.techAnalysis,
         techKeys: feedback.techAnalysis
@@ -228,13 +229,17 @@ export const generateAIFeedback = async (
           : [],
       })
 
-      // Validate required fields
+      // Validate required fields - use proper type checks (not truthy) since score can be 0
       if (
-        !feedback.overallScore ||
-        !feedback.whatYouDidWell ||
-        !feedback.areasForImprovement
+        typeof feedback.overallScore !== 'number' ||
+        !Array.isArray(feedback.whatYouDidWell) ||
+        !Array.isArray(feedback.areasForImprovement)
       ) {
-        console.error('[generateAIFeedback] ❌ Missing required fields')
+        console.error('[generateAIFeedback] ❌ Missing required fields', {
+          scoreType: typeof feedback.overallScore,
+          whatYouDidWellIsArray: Array.isArray(feedback.whatYouDidWell),
+          areasIsArray: Array.isArray(feedback.areasForImprovement),
+        })
         throw new Error('Invalid AI response: missing required fields')
       }
 

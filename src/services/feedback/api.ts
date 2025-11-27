@@ -548,7 +548,7 @@ export const generateAndStoreFeedback = async (
               aiFeedback.improvementsFromPrevious.overallAssessment,
           }
         : null,
-      ai_model_version: 'gemini-2.5-flash',
+      ai_model_version: 'gemini-2.5-pro',
       feedback_generation_time: generationTime,
       // These are foreign keys to challenge_submissions - use actual URLs
       live_preview: submissionData.live_site_url || submissionData.github_url,

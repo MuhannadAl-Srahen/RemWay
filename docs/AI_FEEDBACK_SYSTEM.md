@@ -33,7 +33,7 @@ The AI Feedback System analyzes user submissions by:
 
 ### Tech Stack
 
-- **AI Model**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)
+- **AI Model**: Google Gemini 2.5 Pro (`gemini-2.5-pro`)
 - **Code Fetching**: GitHub REST API v3 with priority-based file selection
 - **Database**: Supabase PostgreSQL with Row Level Security
 - **Frontend**: React 19 + TanStack Query + TanStack Router

@@ -148,7 +148,7 @@ async function manualGenerate() {
         designNotes: feedback.designComparison?.designNotes || [],
         matchesDesign: feedback.designComparison?.matchesDesign || false,
       },
-      ai_model_version: 'gemini-2.5-flash',
+      ai_model_version: 'gemini-2.5-pro',
       feedback_generation_time: Date.now() - startTime,
       live_preview: submission.live_site_url || '',
       view_code: submission.github_url,
