@@ -102,7 +102,7 @@ navigate({ to: '/challenges/$id', params: { id: '123' } })
 <Link to="/challenges/$id" params={{ id }}>View</Link>
 ```
 
-## Styling (Tailwind v4)
+## Styling (Tailwind v4.1)
 
 - **No tailwind.config.js** - uses `@tailwindcss/vite` plugin
 - Theme via CSS custom properties in `src/index.css`

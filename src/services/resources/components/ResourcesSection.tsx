@@ -97,6 +97,7 @@ export function ResourcesSection({
                 onSearchChange ? () => onSearchChange('') : undefined
               }
               onRefresh={reload}
+              activeTab={activeTab}
             />
           </motion.div>
         </AnimatePresence>

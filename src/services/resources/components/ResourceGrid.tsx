@@ -3,6 +3,9 @@ import { EmptyState } from '@/layouts'
 import type { ResourceItem } from '@/types'
 import { ResourceCardSkeleton } from '@/components/ui/resource-skeleton'
 import { motion } from 'motion/react'
+import { Pagination } from '@/components/ui/pagination'
+import { usePagination } from '@/lib/usePagination'
+import { useEffect } from 'react'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -33,6 +36,7 @@ export interface ResourceGridProps {
   searchTerm?: string
   onClearSearch?: () => void
   onRefresh?: () => void
+  activeTab?: string
 }
 
 export function ResourceGrid({
@@ -41,7 +45,27 @@ export function ResourceGrid({
   searchTerm,
   onClearSearch,
   onRefresh,
+  activeTab = 'all',
 }: ResourceGridProps) {
+  // Pagination with unique storage key per tab
+  const {
+    currentPage,
+    itemsPerPage,
+    totalPages,
+    totalItems,
+    paginatedItems,
+    handlePageChange,
+    handleItemsPerPageChange,
+    resetPage,
+  } = usePagination(items, {
+    storageKey: `resources-${activeTab}`,
+    defaultItemsPerPage: 9,
+  })
+
+  // Reset page when search term or items change significantly
+  useEffect(() => {
+    resetPage()
+  }, [searchTerm, activeTab, resetPage])
   // Show skeleton loading state
   if (loading) {
     return (
@@ -90,18 +114,29 @@ export function ResourceGrid({
   }
 
   return (
-    <motion.div
-      className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'
-      variants={containerVariants}
-      initial='hidden'
-      animate='visible'
-      key={items.length}
-    >
-      {items.map((resource, index) => (
-        <motion.div key={index} variants={itemVariants}>
-          <ResourceCard resource={resource} />
-        </motion.div>
-      ))}
-    </motion.div>
+    <>
+      <motion.div
+        className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5'
+        variants={containerVariants}
+        initial='hidden'
+        animate='visible'
+        key={`${activeTab}-${currentPage}-${paginatedItems.length}`}
+      >
+        {paginatedItems.map((resource, index) => (
+          <motion.div key={index} variants={itemVariants}>
+            <ResourceCard resource={resource} />
+          </motion.div>
+        ))}
+      </motion.div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+        onItemsPerPageChange={handleItemsPerPageChange}
+        itemsPerPageOptions={[6, 9, 12, 18]}
+      />
+    </>
   )
 }
