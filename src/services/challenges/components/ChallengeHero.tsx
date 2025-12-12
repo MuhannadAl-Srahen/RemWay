@@ -60,8 +60,6 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
           alt={currentImage?.alt || challenge.title}
           className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
         />
-        {/* Gradient overlay from bottom to top */}
-        <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none' />
 
         {/* Navigation */}
         {hasImages && challenge.images.length > 1 && (
