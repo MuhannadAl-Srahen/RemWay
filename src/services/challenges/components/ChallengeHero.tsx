@@ -94,6 +94,9 @@ export function ChallengeHero({ challenge }: ChallengeHeroProps) {
           </>
         )}
 
+        {/* Gradient Shadow Overlay - for text visibility */}
+        <div className='absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-5' />
+
         {/* Desktop Content Overlay - only visible on md+ */}
         <div className='hidden md:flex absolute inset-0 flex-col justify-end p-6 z-10'>
           <div className='flex items-end justify-between'>
