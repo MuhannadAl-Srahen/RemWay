@@ -180,6 +180,8 @@ For detailed documentation, see:
 | -------------------------------------------------------- | -------------------------------------------------- |
 | [Project Documentation](./docs/PROJECT_DOCUMENTATION.md) | Complete architecture, features, and API reference |
 | [AI Feedback System](./docs/AI_FEEDBACK_SYSTEM.md)       | AI feedback user guide and technical details       |
+| [Investor Overview](./docs/INVESTOR_OVERVIEW.md)         | Project overview for investors (English)           |
+| [نظرة المستثمرين](./docs/INVESTOR_OVERVIEW_AR.md)        | Project overview for investors (Arabic)            |
 | [Contributing](./CONTRIBUTING.md)                        | Contribution guidelines                            |
 
 ---

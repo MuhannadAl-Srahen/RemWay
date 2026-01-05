@@ -1,4 +1,9 @@
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from 'lucide-react'
 import { Button } from './button'
 import { motion } from 'motion/react'
 
@@ -28,7 +33,8 @@ export function Pagination({
   // Filter options to only show values that make sense for the total items
   // Always include at least the first option and the current itemsPerPage
   const filteredOptions = itemsPerPageOptions.filter(
-    (option, index) => index === 0 || option <= totalItems || option === itemsPerPage
+    (option, index) =>
+      index === 0 || option <= totalItems || option === itemsPerPage
   )
 
   // Don't render anything if there's only one page and items fit in first option
@@ -92,27 +98,31 @@ export function Pagination({
       {/* Items info and per page selector */}
       <div className='flex items-center gap-4 text-sm text-muted-foreground'>
         <span>
-          Showing <span className='font-medium text-foreground'>{startItem}</span> to{' '}
+          Showing{' '}
+          <span className='font-medium text-foreground'>{startItem}</span> to{' '}
           <span className='font-medium text-foreground'>{endItem}</span> of{' '}
-          <span className='font-medium text-foreground'>{totalItems}</span> items
+          <span className='font-medium text-foreground'>{totalItems}</span>{' '}
+          items
         </span>
 
-        {showItemsPerPage && onItemsPerPageChange && filteredOptions.length > 1 && (
-          <div className='flex items-center gap-2'>
-            <span>Show:</span>
-            <select
-              value={itemsPerPage}
-              onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-              className='h-8 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
-            >
-              {filteredOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+        {showItemsPerPage &&
+          onItemsPerPageChange &&
+          filteredOptions.length > 1 && (
+            <div className='flex items-center gap-2'>
+              <span>Show:</span>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
+                className='h-8 px-2 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2'
+              >
+                {filteredOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
       </div>
 
       {/* Page navigation */}
@@ -200,5 +210,3 @@ export function Pagination({
     </motion.div>
   )
 }
-
-

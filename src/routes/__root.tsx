@@ -107,12 +107,7 @@ function NotFoundComponent() {
               </Link>
             </Button>
 
-            <Button
-              asChild
-              variant='outline'
-              size='lg'
-              className='min-w-40'
-            >
+            <Button asChild variant='outline' size='lg' className='min-w-40'>
               <Link to='/challenges'>
                 <Search className='mr-2 h-4 w-4' />
                 Browse Challenges

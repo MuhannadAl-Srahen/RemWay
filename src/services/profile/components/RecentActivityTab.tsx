@@ -229,70 +229,70 @@ export function RecentActivityTab() {
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                   className='p-4 relative overflow-hidden transition-all duration-300 hover:bg-muted/50 cursor-pointer group'
                 >
-                <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
-                  <div className='flex-1 min-w-0'>
-                    <div className='flex items-center gap-3 mb-3'>
-                      <div className='shrink-0'>
-                        <CheckCircle className='profile-check-icon w-5 h-5 transition-transform group-hover:scale-110' />
+                  <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-4'>
+                    <div className='flex-1 min-w-0'>
+                      <div className='flex items-center gap-3 mb-3'>
+                        <div className='shrink-0'>
+                          <CheckCircle className='profile-check-icon w-5 h-5 transition-transform group-hover:scale-110' />
+                        </div>
+                        <h5 className='font-medium text-foreground text-base leading-tight group-hover:text-primary transition-colors'>
+                          {submission.challengeTitle}
+                        </h5>
                       </div>
-                      <h5 className='font-medium text-foreground text-base leading-tight group-hover:text-primary transition-colors'>
-                        {submission.challengeTitle}
-                      </h5>
-                    </div>
-                    <div className='flex flex-wrap items-center gap-2 ml-8'>
-                      <Badge
-                        variant='secondary'
-                        className={`text-xs font-medium ${
-                          submission.difficulty === 'Beginner'
-                            ? 'profile-badge-beginner'
-                            : submission.difficulty === 'Intermediate'
-                              ? 'profile-badge-intermediate'
-                              : 'profile-badge-advanced'
-                        }`}
-                      >
-                        {submission.difficulty}
-                      </Badge>
-                      {submission.tags.slice(0, 3).map((tech) => (
+                      <div className='flex flex-wrap items-center gap-2 ml-8'>
                         <Badge
-                          key={tech}
-                          variant='outline'
-                          className='text-xs hover:bg-primary/10 transition-colors'
+                          variant='secondary'
+                          className={`text-xs font-medium ${
+                            submission.difficulty === 'Beginner'
+                              ? 'profile-badge-beginner'
+                              : submission.difficulty === 'Intermediate'
+                                ? 'profile-badge-intermediate'
+                                : 'profile-badge-advanced'
+                          }`}
                         >
-                          {tech}
+                          {submission.difficulty}
                         </Badge>
-                      ))}
-                      {submission.tags.length > 3 && (
-                        <Badge
-                          variant='outline'
-                          className='text-xs text-muted-foreground'
-                        >
-                          +{submission.tags.length - 3}
-                        </Badge>
-                      )}
+                        {submission.tags.slice(0, 3).map((tech) => (
+                          <Badge
+                            key={tech}
+                            variant='outline'
+                            className='text-xs hover:bg-primary/10 transition-colors'
+                          >
+                            {tech}
+                          </Badge>
+                        ))}
+                        {submission.tags.length > 3 && (
+                          <Badge
+                            variant='outline'
+                            className='text-xs text-muted-foreground'
+                          >
+                            +{submission.tags.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                      <div className='text-xs text-muted-foreground mt-2 ml-8'>
+                        {formatRelativeTime(submission.submittedAt)}
+                      </div>
                     </div>
-                    <div className='text-xs text-muted-foreground mt-2 ml-8'>
-                      {formatRelativeTime(submission.submittedAt)}
+                    <div className='flex sm:flex-col items-center sm:items-end gap-2 ml-8 sm:ml-0'>
+                      <div className='profile-score-text text-xl font-bold group-hover:scale-110 transition-transform'>
+                        {submission.score ?? '—'}%
+                      </div>
+                      {/* Score indicator bar */}
+                      <div className='w-16 sm:w-12 h-2 bg-muted rounded-full overflow-hidden'>
+                        <div
+                          className='h-full bg-linear-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out'
+                          style={{
+                            width: `${submission.score ?? 0}%`,
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
-                  <div className='flex sm:flex-col items-center sm:items-end gap-2 ml-8 sm:ml-0'>
-                    <div className='profile-score-text text-xl font-bold group-hover:scale-110 transition-transform'>
-                      {submission.score ?? '—'}%
-                    </div>
-                    {/* Score indicator bar */}
-                    <div className='w-16 sm:w-12 h-2 bg-muted rounded-full overflow-hidden'>
-                      <div
-                        className='h-full bg-linear-to-r from-primary to-primary/80 rounded-full transition-all duration-500 ease-out'
-                        style={{
-                          width: `${submission.score ?? 0}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </AnimatePresence>
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         )}
 
         {/* Pagination Controls */}

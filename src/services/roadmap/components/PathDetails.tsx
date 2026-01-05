@@ -244,7 +244,7 @@ const PathDetails: React.FC<PathDetailsProps> = ({ pathId }) => {
   const { data: authData } = useAuth()
   const isAuthenticated = authData?.isAuthenticated ?? false
   const userId = authData?.session?.user?.id
-  
+
   const { data: profile } = useProfile(isAuthenticated ? userId : undefined)
   const hasStartedPath = Boolean(profile?.learningPaths?.[pathId]?.started)
 

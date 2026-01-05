@@ -70,7 +70,8 @@ export const getSubmissionFeedback = async (
       .limit(1)
 
     // Get the first (most recent) feedback or null
-    const feedbackData = feedbackResults && feedbackResults.length > 0 ? feedbackResults[0] : null
+    const feedbackData =
+      feedbackResults && feedbackResults.length > 0 ? feedbackResults[0] : null
 
     if (feedbackError) {
       console.error('[getSubmissionFeedback] feedback error:', feedbackError)
@@ -85,7 +86,10 @@ export const getSubmissionFeedback = async (
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const keepId = (feedbackData as any)?.id
       cleanupDuplicateFeedback(submissionId, keepId).catch((err: unknown) =>
-        console.error('[getSubmissionFeedback] Failed to cleanup duplicates:', err)
+        console.error(
+          '[getSubmissionFeedback] Failed to cleanup duplicates:',
+          err
+        )
       )
     }
 
@@ -121,7 +125,7 @@ export const getSubmissionFeedback = async (
     // Determine status based on feedback existence AND staleness
     let status: FeedbackStatus = 'pending'
     let feedbackToReturn = feedbackData // The feedback to return to the client
-    
+
     if (feedbackData && !feedbackIsStale) {
       status = 'completed'
     } else if (feedbackIsStale) {
@@ -129,7 +133,9 @@ export const getSubmissionFeedback = async (
       // IMPORTANT: Don't return stale feedback to the client
       status = 'pending'
       feedbackToReturn = null // Clear stale feedback so UI shows loading state
-      console.log('[getSubmissionFeedback] 🔄 Returning null feedback (stale) to trigger regeneration')
+      console.log(
+        '[getSubmissionFeedback] 🔄 Returning null feedback (stale) to trigger regeneration'
+      )
     } else if (submission.status === 'pending') {
       // Check if submission is recent (within 5 minutes)
       const submittedAt = new Date(submission.submitted_at)
@@ -164,14 +170,16 @@ export const getSubmissionFeedback = async (
             submission_id: feedbackToFormat.submission_id,
             overall_score: feedbackToFormat.overall_score,
             overall_rating: feedbackToFormat.overall_rating,
-            overall_good_practices: feedbackToFormat.overall_good_practices || [],
+            overall_good_practices:
+              feedbackToFormat.overall_good_practices || [],
             improvment_advices: feedbackToFormat.improvment_advices || [],
             best_practices: feedbackToFormat.best_practices || [],
             code_formatting: feedbackToFormat.code_formatting || [],
             functionality: feedbackToFormat.functionality || [],
             accessibility: feedbackToFormat.accessibility || [],
             recommended_resources: feedbackToFormat.recommended_resources,
-            recommended_next_challenge: feedbackToFormat.recommended_next_challenge,
+            recommended_next_challenge:
+              feedbackToFormat.recommended_next_challenge,
             comparison_notes: feedbackToFormat.comparison_notes,
             submission_mismatch: feedbackToFormat.submission_mismatch || null,
             previous_feedback_summary:
@@ -312,7 +320,7 @@ export const generateAndStoreFeedback = async (
       const submissionData = submission as any
       const submittedAt = new Date(submissionData.submitted_at)
       const feedbackCreatedAt = new Date(existingFeedback.created_at)
-      
+
       // Only skip regeneration if feedback is NEWER than submission
       // This means the code hasn't changed since feedback was generated
       if (feedbackCreatedAt >= submittedAt) {
@@ -523,7 +531,10 @@ export const generateAndStoreFeedback = async (
         }
         console.log(
           '[generateAndStoreFeedback] 📋 Found previous submission feedback for comparison:',
-          { previousSubmissionId: previousSubmission.id, previousScore: prevFeedback.overall_score }
+          {
+            previousSubmissionId: previousSubmission.id,
+            previousScore: prevFeedback.overall_score,
+          }
         )
       }
     }
@@ -682,7 +693,9 @@ const cleanupDuplicateFeedback = async (
     if (error) {
       console.error('[cleanupDuplicateFeedback] error:', error)
     } else {
-      console.log('[cleanupDuplicateFeedback] ✅ Cleaned up duplicate feedback records')
+      console.log(
+        '[cleanupDuplicateFeedback] ✅ Cleaned up duplicate feedback records'
+      )
     }
   } catch (err) {
     console.error('[cleanupDuplicateFeedback] unexpected error:', err)

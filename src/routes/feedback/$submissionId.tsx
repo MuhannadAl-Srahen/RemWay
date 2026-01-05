@@ -105,8 +105,17 @@ function RouteComponent() {
 
     // Fallback: find a challenge of same or next difficulty level
     if (!recommended) {
-      const difficultyOrder = ['beginner', 'easy', 'intermediate', 'medium', 'advanced', 'hard']
-      const currentIdx = difficultyOrder.findIndex((d) => d === currentDifficulty)
+      const difficultyOrder = [
+        'beginner',
+        'easy',
+        'intermediate',
+        'medium',
+        'advanced',
+        'hard',
+      ]
+      const currentIdx = difficultyOrder.findIndex(
+        (d) => d === currentDifficulty
+      )
 
       // Prefer same difficulty, then next level up
       recommended = otherChallenges.find(
@@ -134,7 +143,9 @@ function RouteComponent() {
         title: recommended.title,
         difficulty: mapDifficulty(recommended.difficulty || 'easy'),
         technologies: recommended.tags || [],
-        description: recommended.description || 'Practice your frontend skills with this challenge',
+        description:
+          recommended.description ||
+          'Practice your frontend skills with this challenge',
       },
     ]
   }, [allChallenges, data?.feedback, data?.challenge])
@@ -516,7 +527,9 @@ function RouteComponent() {
                     details: item.details,
                   })
                 )}
-                previousScore={feedback.improvements_from_previous.previous_score}
+                previousScore={
+                  feedback.improvements_from_previous.previous_score
+                }
                 currentScore={feedback.overall_score}
                 overallAssessment={
                   feedback.improvements_from_previous.overall_assessment

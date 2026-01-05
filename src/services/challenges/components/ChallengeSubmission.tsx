@@ -20,7 +20,11 @@ import type { Challenge } from '@/types'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/services/challenges/hooks/useAuth'
 import useDelayedLoading from '@/lib/useDelayedLoading'
-import { isValidGitHubUrl, isValidLiveSiteUrl, checkRepoVisibility } from '@/services/ai/validation'
+import {
+  isValidGitHubUrl,
+  isValidLiveSiteUrl,
+  checkRepoVisibility,
+} from '@/services/ai/validation'
 
 interface ChallengeSubmissionProps {
   challenge: Challenge
@@ -85,7 +89,10 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
           return
         }
       } catch (err) {
-        console.error('[ChallengeSubmission] Error checking repo visibility:', err)
+        console.error(
+          '[ChallengeSubmission] Error checking repo visibility:',
+          err
+        )
         setError('Failed to verify repository visibility. Please try again.')
         setIsCheckingRepo(false)
         return
@@ -104,29 +111,29 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
 
         // AGGRESSIVELY CLEAR ALL FEEDBACK CACHES
         // This ensures absolutely no stale data is shown when navigating to feedback page
-        
+
         // 1. Remove specific submission feedback cache
         queryClient.removeQueries({
           queryKey: ['submissionFeedback', result.submissionId],
         })
-        
+
         // 2. Remove ALL submissionFeedback queries to be safe
         queryClient.removeQueries({
-          predicate: (query) => 
-            Array.isArray(query.queryKey) && 
+          predicate: (query) =>
+            Array.isArray(query.queryKey) &&
             query.queryKey[0] === 'submissionFeedback',
         })
-        
+
         // 3. Clear feedback-related cache
         queryClient.removeQueries({
           predicate: (query) =>
             Array.isArray(query.queryKey) &&
-            (query.queryKey[0] === 'feedback' || 
-             String(query.queryKey[0]).includes('feedback')),
+            (query.queryKey[0] === 'feedback' ||
+              String(query.queryKey[0]).includes('feedback')),
         })
 
         // Small delay to ensure cache is fully cleared before navigation
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await new Promise((resolve) => setTimeout(resolve, 100))
 
         setTimeout(() => {
           navigate({
@@ -539,7 +546,12 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                   <Button
                     type='submit'
                     className='w-full bg-linear-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground text-base py-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200'
-                    disabled={!canSubmit || isSubmitting || isSubmittingForm || isCheckingRepo}
+                    disabled={
+                      !canSubmit ||
+                      isSubmitting ||
+                      isSubmittingForm ||
+                      isCheckingRepo
+                    }
                   >
                     {isCheckingRepo ? (
                       <>
@@ -595,9 +607,10 @@ export function ChallengeSubmission({ challenge }: ChallengeSubmissionProps) {
                 <div className='flex items-start gap-2 bg-amber-500/10 border border-amber-500/20 rounded-lg p-3 mt-2'>
                   <AlertCircle className='h-4 w-4 text-amber-500 shrink-0 mt-0.5' />
                   <p className='text-xs text-amber-700 dark:text-amber-400'>
-                    <span className='font-semibold'>Important:</span> Your repository must be{' '}
-                    <span className='font-semibold'>public</span>. Private repositories cannot be
-                    analyzed by our AI.
+                    <span className='font-semibold'>Important:</span> Your
+                    repository must be{' '}
+                    <span className='font-semibold'>public</span>. Private
+                    repositories cannot be analyzed by our AI.
                   </p>
                 </div>
               </div>

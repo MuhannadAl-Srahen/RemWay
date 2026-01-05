@@ -1,7 +1,11 @@
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import type { ChallengeSubmissionWithChallenge } from '@/types/feedback'
 import { fetchRepositoryCode, formatCodeForAI } from './githubFetcher'
-import { isValidLiveSiteUrl, isSuspiciousUrl, checkLiveSiteAccessibility } from './validation'
+import {
+  isValidLiveSiteUrl,
+  isSuspiciousUrl,
+  checkLiveSiteAccessibility,
+} from './validation'
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
 
@@ -203,27 +207,38 @@ export const generateAIFeedback = async (
 
         if (repoCode && repoCode.files.length > 0) {
           codeAnalysis = formatCodeForAI(repoCode)
-          
+
           // Check if we got actual source code (not just config files)
-          const sourceExtensions = ['.html', '.css', '.scss', '.js', '.jsx', '.ts', '.tsx']
-          const sourceFiles = repoCode.files.filter(f => 
-            sourceExtensions.some(ext => f.path.toLowerCase().endsWith(ext))
+          const sourceExtensions = [
+            '.html',
+            '.css',
+            '.scss',
+            '.js',
+            '.jsx',
+            '.ts',
+            '.tsx',
+          ]
+          const sourceFiles = repoCode.files.filter((f) =>
+            sourceExtensions.some((ext) => f.path.toLowerCase().endsWith(ext))
           )
-          
+
           codeFetchStatus = {
             success: true,
             filesCount: repoCode.files.length,
             totalSize: repoCode.totalSize,
             hasSourceCode: sourceFiles.length > 0,
           }
-          
+
           console.log(
             `[generateAIFeedback] Fetched ${repoCode.files.length} files (${sourceFiles.length} source files, ${(repoCode.totalSize / 1024).toFixed(1)}KB)`
           )
-          
+
           if (sourceFiles.length === 0) {
-            console.warn('[generateAIFeedback] ⚠️ No source code files found - only config files')
-            codeFetchStatus.error = 'Repository contains no source code files (only config files found)'
+            console.warn(
+              '[generateAIFeedback] ⚠️ No source code files found - only config files'
+            )
+            codeFetchStatus.error =
+              'Repository contains no source code files (only config files found)'
           }
         } else {
           codeFetchStatus = {
@@ -231,7 +246,8 @@ export const generateAIFeedback = async (
             filesCount: 0,
             totalSize: 0,
             hasSourceCode: false,
-            error: 'Could not fetch repository code - repository may be private, empty, or URL is incorrect',
+            error:
+              'Could not fetch repository code - repository may be private, empty, or URL is incorrect',
           }
           console.warn(
             '[generateAIFeedback] ⚠️ Could not fetch GitHub code:',
@@ -257,35 +273,55 @@ export const generateAIFeedback = async (
 
       if (request.submission.live_site_url) {
         liveUrlStatus.provided = true
-        
+
         // Check if URL format is valid
         if (!isValidLiveSiteUrl(request.submission.live_site_url)) {
           liveUrlStatus.valid = false
           liveUrlStatus.error = 'Invalid live site URL format'
-          console.warn('[generateAIFeedback] ⚠️ Invalid live URL format:', request.submission.live_site_url)
+          console.warn(
+            '[generateAIFeedback] ⚠️ Invalid live URL format:',
+            request.submission.live_site_url
+          )
         } else if (isSuspiciousUrl(request.submission.live_site_url)) {
           liveUrlStatus.valid = true
           liveUrlStatus.accessible = false
-          liveUrlStatus.error = 'Live site URL appears to be a placeholder or test URL'
-          console.warn('[generateAIFeedback] ⚠️ Suspicious live URL:', request.submission.live_site_url)
+          liveUrlStatus.error =
+            'Live site URL appears to be a placeholder or test URL'
+          console.warn(
+            '[generateAIFeedback] ⚠️ Suspicious live URL:',
+            request.submission.live_site_url
+          )
         } else {
           liveUrlStatus.valid = true
-          
+
           // Try to check accessibility (best effort due to CORS)
-          console.log('[generateAIFeedback] Checking live site accessibility...')
-          const accessCheck = await checkLiveSiteAccessibility(request.submission.live_site_url)
+          console.log(
+            '[generateAIFeedback] Checking live site accessibility...'
+          )
+          const accessCheck = await checkLiveSiteAccessibility(
+            request.submission.live_site_url
+          )
           liveUrlStatus.accessible = accessCheck.accessible
-          
+
           if (!accessCheck.accessible) {
-            liveUrlStatus.error = accessCheck.error || 'Live site could not be reached'
-            console.warn('[generateAIFeedback] ⚠️ Live site not accessible:', accessCheck.error)
+            liveUrlStatus.error =
+              accessCheck.error || 'Live site could not be reached'
+            console.warn(
+              '[generateAIFeedback] ⚠️ Live site not accessible:',
+              accessCheck.error
+            )
           } else {
             console.log('[generateAIFeedback] ✅ Live site appears accessible')
           }
         }
       }
 
-      const prompt = buildPrompt(request, codeAnalysis, codeFetchStatus, liveUrlStatus)
+      const prompt = buildPrompt(
+        request,
+        codeAnalysis,
+        codeFetchStatus,
+        liveUrlStatus
+      )
 
       const result = await model.generateContent({
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -407,9 +443,13 @@ export const generateAIFeedback = async (
           feedback.overallScore = 30
           feedback.codeNotAvailable = true
           feedback.overallRating = 'needs_improvement'
-          
+
           // Ensure the feedback includes the issue
-          if (!feedback.areasForImprovement.some(a => a.toLowerCase().includes('source code'))) {
+          if (
+            !feedback.areasForImprovement.some((a) =>
+              a.toLowerCase().includes('source code')
+            )
+          ) {
             feedback.areasForImprovement.unshift(
               'Source code could not be fetched from GitHub. Please ensure your repository is public and contains valid source code files.'
             )
@@ -424,9 +464,13 @@ export const generateAIFeedback = async (
           feedback.overallScore = 40
           feedback.codeNotAvailable = true
           feedback.overallRating = 'needs_improvement'
-          
+
           // Ensure the feedback includes the issue
-          if (!feedback.areasForImprovement.some(a => a.toLowerCase().includes('source code'))) {
+          if (
+            !feedback.areasForImprovement.some((a) =>
+              a.toLowerCase().includes('source code')
+            )
+          ) {
             feedback.areasForImprovement.unshift(
               'Repository contains no source code files (.html, .css, .js, .jsx, .ts, .tsx). Please submit a repository with actual code.'
             )
@@ -436,14 +480,19 @@ export const generateAIFeedback = async (
 
       // Handle live URL issues - apply design score penalty
       // Note: We don't cap the overall score, but ensure the AI accounts for it
-      if (liveUrlStatus.provided && (!liveUrlStatus.valid || !liveUrlStatus.accessible)) {
+      if (
+        liveUrlStatus.provided &&
+        (!liveUrlStatus.valid || !liveUrlStatus.accessible)
+      ) {
         feedback.liveUrlNotAccessible = true
-        
+
         // Ensure the feedback mentions the live URL issue if not already
         const hasLiveUrlFeedback = feedback.areasForImprovement.some(
-          a => a.toLowerCase().includes('live site') || a.toLowerCase().includes('live url')
+          (a) =>
+            a.toLowerCase().includes('live site') ||
+            a.toLowerCase().includes('live url')
         )
-        
+
         if (!hasLiveUrlFeedback) {
           if (!liveUrlStatus.valid) {
             feedback.areasForImprovement.push(
@@ -455,8 +504,11 @@ export const generateAIFeedback = async (
             )
           }
         }
-        
-        console.log('[generateAIFeedback] ℹ️ Live URL issue flagged:', liveUrlStatus.error)
+
+        console.log(
+          '[generateAIFeedback] ℹ️ Live URL issue flagged:',
+          liveUrlStatus.error
+        )
       }
 
       return feedback
