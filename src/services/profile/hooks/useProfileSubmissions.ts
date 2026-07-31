@@ -90,12 +90,14 @@ export const useProfileSubmissions = (limit: number = 20) => {
         // Get the feedback score - handle both array and single object cases
         const feedbackData = sub.challenge_feedback
         let score: number | null = null
-        
+
         if (Array.isArray(feedbackData) && feedbackData.length > 0) {
           score = feedbackData[0]?.overall_score ?? null
         } else if (feedbackData && typeof feedbackData === 'object') {
           // Handle case where Supabase returns single object instead of array
-          score = (feedbackData as unknown as { overall_score: number })?.overall_score ?? null
+          score =
+            (feedbackData as unknown as { overall_score: number })
+              ?.overall_score ?? null
         }
 
         return {
@@ -106,9 +108,7 @@ export const useProfileSubmissions = (limit: number = 20) => {
           liveUrl: sub.live_site_url,
           submittedAt: sub.submitted_at || new Date().toISOString(),
           difficulty: (sub.challenges?.difficulty || 'Beginner') as
-            | 'Beginner'
-            | 'Intermediate'
-            | 'Advanced',
+            'Beginner' | 'Intermediate' | 'Advanced',
           tags: sub.challenges?.tags || [],
           score,
           thumbnailUrl: sub.challenges?.thumbnail_url || null,
@@ -163,7 +163,10 @@ export const useAllProfileSubmissions = () => {
       }
 
       if (!data || data.length === 0) {
-        console.log('[useAllProfileSubmissions] No submissions found for user:', userId)
+        console.log(
+          '[useAllProfileSubmissions] No submissions found for user:',
+          userId
+        )
         return []
       }
 
@@ -174,12 +177,14 @@ export const useAllProfileSubmissions = () => {
         // Get the feedback score - handle both array and single object cases
         const feedbackData = sub.challenge_feedback
         let score: number | null = null
-        
+
         if (Array.isArray(feedbackData) && feedbackData.length > 0) {
           score = feedbackData[0]?.overall_score ?? null
         } else if (feedbackData && typeof feedbackData === 'object') {
           // Handle case where Supabase returns single object instead of array
-          score = (feedbackData as unknown as { overall_score: number })?.overall_score ?? null
+          score =
+            (feedbackData as unknown as { overall_score: number })
+              ?.overall_score ?? null
         }
 
         return {
@@ -190,9 +195,7 @@ export const useAllProfileSubmissions = () => {
           liveUrl: sub.live_site_url,
           submittedAt: sub.submitted_at || new Date().toISOString(),
           difficulty: (sub.challenges?.difficulty || 'Beginner') as
-            | 'Beginner'
-            | 'Intermediate'
-            | 'Advanced',
+            'Beginner' | 'Intermediate' | 'Advanced',
           tags: sub.challenges?.tags || [],
           score,
           thumbnailUrl: sub.challenges?.thumbnail_url || null,

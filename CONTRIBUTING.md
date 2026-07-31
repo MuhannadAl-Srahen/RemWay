@@ -70,9 +70,21 @@ We are committed to providing a welcoming and inclusive environment for all cont
    ```
 
 5. **Verify Setup**
-   - Open http://localhost:5173
+   - Open http://localhost:5000 (the port set in `vite.config.ts`)
    - Ensure the application loads without errors
    - Check that hot reload works
+
+6. **Configure `git blame` (recommended)**
+
+   The repo contains a bulk formatting commit that would otherwise dominate
+   `git blame` output. Tell Git to skip it:
+
+   ```bash
+   git config blame.ignoreRevsFile .git-blame-ignore-revs
+   ```
+
+   Only mechanical commits (formatting, mass renames) belong in that file —
+   never anything that changes behaviour.
 
 ## Development Workflow
 

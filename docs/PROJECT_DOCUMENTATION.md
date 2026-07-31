@@ -678,6 +678,8 @@ Create a `.env.local` file with:
 # Supabase Configuration (Required)
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+# ...or, on newer Supabase projects:
+# VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 
 # Gemini AI (Required for feedback)
 VITE_GEMINI_API_KEY=your-gemini-api-key
@@ -685,6 +687,12 @@ VITE_GEMINI_API_KEY=your-gemini-api-key
 # GitHub Token (Optional - increases rate limits)
 VITE_GITHUB_TOKEN=your-github-pat
 ```
+
+> ⚠️ **`VITE_GEMINI_API_KEY` and `VITE_GITHUB_TOKEN` are public on the deployed
+> site.** Vite inlines every `VITE_`-prefixed variable into the client bundle at
+> build time, and both are read from browser code today. Use restricted,
+> disposable keys. See "Known Issues" in the README for the plan to move these
+> behind serverless functions.
 
 ### Development
 
@@ -725,8 +733,8 @@ bun run lint
 ├──────────────────────────────┼────────────────────────────────────┤
 │                         STATE LAYER                               │
 │  ┌─────────────────┐  ┌──────────────────┐  ┌─────────────────┐  │
-│  │  TanStack Query │  │      Zustand     │  │  React State    │  │
-│  │  (Server State) │  │  (Client State)  │  │  (Local State)  │  │
+│  │  TanStack Query │  │  React Context   │  │  React State    │  │
+│  │  (Server State) │  │  (Theme, Auth)   │  │  (Local State)  │  │
 │  └────────┬────────┘  └────────┬─────────┘  └────────┬────────┘  │
 │           │                    │                      │           │
 ├───────────┴────────────────────┴──────────────────────┴───────────┤
@@ -756,36 +764,35 @@ User Action → Component → Hook → Service API → External API/Supabase
 
 | Technology     | Version | Purpose                                   |
 | -------------- | ------- | ----------------------------------------- |
-| **React**      | 19.2.0  | UI framework with automatic JSX transform |
+| **React**      | 19.2.8  | UI framework with automatic JSX transform |
 | **TypeScript** | 5.9.3   | Type safety with strict mode              |
-| **Vite**       | 7.2.4   | Build tool with HMR                       |
+| **Vite**       | 7.3.6   | Build tool with HMR                       |
 
 ### Routing & State
 
-| Technology          | Version | Purpose                                |
-| ------------------- | ------- | -------------------------------------- |
-| **TanStack Router** | 1.139.3 | File-based routing with code-splitting |
-| **TanStack Query**  | 5.90.10 | Server state management                |
-| **TanStack Form**   | 1.25.0  | Form handling with validation          |
-| **Zustand**         | 5.0.8   | Client state management                |
+| Technology          | Version  | Purpose                                |
+| ------------------- | -------- | -------------------------------------- |
+| **TanStack Router** | 1.170.18 | File-based routing with code-splitting |
+| **TanStack Query**  | 5.101.4  | Server state management                |
+| **TanStack Form**   | 1.33.2   | Form handling with validation          |
 
 ### UI & Styling
 
-| Technology       | Version  | Purpose                                 |
-| ---------------- | -------- | --------------------------------------- |
-| **Tailwind CSS** | 4.1.17   | Utility-first styling (via Vite plugin) |
-| **ShadCN UI**    | 0.9.5    | Radix-based component library           |
-| **Radix UI**     | Various  | Accessible primitives                   |
-| **Lucide React** | 0.539.0  | Icon library                            |
-| **Motion**       | 12.23.24 | Animation library                       |
+| Technology       | Version | Purpose                                 |
+| ---------------- | ------- | --------------------------------------- |
+| **Tailwind CSS** | 4.3.3   | Utility-first styling (via Vite plugin) |
+| **ShadCN UI**    | 0.9.5   | Radix-based component library           |
+| **Radix UI**     | Various | Accessible primitives                   |
+| **Lucide React** | 0.539.0 | Icon library                            |
+| **Motion**       | 12.43.0 | Animation library                       |
 
 ### Backend & APIs
 
-| Technology     | Version | Purpose                 |
-| -------------- | ------- | ----------------------- |
-| **Supabase**   | 2.84.0  | Database, Auth, Storage |
-| **Gemini AI**  | 0.24.1  | AI feedback generation  |
-| **GitHub API** | REST v3 | Code fetching           |
+| Technology     | Version | Purpose                                |
+| -------------- | ------- | -------------------------------------- |
+| **Supabase**   | 2.111.0 | Database, Auth, Storage                |
+| **Gemini AI**  | 2.15.0  | AI feedback generation (@google/genai) |
+| **GitHub API** | REST v3 | Code fetching                          |
 
 ---
 
@@ -888,9 +895,10 @@ PexFect uses **Supabase Auth** with GitHub OAuth.
 
 For all data from APIs with caching and refetching.
 
-### Client State (Zustand)
+### Client State (React Context)
 
-For UI state like filters and preferences.
+For cross-cutting UI state such as theme and auth session. There is no
+dedicated store library in this project.
 
 ### Local State (useState)
 

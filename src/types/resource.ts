@@ -11,10 +11,7 @@ export type ResourceCategory =
   | 'Newsletter'
 
 export type ResourceDifficulty =
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
-  | 'all'
+  'beginner' | 'intermediate' | 'advanced' | 'all'
 
 export interface Resource {
   id: string

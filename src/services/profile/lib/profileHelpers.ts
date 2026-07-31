@@ -69,10 +69,23 @@ export async function ensureProfileExists() {
     // Extract only the date part (YYYY-MM-DD) from created_at timestamp
     const joinedDate = user.created_at ? user.created_at.split('T')[0] : null
 
+    // The columns this upsert writes. `profiles` is absent from the generated
+    // Database type in src/types/supabase.ts, so supabase-js resolves the
+    // payload to `never`; `satisfies` keeps the literal genuinely checked while
+    // `as never` works around the missing schema until the types are
+    // regenerated.
+    type ProfileUpsert = {
+      id: string
+      full_name: string | null
+      email: string | null
+      joined_date: string | null
+      profile_image_url: string | null
+      github_url: string | null
+    }
+
     // Use upsert to handle race conditions (if trigger creates it simultaneously)
     const { data: newProfile, error: insertError } = await supabase
       .from('profiles')
-      // @ts-expect-error - Supabase client type inference issue with unknown database schema
       .upsert(
         {
           id: user.id,
@@ -82,7 +95,7 @@ export async function ensureProfileExists() {
           joined_date: joinedDate,
           profile_image_url: user.user_metadata?.avatar_url || null,
           github_url: githubUrl,
-        },
+        } satisfies ProfileUpsert as never,
         {
           onConflict: 'id',
           ignoreDuplicates: false, // Update if exists

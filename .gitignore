@@ -35,7 +35,6 @@ dist-ssr
 .vercel/
 coverage/
 *.tsbuildinfo
-.github/*
 
 # OS files
 Thumbs.db

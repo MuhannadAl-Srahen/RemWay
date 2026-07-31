@@ -1,11 +1,14 @@
 /**
  * AI Scoring Consistency Test
- * 
+ *
  * This script tests that the AI gives consistent scores for the same submission.
  * Run with: bun run scripts/test-ai-consistency.ts
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
+
+// Keep in sync with src/services/ai/api.ts
+const MODEL_ID = 'gemini-2.5-pro'
 
 // Test configuration
 const TEST_CONFIG = {
@@ -21,7 +24,8 @@ const TEST_CONFIG = {
 const SAMPLE_SUBMISSION = {
   challengeTitle: 'E-commerce Product Card',
   challengeDifficulty: 'Beginner',
-  challengeDescription: 'Create a responsive product card with image, title, price, and add to cart button.',
+  challengeDescription:
+    'Create a responsive product card with image, title, price, and add to cart button.',
   githubUrl: 'https://github.com/test/sample-project',
   liveUrl: 'https://sample-project.vercel.app',
   // Simulated code content
@@ -105,12 +109,10 @@ Return JSON with:
   "keyImprovements": ["improvement1", "improvement2"]
 }`
 
-async function runAnalysis(genAI: GoogleGenerativeAI, iteration: number): Promise<{ score: number; rating: string }> {
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-pro',
-    systemInstruction: SYSTEM_PROMPT,
-  })
-
+async function runAnalysis(
+  ai: GoogleGenAI,
+  iteration: number
+): Promise<{ score: number; rating: string }> {
   const prompt = `Analyze this frontend challenge submission:
 
 **Challenge:** ${SAMPLE_SUBMISSION.challengeTitle} (${SAMPLE_SUBMISSION.challengeDifficulty})
@@ -124,9 +126,11 @@ Provide your analysis as JSON.`
   // Retry up to 3 times on transient errors
   for (let retry = 0; retry < 3; retry++) {
     try {
-      const result = await model.generateContent({
+      const result = await ai.models.generateContent({
+        model: MODEL_ID,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
           // DETERMINISTIC SETTINGS - same as production
           temperature: 0,
           topK: 1,
@@ -136,15 +140,20 @@ Provide your analysis as JSON.`
         },
       })
 
-      const text = result.response.text()
-      
+      const text = result.text
+      if (!text) {
+        throw new Error('AI returned an empty response')
+      }
+
       // Try to parse JSON, handle truncated responses
       let feedback: { overallScore: number; overallRating: string }
       try {
         feedback = JSON.parse(text)
       } catch (parseError) {
-        console.log(`  ⚠️ JSON parse error on retry ${retry + 1}, response length: ${text.length}`)
-        
+        console.log(
+          `  ⚠️ JSON parse error on retry ${retry + 1}, response length: ${text.length}`
+        )
+
         // Try to repair truncated JSON
         if (text.includes('{') && !text.trim().endsWith('}')) {
           const repaired = text.trim().replace(/,\s*$/, '') + '}'
@@ -154,7 +163,7 @@ Provide your analysis as JSON.`
           } catch {
             if (retry < 2) {
               console.log(`  ⏳ Retrying due to parse error...`)
-              await new Promise(resolve => setTimeout(resolve, 3000))
+              await new Promise((resolve) => setTimeout(resolve, 3000))
               continue
             }
             throw parseError
@@ -173,19 +182,26 @@ Provide your analysis as JSON.`
         rating: feedback.overallRating,
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      
+      const errorMessage =
+        error instanceof Error ? error.message : String(error)
+
       // Check if it's a retryable error (503, rate limit, etc.)
-      if (errorMessage.includes('503') || errorMessage.includes('overloaded') || errorMessage.includes('rate')) {
-        console.log(`  ⏳ Retry ${retry + 1}/3 - API temporarily unavailable, waiting 10s...`)
-        await new Promise(resolve => setTimeout(resolve, 10000))
+      if (
+        errorMessage.includes('503') ||
+        errorMessage.includes('overloaded') ||
+        errorMessage.includes('rate')
+      ) {
+        console.log(
+          `  ⏳ Retry ${retry + 1}/3 - API temporarily unavailable, waiting 10s...`
+        )
+        await new Promise((resolve) => setTimeout(resolve, 10000))
         continue
       }
-      
+
       throw error
     }
   }
-  
+
   throw new Error('Failed after 3 retries')
 }
 
@@ -200,21 +216,23 @@ async function runConsistencyTest() {
     process.exit(1)
   }
 
-  const genAI = new GoogleGenerativeAI(TEST_CONFIG.apiKey)
+  const ai = new GoogleGenAI({ apiKey: TEST_CONFIG.apiKey })
 
-  console.log(`\nRunning ${TEST_CONFIG.iterations} iterations with identical input...`)
+  console.log(
+    `\nRunning ${TEST_CONFIG.iterations} iterations with identical input...`
+  )
   console.log(`Max acceptable variance: ${TEST_CONFIG.maxVariance} points`)
 
   const results: { score: number; rating: string }[] = []
 
   for (let i = 1; i <= TEST_CONFIG.iterations; i++) {
     try {
-      const result = await runAnalysis(genAI, i)
+      const result = await runAnalysis(ai, i)
       results.push(result)
 
       // Small delay between requests to avoid rate limiting
       if (i < TEST_CONFIG.iterations) {
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 2000))
       }
     } catch (error) {
       console.error(`\n❌ Iteration ${i} failed:`, error)
@@ -227,8 +245,8 @@ async function runConsistencyTest() {
   console.log('RESULTS ANALYSIS')
   console.log('='.repeat(60))
 
-  const scores = results.map(r => r.score)
-  const ratings = results.map(r => r.rating)
+  const scores = results.map((r) => r.score)
+  const ratings = results.map((r) => r.rating)
 
   const minScore = Math.min(...scores)
   const maxScore = Math.max(...scores)
@@ -243,7 +261,7 @@ async function runConsistencyTest() {
   console.log(`Variance: ${variance}`)
 
   // Check if all ratings are the same
-  const allRatingsSame = ratings.every(r => r === ratings[0])
+  const allRatingsSame = ratings.every((r) => r === ratings[0])
 
   console.log('\n' + '='.repeat(60))
   console.log('TEST RESULTS')
@@ -251,13 +269,17 @@ async function runConsistencyTest() {
 
   if (variance <= TEST_CONFIG.maxVariance && allRatingsSame) {
     console.log('\n✅ PASS: AI scoring is consistent!')
-    console.log(`   Score variance (${variance}) is within acceptable range (${TEST_CONFIG.maxVariance})`)
+    console.log(
+      `   Score variance (${variance}) is within acceptable range (${TEST_CONFIG.maxVariance})`
+    )
     console.log(`   All ratings are identical: ${ratings[0]}`)
     process.exit(0)
   } else {
     console.log('\n❌ FAIL: AI scoring is inconsistent!')
     if (variance > TEST_CONFIG.maxVariance) {
-      console.log(`   Score variance (${variance}) exceeds acceptable range (${TEST_CONFIG.maxVariance})`)
+      console.log(
+        `   Score variance (${variance}) exceeds acceptable range (${TEST_CONFIG.maxVariance})`
+      )
     }
     if (!allRatingsSame) {
       console.log(`   Ratings are not consistent: ${ratings.join(', ')}`)

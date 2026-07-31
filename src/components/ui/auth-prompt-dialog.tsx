@@ -24,7 +24,7 @@ export function AuthPromptDialog({
   variant = 'save',
 }: AuthPromptDialogProps) {
   const isRoadmap = variant === 'roadmap'
-  
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent className='max-w-md'>
@@ -38,14 +38,15 @@ export function AuthPromptDialog({
               )}
             </div>
             <AlertDialogTitle className='text-2xl'>
-              {isRoadmap ? 'Sign in to start your path' : 'Sign in to save challenges'}
+              {isRoadmap
+                ? 'Sign in to start your path'
+                : 'Sign in to save challenges'}
             </AlertDialogTitle>
           </div>
           <AlertDialogDescription className='text-base text-muted-foreground'>
-            {isRoadmap 
+            {isRoadmap
               ? 'Create an account or sign in to start a learning path and track your progress. Your journey will be saved so you can pick up where you left off!'
-              : 'Create an account or sign in to save your favorite challenges and track your progress. It\'s quick and free!'
-            }
+              : "Create an account or sign in to save your favorite challenges and track your progress. It's quick and free!"}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className='gap-2 sm:gap-0'>

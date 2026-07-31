@@ -95,8 +95,38 @@ export type Database = {
           submission_id: string
           view_code: string
         }
+        Update: {
+          accessibility?: string[]
+          ai_model_version?: string | null
+          best_practices?: string[] | null
+          code_formatting?: string[]
+          comparison_notes?: Json | null
+          created_at?: string | null
+          feedback_generation_time?: number | null
+          functionality?: string[]
+          id?: string
+          improvment_advices?: string[] | null
+          live_preview?: string
+          overall_analysis_description?: Json
+          overall_good_practices?: string[]
+          overall_rating?: string
+          overall_score?: number
+          recommended_next_challenge?: string | null
+          recommended_resources?: Json | null
+          submission_id?: string
+          view_code?: string
+        }
       }
     }
+    // supabase-js constrains a schema to `GenericSchema`, which requires all
+    // five keys. Without them the whole schema fails the constraint and every
+    // `.from()` call silently degrades to `never` — including the two tables
+    // declared above. These are empty because the real views/functions/enums
+    // have never been generated, not because the database has none.
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
   }
 }
 

@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabaseClient'
 import type {
   FeedbackResponse,
   FeedbackStatus,
+  FeedbackAnalysisEntry,
   ChallengeSubmissionWithChallenge,
 } from '@/types/feedback'
 import type { ChallengeSubmission } from '@/types/challenge'
@@ -22,6 +23,67 @@ export interface SubmissionWithFeedback {
     thumbnail_url: string | null
   }
 }
+
+/**
+ * Row shapes this module reads back from Supabase.
+ *
+ * These exist because the generated Database type in src/types/supabase.ts is
+ * out of sync with the live schema: it declares 2 of the 8 tables the app
+ * queries, and the columns it does declare for `challenge_submissions` omit
+ * several this module reads (user_id, submission_url, score, status). Rather
+ * than cast to `any` at every access, describe what the queries actually
+ * return. Regenerating the Supabase types should replace all of this.
+ *
+ * ChallengeRelation is the embedded `challenges` relation, and matches the
+ * `challenge` shape on ChallengeSubmissionWithChallenge that it is assigned to.
+ */
+type ChallengeRelation = ChallengeSubmissionWithChallenge['challenge']
+
+interface SubmissionRow {
+  id: string
+  user_id: string
+  challenge_id: string
+  submission_url: string
+  github_url?: string
+  live_site_url?: string
+  description?: string
+  screenshots?: string[]
+  submitted_at: string
+  score?: number
+  status: ChallengeSubmission['status']
+  /**
+   * PostgREST embeds a relation as a bare object or a single-element array
+   * depending on how it infers the foreign key, so both are possible here.
+   * Normalise with `firstRelation` before reading fields off it.
+   */
+  challenges?: ChallengeRelation | ChallengeRelation[] | null
+}
+
+type FeedbackRow = FeedbackResponse
+
+/**
+ * Unwrap a PostgREST embedded relation that may arrive as an object or as a
+ * single-element array.
+ */
+const firstRelation = <T>(value: T | T[] | null | undefined): T | null => {
+  if (Array.isArray(value)) return value[0] ?? null
+  return value ?? null
+}
+
+/**
+ * Flatten a stored tech-analysis column to plain strings for the AI prompt,
+ * which joins them into text. Current rows already hold formatted strings;
+ * legacy rows hold TechAnalysisItem objects, which would otherwise reach the
+ * prompt as "[object Object]".
+ */
+const toAnalysisStrings = (
+  entries: FeedbackAnalysisEntry[] | null | undefined
+): string[] =>
+  (entries || []).map((entry) =>
+    typeof entry === 'string'
+      ? entry
+      : `${entry.category}: ${entry.description} (${entry.status})`
+  )
 
 /**
  * Fetch submission details with feedback and challenge info
@@ -70,7 +132,8 @@ export const getSubmissionFeedback = async (
       .limit(1)
 
     // Get the first (most recent) feedback or null
-    const feedbackData = feedbackResults && feedbackResults.length > 0 ? feedbackResults[0] : null
+    const feedbackData =
+      feedbackResults && feedbackResults.length > 0 ? feedbackResults[0] : null
 
     if (feedbackError) {
       console.error('[getSubmissionFeedback] feedback error:', feedbackError)
@@ -82,23 +145,24 @@ export const getSubmissionFeedback = async (
         `[getSubmissionFeedback] Found ${feedbackResults.length} feedback records for submission ${submissionId}, cleaning up duplicates...`
       )
       // Note: Cleanup is done asynchronously, don't await
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const keepId = (feedbackData as any)?.id
+      const keepId = (feedbackData as FeedbackRow | null)?.id
       cleanupDuplicateFeedback(submissionId, keepId).catch((err: unknown) =>
-        console.error('[getSubmissionFeedback] Failed to cleanup duplicates:', err)
+        console.error(
+          '[getSubmissionFeedback] Failed to cleanup duplicates:',
+          err
+        )
       )
     }
 
-    // Type assertion for submission data with relations
-    const submission = submissionData as any
+    // Narrow to the row shapes described above (see SubmissionRow)
+    const submission = submissionData as unknown as SubmissionRow
 
-    // Type assertion for feedback data
-    const feedback = feedbackData as any
+    const feedback = feedbackData as unknown as FeedbackRow | null
 
     // Check if feedback is STALE (created before submission was updated)
     // This happens when user resubmits - we need to regenerate feedback
     let feedbackIsStale = false
-    if (feedbackData && submission.submitted_at && feedback.created_at) {
+    if (feedback && submission.submitted_at && feedback.created_at) {
       const submittedAt = new Date(submission.submitted_at)
       const feedbackCreatedAt = new Date(feedback.created_at)
       feedbackIsStale = feedbackCreatedAt < submittedAt
@@ -121,7 +185,7 @@ export const getSubmissionFeedback = async (
     // Determine status based on feedback existence AND staleness
     let status: FeedbackStatus = 'pending'
     let feedbackToReturn = feedbackData // The feedback to return to the client
-    
+
     if (feedbackData && !feedbackIsStale) {
       status = 'completed'
     } else if (feedbackIsStale) {
@@ -129,7 +193,9 @@ export const getSubmissionFeedback = async (
       // IMPORTANT: Don't return stale feedback to the client
       status = 'pending'
       feedbackToReturn = null // Clear stale feedback so UI shows loading state
-      console.log('[getSubmissionFeedback] 🔄 Returning null feedback (stale) to trigger regeneration')
+      console.log(
+        '[getSubmissionFeedback] 🔄 Returning null feedback (stale) to trigger regeneration'
+      )
     } else if (submission.status === 'pending') {
       // Check if submission is recent (within 5 minutes)
       const submittedAt = new Date(submission.submitted_at)
@@ -154,7 +220,9 @@ export const getSubmissionFeedback = async (
     }
 
     // Use feedbackToReturn (which is null if stale) instead of feedbackData
-    const feedbackToFormat = feedbackToReturn as any
+    const feedbackToFormat = feedbackToReturn as unknown as FeedbackRow
+
+    const challengeRelation = firstRelation(submission.challenges)
 
     return {
       submission: submissionFormatted,
@@ -164,14 +232,16 @@ export const getSubmissionFeedback = async (
             submission_id: feedbackToFormat.submission_id,
             overall_score: feedbackToFormat.overall_score,
             overall_rating: feedbackToFormat.overall_rating,
-            overall_good_practices: feedbackToFormat.overall_good_practices || [],
+            overall_good_practices:
+              feedbackToFormat.overall_good_practices || [],
             improvment_advices: feedbackToFormat.improvment_advices || [],
             best_practices: feedbackToFormat.best_practices || [],
             code_formatting: feedbackToFormat.code_formatting || [],
             functionality: feedbackToFormat.functionality || [],
             accessibility: feedbackToFormat.accessibility || [],
             recommended_resources: feedbackToFormat.recommended_resources,
-            recommended_next_challenge: feedbackToFormat.recommended_next_challenge,
+            recommended_next_challenge:
+              feedbackToFormat.recommended_next_challenge,
             comparison_notes: feedbackToFormat.comparison_notes,
             submission_mismatch: feedbackToFormat.submission_mismatch || null,
             previous_feedback_summary:
@@ -184,10 +254,10 @@ export const getSubmissionFeedback = async (
         : null,
       status,
       challenge: {
-        id: submission.challenges?.id || '',
-        title: submission.challenges?.title || 'Unknown Challenge',
-        difficulty: submission.challenges?.difficulty || 'medium',
-        thumbnail_url: submission.challenges?.thumbnail_url || null,
+        id: challengeRelation?.id || '',
+        title: challengeRelation?.title || 'Unknown Challenge',
+        difficulty: challengeRelation?.difficulty || 'medium',
+        thumbnail_url: challengeRelation?.thumbnail_url || null,
       },
     }
   } catch (err) {
@@ -276,12 +346,12 @@ export const generateAndStoreFeedback = async (
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     // 0. Check if feedback already exists for this submission
-    const { data: existingFeedback } = await (
-      supabase.from('challenge_feedback') as any
-    )
+    const { data: existingFeedbackRow } = await supabase
+      .from('challenge_feedback')
       .select('*')
       .eq('submission_id', submissionId)
       .maybeSingle()
+    const existingFeedback = existingFeedbackRow as FeedbackRow | null
 
     // 1. Fetch submission with challenge details and overview
     const { data: submission, error: submissionError } = await supabase
@@ -309,10 +379,10 @@ export const generateAndStoreFeedback = async (
     // Check if feedback exists and is still valid (created AFTER submission was last updated)
     // If the user resubmits, submitted_at will be newer than feedback.created_at
     if (existingFeedback && submission) {
-      const submissionData = submission as any
+      const submissionData = submission as unknown as SubmissionRow
       const submittedAt = new Date(submissionData.submitted_at)
       const feedbackCreatedAt = new Date(existingFeedback.created_at)
-      
+
       // Only skip regeneration if feedback is NEWER than submission
       // This means the code hasn't changed since feedback was generated
       if (feedbackCreatedAt >= submittedAt) {
@@ -363,12 +433,12 @@ export const generateAndStoreFeedback = async (
       JSON.stringify(submission, null, 2)
     )
 
-    const anySubmission = submission as any
+    const submissionRow = submission as unknown as SubmissionRow
     console.log('[generateAndStoreFeedback] 🔍 Checking challenge data:', {
-      hasChallenge: !!anySubmission.challenges,
-      challengeType: typeof anySubmission.challenges,
-      challengeKeys: anySubmission.challenges
-        ? Object.keys(anySubmission.challenges)
+      hasChallenge: !!submissionRow.challenges,
+      challengeType: typeof submissionRow.challenges,
+      challengeKeys: submissionRow.challenges
+        ? Object.keys(submissionRow.challenges)
         : 'N/A',
     })
 
@@ -380,18 +450,19 @@ export const generateAndStoreFeedback = async (
       console.warn(
         '[generateAndStoreFeedback] ⚠️ No .challenge property, checking .challenges...'
       )
-      const challengesData = (submission as any).challenges
+      const challengesData = (submission as unknown as SubmissionRow).challenges
+      const challengeRelation = firstRelation(challengesData)
 
       if (Array.isArray(challengesData) && challengesData.length > 0) {
         console.log(
           '[generateAndStoreFeedback] ✅ Found challenges array, using first element'
         )
         submissionData.challenge = challengesData[0]
-      } else if (challengesData && typeof challengesData === 'object') {
+      } else if (challengeRelation) {
         console.log(
           '[generateAndStoreFeedback] ✅ Found challenges object, using directly'
         )
-        submissionData.challenge = challengesData
+        submissionData.challenge = challengeRelation
       } else {
         console.error(
           '[generateAndStoreFeedback] ❌ No valid challenge data found:',
@@ -461,10 +532,13 @@ export const generateAndStoreFeedback = async (
         view_code: submissionData.github_url,
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // The generated challenge_feedback Insert type omits columns this row
+      // writes (overall_analysis_description, feedback_generation_time,
+      // live_preview, view_code), so the payload cannot be checked against it
+      // until the Supabase types are regenerated.
       const { error: upsertError } = await supabase
         .from('challenge_feedback')
-        .upsert(feedbackData as any, { onConflict: 'submission_id' })
+        .upsert(feedbackData as never, { onConflict: 'submission_id' })
 
       if (upsertError) {
         console.error(
@@ -492,8 +566,9 @@ export const generateAndStoreFeedback = async (
       .eq('challenge_id', submissionData.challenge_id)
       .maybeSingle()
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const requirements = (overview as any)?.requirements || []
+    // `challenge_overview` is absent from the generated Database type
+    const requirements =
+      (overview as { requirements?: string[] } | null)?.requirements || []
 
     // 2. Check for previous submission (a DIFFERENT submission for the same challenge)
     const previousSubmission = await getPreviousSubmission(
@@ -505,25 +580,32 @@ export const generateAndStoreFeedback = async (
     // 2.1 If there's a previous submission, get its feedback for comparison
     let previousFeedbackSummary = null
     if (previousSubmission) {
-      const { data: prevFeedback } = await (
-        supabase.from('challenge_feedback') as any
-      )
+      const { data: prevFeedbackRow } = await supabase
+        .from('challenge_feedback')
         .select('*')
         .eq('submission_id', previousSubmission.id)
         .maybeSingle()
+      const prevFeedback = prevFeedbackRow as FeedbackRow | null
 
       if (prevFeedback) {
         previousFeedbackSummary = {
           previous_score: prevFeedback.overall_score,
           issues_to_fix: prevFeedback.improvment_advices || [],
-          previous_best_practices: prevFeedback.best_practices || [],
-          previous_code_formatting: prevFeedback.code_formatting || [],
-          previous_functionality: prevFeedback.functionality || [],
-          previous_accessibility: prevFeedback.accessibility || [],
+          previous_best_practices: toAnalysisStrings(
+            prevFeedback.best_practices
+          ),
+          previous_code_formatting: toAnalysisStrings(
+            prevFeedback.code_formatting
+          ),
+          previous_functionality: toAnalysisStrings(prevFeedback.functionality),
+          previous_accessibility: toAnalysisStrings(prevFeedback.accessibility),
         }
         console.log(
           '[generateAndStoreFeedback] 📋 Found previous submission feedback for comparison:',
-          { previousSubmissionId: previousSubmission.id, previousScore: prevFeedback.overall_score }
+          {
+            previousSubmissionId: previousSubmission.id,
+            previousScore: prevFeedback.overall_score,
+          }
         )
       }
     }
@@ -616,9 +698,11 @@ export const generateAndStoreFeedback = async (
 
     // Use upsert to handle unique constraint on submission_id
     // This replaces existing feedback if regenerated
+    // See the note on the other challenge_feedback upsert above: the generated
+    // Insert type is missing columns this row writes.
     const { error: upsertError } = await supabase
       .from('challenge_feedback')
-      .upsert(feedbackData as any, { onConflict: 'submission_id' })
+      .upsert(feedbackData as never, { onConflict: 'submission_id' })
 
     if (upsertError) {
       console.error('[generateAndStoreFeedback] upsert error:', upsertError)
@@ -627,10 +711,9 @@ export const generateAndStoreFeedback = async (
 
     // 5. Update submission with previous_submission_id link if applicable
     if (previousSubmission) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const query = supabase.from('challenge_submissions') as any
-      await query
-        .update({ previous_submission_id: previousSubmission.id })
+      await supabase
+        .from('challenge_submissions')
+        .update({ previous_submission_id: previousSubmission.id } as never)
         .eq('id', submissionId)
     }
 
@@ -682,7 +765,9 @@ const cleanupDuplicateFeedback = async (
     if (error) {
       console.error('[cleanupDuplicateFeedback] error:', error)
     } else {
-      console.log('[cleanupDuplicateFeedback] ✅ Cleaned up duplicate feedback records')
+      console.log(
+        '[cleanupDuplicateFeedback] ✅ Cleaned up duplicate feedback records'
+      )
     }
   } catch (err) {
     console.error('[cleanupDuplicateFeedback] unexpected error:', err)

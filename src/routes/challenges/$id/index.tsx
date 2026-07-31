@@ -139,7 +139,9 @@ function RouteComponent() {
             className='mb-4 md:mb-6 transition-all duration-300 hover:scale-105'
           >
             <ArrowLeft className='mr-2 h-4 w-4' />
-            <span className='hidden sm:inline text-base'>Back to Challenges</span>
+            <span className='hidden sm:inline text-base'>
+              Back to Challenges
+            </span>
             <span className='sm:hidden'>Back</span>
           </Button>
         </Link>
@@ -217,7 +219,9 @@ function RouteComponent() {
             {activeTab === 'overview' && (
               <ChallengeOverview challenge={challenge} />
             )}
-            {activeTab === 'design' && <ChallengeDesign challenge={challenge} />}
+            {activeTab === 'design' && (
+              <ChallengeDesign challenge={challenge} />
+            )}
             {activeTab === 'resources' && (
               <ChallengeResources challenge={challenge} />
             )}

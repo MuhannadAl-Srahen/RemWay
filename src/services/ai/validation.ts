@@ -83,12 +83,20 @@ export const checkRepoVisibility = async (
   githubUrl: string
 ): Promise<RepoVisibilityResult> => {
   if (!githubUrl || !isValidGitHubUrl(githubUrl)) {
-    return { isPublic: false, exists: false, error: 'Invalid GitHub URL format' }
+    return {
+      isPublic: false,
+      exists: false,
+      error: 'Invalid GitHub URL format',
+    }
   }
 
   const parsed = parseGitHubUrl(githubUrl)
   if (!parsed) {
-    return { isPublic: false, exists: false, error: 'Could not parse GitHub URL' }
+    return {
+      isPublic: false,
+      exists: false,
+      error: 'Could not parse GitHub URL',
+    }
   }
 
   const { owner, repo } = parsed
@@ -132,7 +140,8 @@ export const checkRepoVisibility = async (
       return {
         isPublic: false,
         exists: false,
-        error: 'GitHub API rate limit exceeded. Please try again in a few minutes.',
+        error:
+          'GitHub API rate limit exceeded. Please try again in a few minutes.',
       }
     }
 

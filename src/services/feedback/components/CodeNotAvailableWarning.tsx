@@ -46,7 +46,9 @@ export const CodeNotAvailableWarning = ({
             </p>
             <ul className='text-sm text-amber-700 dark:text-amber-300 list-disc list-inside space-y-1'>
               <li>The repository is set to private</li>
-              <li>The URL is incorrect or doesn't point to a valid repository</li>
+              <li>
+                The URL is incorrect or doesn't point to a valid repository
+              </li>
               <li>The repository is empty or has no source code files</li>
               <li>The code is in a different branch (we check main/master)</li>
               <li>GitHub API rate limits were exceeded</li>
