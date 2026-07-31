@@ -5,12 +5,7 @@ import type { ReactNode } from 'react'
 interface AnimateOnScrollProps {
   children: ReactNode
   animation?:
-    | 'fadeIn'
-    | 'slideUp'
-    | 'slideLeft'
-    | 'slideRight'
-    | 'scale'
-    | 'stagger'
+    'fadeIn' | 'slideUp' | 'slideLeft' | 'slideRight' | 'scale' | 'stagger'
   delay?: number
   duration?: number
   className?: string

@@ -29,12 +29,7 @@ export interface BadgeProps {
 export interface ButtonProps {
   children: ReactNode
   variant?:
-    | 'default'
-    | 'destructive'
-    | 'outline'
-    | 'secondary'
-    | 'ghost'
-    | 'link'
+    'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link'
   size?: 'default' | 'sm' | 'lg' | 'icon'
   className?: string
   onClick?: () => void
@@ -51,12 +46,7 @@ export interface TabsProps {
 export interface AnimateOnScrollProps {
   children: ReactNode
   animation?:
-    | 'fade'
-    | 'slide-up'
-    | 'slide-down'
-    | 'slide-left'
-    | 'slide-right'
-    | 'zoom'
+    'fade' | 'slide-up' | 'slide-down' | 'slide-left' | 'slide-right' | 'zoom'
   delay?: number
   className?: string
 }

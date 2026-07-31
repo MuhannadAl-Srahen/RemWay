@@ -74,10 +74,15 @@ export const submitChallengeSolution = async (
         challenge_id: string
         livepreviewurl: string | null
       }
-      const { data: officialChallenges } = await supabase
+      // `challenge_overview` is absent from the generated Database type in
+      // src/types/supabase.ts, so supabase-js resolves the row type to `never`.
+      // Assert the shape declared above until the types are regenerated.
+      const { data: officialChallenges } = (await supabase
         .from('challenge_overview')
         .select('challenge_id, livepreviewurl')
-        .not('livepreviewurl', 'is', null)
+        .not('livepreviewurl', 'is', null)) as {
+        data: ChallengeOverview[] | null
+      }
 
       if (officialChallenges && officialChallenges.length > 0) {
         const isOfficialUrl = officialChallenges.some(

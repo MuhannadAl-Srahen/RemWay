@@ -108,9 +108,7 @@ export const useProfileSubmissions = (limit: number = 20) => {
           liveUrl: sub.live_site_url,
           submittedAt: sub.submitted_at || new Date().toISOString(),
           difficulty: (sub.challenges?.difficulty || 'Beginner') as
-            | 'Beginner'
-            | 'Intermediate'
-            | 'Advanced',
+            'Beginner' | 'Intermediate' | 'Advanced',
           tags: sub.challenges?.tags || [],
           score,
           thumbnailUrl: sub.challenges?.thumbnail_url || null,
@@ -197,9 +195,7 @@ export const useAllProfileSubmissions = () => {
           liveUrl: sub.live_site_url,
           submittedAt: sub.submitted_at || new Date().toISOString(),
           difficulty: (sub.challenges?.difficulty || 'Beginner') as
-            | 'Beginner'
-            | 'Intermediate'
-            | 'Advanced',
+            'Beginner' | 'Intermediate' | 'Advanced',
           tags: sub.challenges?.tags || [],
           score,
           thumbnailUrl: sub.challenges?.thumbnail_url || null,

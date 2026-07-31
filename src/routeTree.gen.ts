@@ -9,21 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ProgressRouteImport } from './routes/progress'
-import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SettingsIndexRouteImport } from './routes/settings/index'
-import { Route as RoadmapIndexRouteImport } from './routes/roadmap/index'
-import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as ChallengesIndexRouteImport } from './routes/challenges/index'
-import { Route as FeedbackDemoRouteImport } from './routes/feedback/demo'
 import { Route as FeedbackSubmissionIdRouteImport } from './routes/feedback/$submissionId'
-import { Route as RoadmapPathIdIndexRouteImport } from './routes/roadmap/$pathId/index'
+import { Route as FeedbackDemoRouteImport } from './routes/feedback/demo'
+import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
+import { Route as RoadmapIndexRouteImport } from './routes/roadmap/index'
+import { Route as SettingsIndexRouteImport } from './routes/settings/index'
 import { Route as ChallengesIdIndexRouteImport } from './routes/challenges/$id/index'
+import { Route as RoadmapPathIdIndexRouteImport } from './routes/roadmap/$pathId/index'
 
-const ProgressRoute = ProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -31,24 +31,9 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SettingsIndexRoute = SettingsIndexRouteImport.update({
-  id: '/settings/',
-  path: '/settings/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoadmapIndexRoute = RoadmapIndexRouteImport.update({
-  id: '/roadmap/',
-  path: '/roadmap/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
-  id: '/resources/',
-  path: '/resources/',
+const ProgressRoute = ProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
@@ -56,24 +41,39 @@ const ChallengesIndexRoute = ChallengesIndexRouteImport.update({
   path: '/challenges/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FeedbackDemoRoute = FeedbackDemoRouteImport.update({
-  id: '/feedback/demo',
-  path: '/feedback/demo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FeedbackSubmissionIdRoute = FeedbackSubmissionIdRouteImport.update({
   id: '/feedback/$submissionId',
   path: '/feedback/$submissionId',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RoadmapPathIdIndexRoute = RoadmapPathIdIndexRouteImport.update({
-  id: '/roadmap/$pathId/',
-  path: '/roadmap/$pathId/',
+const FeedbackDemoRoute = FeedbackDemoRouteImport.update({
+  id: '/feedback/demo',
+  path: '/feedback/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
+  id: '/resources/',
+  path: '/resources/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapIndexRoute = RoadmapIndexRouteImport.update({
+  id: '/roadmap/',
+  path: '/roadmap/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsIndexRoute = SettingsIndexRouteImport.update({
+  id: '/settings/',
+  path: '/settings/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChallengesIdIndexRoute = ChallengesIdIndexRouteImport.update({
   id: '/challenges/$id/',
   path: '/challenges/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapPathIdIndexRoute = RoadmapPathIdIndexRouteImport.update({
+  id: '/roadmap/$pathId/',
+  path: '/roadmap/$pathId/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -83,12 +83,12 @@ export interface FileRoutesByFullPath {
   '/progress': typeof ProgressRoute
   '/feedback/$submissionId': typeof FeedbackSubmissionIdRoute
   '/feedback/demo': typeof FeedbackDemoRoute
-  '/challenges': typeof ChallengesIndexRoute
-  '/resources': typeof ResourcesIndexRoute
-  '/roadmap': typeof RoadmapIndexRoute
-  '/settings': typeof SettingsIndexRoute
-  '/challenges/$id': typeof ChallengesIdIndexRoute
-  '/roadmap/$pathId': typeof RoadmapPathIdIndexRoute
+  '/challenges/': typeof ChallengesIndexRoute
+  '/resources/': typeof ResourcesIndexRoute
+  '/roadmap/': typeof RoadmapIndexRoute
+  '/settings/': typeof SettingsIndexRoute
+  '/challenges/$id/': typeof ChallengesIdIndexRoute
+  '/roadmap/$pathId/': typeof RoadmapPathIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -125,12 +125,12 @@ export interface FileRouteTypes {
     | '/progress'
     | '/feedback/$submissionId'
     | '/feedback/demo'
-    | '/challenges'
-    | '/resources'
-    | '/roadmap'
-    | '/settings'
-    | '/challenges/$id'
-    | '/roadmap/$pathId'
+    | '/challenges/'
+    | '/resources/'
+    | '/roadmap/'
+    | '/settings/'
+    | '/challenges/$id/'
+    | '/roadmap/$pathId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -175,11 +175,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/progress': {
-      id: '/progress'
-      path: '/progress'
-      fullPath: '/progress'
-      preLoaderRoute: typeof ProgressRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -189,46 +189,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/settings/': {
-      id: '/settings/'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/roadmap/': {
-      id: '/roadmap/'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/resources/': {
-      id: '/resources/'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof ResourcesIndexRouteImport
+    '/progress': {
+      id: '/progress'
+      path: '/progress'
+      fullPath: '/progress'
+      preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/challenges/': {
       id: '/challenges/'
       path: '/challenges'
-      fullPath: '/challenges'
+      fullPath: '/challenges/'
       preLoaderRoute: typeof ChallengesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feedback/demo': {
-      id: '/feedback/demo'
-      path: '/feedback/demo'
-      fullPath: '/feedback/demo'
-      preLoaderRoute: typeof FeedbackDemoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feedback/$submissionId': {
@@ -238,18 +210,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedbackSubmissionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/roadmap/$pathId/': {
-      id: '/roadmap/$pathId/'
-      path: '/roadmap/$pathId'
-      fullPath: '/roadmap/$pathId'
-      preLoaderRoute: typeof RoadmapPathIdIndexRouteImport
+    '/feedback/demo': {
+      id: '/feedback/demo'
+      path: '/feedback/demo'
+      fullPath: '/feedback/demo'
+      preLoaderRoute: typeof FeedbackDemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources/': {
+      id: '/resources/'
+      path: '/resources'
+      fullPath: '/resources/'
+      preLoaderRoute: typeof ResourcesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap/': {
+      id: '/roadmap/'
+      path: '/roadmap'
+      fullPath: '/roadmap/'
+      preLoaderRoute: typeof RoadmapIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/': {
+      id: '/settings/'
+      path: '/settings'
+      fullPath: '/settings/'
+      preLoaderRoute: typeof SettingsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/challenges/$id/': {
       id: '/challenges/$id/'
       path: '/challenges/$id'
-      fullPath: '/challenges/$id'
+      fullPath: '/challenges/$id/'
       preLoaderRoute: typeof ChallengesIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap/$pathId/': {
+      id: '/roadmap/$pathId/'
+      path: '/roadmap/$pathId'
+      fullPath: '/roadmap/$pathId/'
+      preLoaderRoute: typeof RoadmapPathIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
   }

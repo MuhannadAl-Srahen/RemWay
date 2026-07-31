@@ -224,10 +224,7 @@ export interface ProfileStats {
 }
 
 export type ExperienceLevel =
-  | 'Beginner'
-  | 'Intermediate'
-  | 'Advanced'
-  | 'Expert'
+  'Beginner' | 'Intermediate' | 'Advanced' | 'Expert'
 
 // ============================================================================
 // RESOURCE TYPES
@@ -257,12 +254,7 @@ export interface Resource {
 }
 
 export type ResourceType =
-  | 'article'
-  | 'video'
-  | 'course'
-  | 'documentation'
-  | 'tool'
-  | 'template'
+  'article' | 'video' | 'course' | 'documentation' | 'tool' | 'template'
 
 // Interface for component resource items (simplified version of Resource)
 export interface ResourceItem {
