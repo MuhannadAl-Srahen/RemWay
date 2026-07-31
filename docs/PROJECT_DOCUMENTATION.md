@@ -678,6 +678,8 @@ Create a `.env.local` file with:
 # Supabase Configuration (Required)
 VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your-anon-key
+# ...or, on newer Supabase projects:
+# VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
 
 # Gemini AI (Required for feedback)
 VITE_GEMINI_API_KEY=your-gemini-api-key

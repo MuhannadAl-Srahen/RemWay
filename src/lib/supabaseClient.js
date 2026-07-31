@@ -33,17 +33,28 @@ const SUPABASE_URL =
   readMeta('VITE_SUPABASE_URL') ||
   null
 
+// Supabase renamed the client-side key from "anon key" to "publishable key".
+// Projects created before the rename still hand out VITE_SUPABASE_ANON_KEY;
+// the current dashboard gives VITE_SUPABASE_PUBLISHABLE_KEY. Accept either so
+// the app works no matter which one the developer copied.
+const KEY_NAMES = ['VITE_SUPABASE_ANON_KEY', 'VITE_SUPABASE_PUBLISHABLE_KEY']
+
+const readKey = (source) => {
+  if (!source) return null
+  for (const name of KEY_NAMES) {
+    if (source[name]) return source[name]
+  }
+  return null
+}
+
 const SUPABASE_KEY =
-  (env && env.local && env.local.VITE_SUPABASE_ANON_KEY) ||
-  env.VITE_SUPABASE_ANON_KEY ||
-  (typeof window !== 'undefined' &&
-    window.__ENV &&
-    window.__ENV.VITE_SUPABASE_ANON_KEY) ||
-  (typeof window !== 'undefined' &&
-    window._env_ &&
-    window._env_.VITE_SUPABASE_ANON_KEY) ||
-  (typeof window !== 'undefined' && window.VITE_SUPABASE_ANON_KEY) ||
+  readKey(env && env.local) ||
+  readKey(env) ||
+  (typeof window !== 'undefined' && readKey(window.__ENV)) ||
+  (typeof window !== 'undefined' && readKey(window._env_)) ||
+  (typeof window !== 'undefined' && readKey(window)) ||
   readMeta('VITE_SUPABASE_ANON_KEY') ||
+  readMeta('VITE_SUPABASE_PUBLISHABLE_KEY') ||
   null
 
 // Log presence of env values (do not print the key). Use console.log so the
@@ -64,31 +75,28 @@ try {
     '[supabaseClient] import.meta.env.VITE_SUPABASE_ANON_KEY present:',
     Boolean(env && env.VITE_SUPABASE_ANON_KEY)
   )
+  console.log(
+    '[supabaseClient] import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY present:',
+    Boolean(env && env.VITE_SUPABASE_PUBLISHABLE_KEY)
+  )
 } catch (e) {
   // ignore
 }
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-  // Provide a clearer message so the developer knows which env vars are required
-  // and where we looked for them (helpful for debugging runtime deployments).
-  const sources = []
-  try {
-    if (env && env.VITE_SUPABASE_URL)
-      sources.push('import.meta.env.VITE_SUPABASE_URL')
-    if (env && env.local && env.local.VITE_SUPABASE_URL)
-      sources.push('import.meta.env.local.VITE_SUPABASE_URL')
-  } catch (e) {}
-  if (typeof window !== 'undefined') {
-    if (window && window.__ENV && window.__ENV.VITE_SUPABASE_URL)
-      sources.push('window.__ENV.VITE_SUPABASE_URL')
-    if (window && window._env_ && window._env_.VITE_SUPABASE_URL)
-      sources.push('window._env_.VITE_SUPABASE_URL')
-    if (window && window.VITE_SUPABASE_URL)
-      sources.push('window.VITE_SUPABASE_URL')
+  // Say exactly which variable is missing — reporting both when only one is
+  // absent sends people looking in the wrong place.
+  const missing = []
+  if (!SUPABASE_URL) missing.push('VITE_SUPABASE_URL')
+  if (!SUPABASE_KEY) {
+    missing.push(`${KEY_NAMES[0]} (or ${KEY_NAMES[1]})`)
   }
 
   throw new Error(
-    `Missing Supabase environment variables. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment (e.g. .env.local). Checked sources: ${sources.join(', ') || 'none'}`
+    `Missing Supabase environment variable(s): ${missing.join(' and ')}. ` +
+      `Set them in .env.local (or .env) at the project root and restart the ` +
+      `dev server — Vite only reads env files at startup. ` +
+      `See .env.example for the full list.`
   )
 }
 
