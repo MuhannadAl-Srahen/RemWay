@@ -39,7 +39,7 @@ const fetchWithRetry = async (
       signal: controller.signal,
     })
     clearTimeout(timeoutId)
-    
+
     // Handle rate limiting
     if (response.status === 403) {
       const rateLimitRemaining = response.headers.get('X-RateLimit-Remaining')
@@ -51,16 +51,18 @@ const fetchWithRetry = async (
         throw new Error('GitHub API rate limit exceeded')
       }
     }
-    
+
     return response
   } catch (error) {
     clearTimeout(timeoutId)
-    
-    if (retries > 0 && (error instanceof Error)) {
+
+    if (retries > 0 && error instanceof Error) {
       // Retry on timeout or network errors
       if (error.name === 'AbortError' || error.message.includes('network')) {
-        console.warn(`[fetchWithRetry] Request failed, retrying... (${retries} attempts left)`)
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS))
+        console.warn(
+          `[fetchWithRetry] Request failed, retrying... (${retries} attempts left)`
+        )
+        await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS))
         return fetchWithRetry(url, options, retries - 1)
       }
     }
@@ -123,14 +125,16 @@ export const fetchRepositoryCode = async (
     console.log('[fetchRepositoryCode] Fetching repository tree...')
     let treeResponse: Response
     let branchUsed = 'main'
-    
+
     try {
       treeResponse = await fetchWithRetry(
         `https://api.github.com/repos/${owner}/${repo}/git/trees/main?recursive=1`,
         { headers }
       )
     } catch {
-      console.warn('[fetchRepositoryCode] Failed to fetch main branch, will try master')
+      console.warn(
+        '[fetchRepositoryCode] Failed to fetch main branch, will try master'
+      )
       treeResponse = new Response(null, { status: 404 })
     }
 
@@ -157,7 +161,10 @@ export const fetchRepositoryCode = async (
         )
         branchUsed = 'master'
       } catch (error) {
-        console.error('[fetchRepositoryCode] Failed to fetch master branch:', error)
+        console.error(
+          '[fetchRepositoryCode] Failed to fetch master branch:',
+          error
+        )
         return null
       }
 
@@ -169,15 +176,19 @@ export const fetchRepositoryCode = async (
       }
     }
 
-    console.log(`[fetchRepositoryCode] Successfully fetched tree from '${branchUsed}' branch`)
+    console.log(
+      `[fetchRepositoryCode] Successfully fetched tree from '${branchUsed}' branch`
+    )
     const tree = await treeResponse.json()
-    
+
     if (!tree.tree || !Array.isArray(tree.tree)) {
       console.error('[fetchRepositoryCode] Invalid tree response:', tree)
       return null
     }
-    
-    console.log(`[fetchRepositoryCode] Found ${tree.tree.length} items in repository`)
+
+    console.log(
+      `[fetchRepositoryCode] Found ${tree.tree.length} items in repository`
+    )
     return await fetchRelevantFiles(owner, repo, tree.tree, headers)
   } catch (error) {
     console.error('[fetchRepositoryCode] Error:', error)
@@ -233,7 +244,9 @@ const fetchRelevantFiles = async (
     return relevantExtensions.some((ext) => path.endsWith(ext))
   })
 
-  console.log(`[fetchRelevantFiles] Found ${relevantFiles.length} relevant files after filtering`)
+  console.log(
+    `[fetchRelevantFiles] Found ${relevantFiles.length} relevant files after filtering`
+  )
 
   // PRIORITIZE source code files over config files
   // Sort to prioritize: src/ files, then components/, then other .jsx/.tsx/.js/.ts, then rest
@@ -303,7 +316,9 @@ const fetchRelevantFiles = async (
       )
 
       if (!contentResponse.ok) {
-        console.warn(`[fetchRelevantFiles] Failed to fetch ${file.path}: ${contentResponse.status}`)
+        console.warn(
+          `[fetchRelevantFiles] Failed to fetch ${file.path}: ${contentResponse.status}`
+        )
         return null
       }
 
@@ -314,13 +329,18 @@ const fetchRelevantFiles = async (
       try {
         content = atob(contentData.content.replace(/\n/g, ''))
       } catch (decodeError) {
-        console.warn(`[fetchRelevantFiles] Failed to decode ${file.path}:`, decodeError)
+        console.warn(
+          `[fetchRelevantFiles] Failed to decode ${file.path}:`,
+          decodeError
+        )
         return null
       }
 
       // Skip very large files (> 50KB)
       if (content.length > 50000) {
-        console.log(`[fetchRelevantFiles] Skipping large file: ${file.path} (${(content.length / 1024).toFixed(1)}KB)`)
+        console.log(
+          `[fetchRelevantFiles] Skipping large file: ${file.path} (${(content.length / 1024).toFixed(1)}KB)`
+        )
         return null
       }
 
@@ -337,32 +357,40 @@ const fetchRelevantFiles = async (
   }
 
   // Process files in batches to avoid overwhelming the API
-  console.log(`[fetchRelevantFiles] Fetching ${filesToFetch.length} files in parallel batches...`)
-  
+  console.log(
+    `[fetchRelevantFiles] Fetching ${filesToFetch.length} files in parallel batches...`
+  )
+
   for (let i = 0; i < filesToFetch.length; i += CONCURRENT_FETCH_LIMIT) {
     const batch = filesToFetch.slice(i, i + CONCURRENT_FETCH_LIMIT)
-    console.log(`[fetchRelevantFiles] Fetching batch ${Math.floor(i / CONCURRENT_FETCH_LIMIT) + 1}/${Math.ceil(filesToFetch.length / CONCURRENT_FETCH_LIMIT)}...`)
-    
+    console.log(
+      `[fetchRelevantFiles] Fetching batch ${Math.floor(i / CONCURRENT_FETCH_LIMIT) + 1}/${Math.ceil(filesToFetch.length / CONCURRENT_FETCH_LIMIT)}...`
+    )
+
     const batchResults = await Promise.all(batch.map(fetchFileContent))
-    
+
     for (const result of batchResults) {
       if (result) {
         files.push(result)
         totalSize += result.size
-        
+
         // Stop if we've collected enough code (> 100KB total)
         if (totalSize > 100000) {
-          console.log(`[fetchRelevantFiles] Reached size limit (${(totalSize / 1024).toFixed(1)}KB), stopping fetch`)
+          console.log(
+            `[fetchRelevantFiles] Reached size limit (${(totalSize / 1024).toFixed(1)}KB), stopping fetch`
+          )
           break
         }
       }
     }
-    
+
     // Check if we should stop after this batch
     if (totalSize > 100000) break
   }
 
-  console.log(`[fetchRelevantFiles] Successfully fetched ${files.length} files (${(totalSize / 1024).toFixed(1)}KB total)`)
+  console.log(
+    `[fetchRelevantFiles] Successfully fetched ${files.length} files (${(totalSize / 1024).toFixed(1)}KB total)`
+  )
 
   // Build structure overview
   const structure = buildStructureOverview(files)

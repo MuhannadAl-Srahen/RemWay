@@ -183,7 +183,9 @@ function RouteComponent() {
             itemsPerPage={itemsPerPage}
             onPageChange={handlePageChange}
             onItemsPerPageChange={handleItemsPerPageChange}
-            itemsPerPageOptions={viewMode === 'grid' ? [6, 9, 12, 18] : [4, 6, 8, 12]}
+            itemsPerPageOptions={
+              viewMode === 'grid' ? [6, 9, 12, 18] : [4, 6, 8, 12]
+            }
           />
         </>
       )}

@@ -7,7 +7,7 @@ const POLLING_INTERVAL = 5000 // 5 seconds
 
 export function useSubmissionFeedback(submissionId: string) {
   const queryClient = useQueryClient()
-  
+
   // Clear any existing cache for this submission when the hook is first called
   // This ensures we always get fresh data and prevents stale feedback from showing
   useEffect(() => {
@@ -17,7 +17,7 @@ export function useSubmissionFeedback(submissionId: string) {
       exact: true,
     })
   }, [submissionId, queryClient])
-  
+
   return useQuery<SubmissionWithFeedback | null, Error>({
     queryKey: queryKeys.submissionFeedback(submissionId),
     queryFn: () => getSubmissionFeedback(submissionId),
