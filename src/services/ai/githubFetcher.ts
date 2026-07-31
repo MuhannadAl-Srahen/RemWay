@@ -10,6 +10,21 @@ interface GitHubFile {
   size: number
 }
 
+/**
+ * An entry in the GitHub Git Trees API response (`tree[]`).
+ * See https://docs.github.com/en/rest/git/trees#get-a-tree
+ *
+ * `size` is only present on blobs, so it stays optional.
+ */
+interface GitHubTreeEntry {
+  path: string
+  mode: string
+  type: 'blob' | 'tree' | 'commit'
+  sha: string
+  size?: number
+  url?: string
+}
+
 interface RepositoryStructure {
   files: GitHubFile[]
   structure: string
@@ -203,7 +218,7 @@ export const fetchRepositoryCode = async (
 const fetchRelevantFiles = async (
   owner: string,
   repo: string,
-  tree: any[],
+  tree: GitHubTreeEntry[],
   headers: HeadersInit
 ): Promise<RepositoryStructure> => {
   // File extensions to analyze
@@ -222,7 +237,7 @@ const fetchRelevantFiles = async (
   ]
 
   // Filter relevant files (exclude node_modules, dist, build, etc.)
-  const relevantFiles = tree.filter((item: any) => {
+  const relevantFiles = tree.filter((item: GitHubTreeEntry) => {
     if (item.type !== 'blob') return false
 
     const path = item.path.toLowerCase()
@@ -250,65 +265,69 @@ const fetchRelevantFiles = async (
 
   // PRIORITIZE source code files over config files
   // Sort to prioritize: src/ files, then components/, then other .jsx/.tsx/.js/.ts, then rest
-  const prioritizedFiles = relevantFiles.sort((a: any, b: any) => {
-    const pathA = a.path.toLowerCase()
-    const pathB = b.path.toLowerCase()
+  const prioritizedFiles = relevantFiles.sort(
+    (a: GitHubTreeEntry, b: GitHubTreeEntry) => {
+      const pathA = a.path.toLowerCase()
+      const pathB = b.path.toLowerCase()
 
-    // Priority scoring (lower = higher priority)
-    const getPriority = (path: string): number => {
-      // Highest priority: src/ folder source files
-      if (
-        path.startsWith('src/') &&
-        (path.endsWith('.jsx') || path.endsWith('.tsx'))
-      )
-        return 0
-      if (
-        path.startsWith('src/') &&
-        (path.endsWith('.js') || path.endsWith('.ts'))
-      )
-        return 1
-      if (path.startsWith('src/') && path.endsWith('.css')) return 2
-      if (path.startsWith('src/')) return 3
+      // Priority scoring (lower = higher priority)
+      const getPriority = (path: string): number => {
+        // Highest priority: src/ folder source files
+        if (
+          path.startsWith('src/') &&
+          (path.endsWith('.jsx') || path.endsWith('.tsx'))
+        )
+          return 0
+        if (
+          path.startsWith('src/') &&
+          (path.endsWith('.js') || path.endsWith('.ts'))
+        )
+          return 1
+        if (path.startsWith('src/') && path.endsWith('.css')) return 2
+        if (path.startsWith('src/')) return 3
 
-      // High priority: components folder
-      if (
-        path.includes('components/') &&
-        (path.endsWith('.jsx') || path.endsWith('.tsx'))
-      )
-        return 4
-      if (path.includes('components/')) return 5
+        // High priority: components folder
+        if (
+          path.includes('components/') &&
+          (path.endsWith('.jsx') || path.endsWith('.tsx'))
+        )
+          return 4
+        if (path.includes('components/')) return 5
 
-      // Medium priority: other source files
-      if (path.endsWith('.jsx') || path.endsWith('.tsx')) return 6
-      if (path.endsWith('.js') || path.endsWith('.ts')) return 7
-      if (path.endsWith('.html')) return 8
-      if (path.endsWith('.css')) return 9
+        // Medium priority: other source files
+        if (path.endsWith('.jsx') || path.endsWith('.tsx')) return 6
+        if (path.endsWith('.js') || path.endsWith('.ts')) return 7
+        if (path.endsWith('.html')) return 8
+        if (path.endsWith('.css')) return 9
 
-      // Lower priority: config files
-      if (path === 'package.json') return 10
-      if (path === 'readme.md') return 11
-      if (path.endsWith('.json')) return 12
-      if (path.endsWith('.md')) return 13
+        // Lower priority: config files
+        if (path === 'package.json') return 10
+        if (path === 'readme.md') return 11
+        if (path.endsWith('.json')) return 12
+        if (path.endsWith('.md')) return 13
 
-      return 20 // Lowest priority
+        return 20 // Lowest priority
+      }
+
+      return getPriority(pathA) - getPriority(pathB)
     }
-
-    return getPriority(pathA) - getPriority(pathB)
-  })
+  )
 
   // Fetch up to 15 files to ensure we get all src/ content
   const filesToFetch = prioritizedFiles.slice(0, 15)
 
   console.log(
     '[fetchRelevantFiles] Prioritized files to fetch:',
-    filesToFetch.map((f: any) => f.path)
+    filesToFetch.map((f: GitHubTreeEntry) => f.path)
   )
 
   const files: GitHubFile[] = []
   let totalSize = 0
 
   // Fetch files in parallel batches for better performance
-  const fetchFileContent = async (file: any): Promise<GitHubFile | null> => {
+  const fetchFileContent = async (
+    file: GitHubTreeEntry
+  ): Promise<GitHubFile | null> => {
     try {
       const contentResponse = await fetchWithRetry(
         `https://api.github.com/repos/${owner}/${repo}/contents/${file.path}`,

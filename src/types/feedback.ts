@@ -14,6 +14,38 @@ export interface TechAnalysisItem {
   status: 'good' | 'warning' | 'error'
 }
 
+/**
+ * A single entry in one of the stored tech-analysis columns. Current rows hold
+ * pre-formatted strings; legacy rows may hold the raw object.
+ */
+export type FeedbackAnalysisEntry = string | TechAnalysisItem
+
+/**
+ * A learning resource stored in `challenge_feedback.recommended_resources`.
+ *
+ * Written from `AIFeedbackResponse.recommendations.learningResources`, so the
+ * model controls the contents. Every field is optional because the column is
+ * raw JSON and older rows predate the current shape — consumers must fall back
+ * (see the mapping in routes/feedback/$submissionId.tsx).
+ */
+export interface RecommendedResource {
+  title?: string
+  description?: string
+  url?: string
+  type?: string
+}
+
+/**
+ * Stored in `challenge_feedback.comparison_notes`, written from
+ * `AIFeedbackResponse.comparisonNotes` when a submission is a resubmission.
+ * Null for first attempts.
+ */
+export interface ComparisonNotes {
+  improvements?: string[]
+  regressions?: string[]
+  newSkills?: string[]
+}
+
 export interface FeedbackResponse {
   id: string
   submission_id: string
@@ -21,13 +53,21 @@ export interface FeedbackResponse {
   overall_rating: string
   overall_good_practices: string[]
   improvment_advices: string[]
-  best_practices: TechAnalysisItem[]
-  code_formatting: TechAnalysisItem[]
-  functionality: TechAnalysisItem[]
-  accessibility: TechAnalysisItem[]
-  recommended_resources: any
+  /**
+   * The four tech-analysis columns are written as pre-formatted strings
+   * ("category: description (status)") by both write paths in
+   * services/feedback/api.ts, and the DB columns are `string[]`. Older rows
+   * may still hold raw TechAnalysisItem objects, which is why the renderer
+   * (parseFeedbackItems in routes/feedback/$submissionId.tsx) accepts both.
+   * Typing the union keeps consumers honest about that.
+   */
+  best_practices: FeedbackAnalysisEntry[]
+  code_formatting: FeedbackAnalysisEntry[]
+  functionality: FeedbackAnalysisEntry[]
+  accessibility: FeedbackAnalysisEntry[]
+  recommended_resources: RecommendedResource[] | null
   recommended_next_challenge: string | null
-  comparison_notes: any
+  comparison_notes: ComparisonNotes | null
   ai_model_version: string | null
   created_at: string
   // Mismatch detection

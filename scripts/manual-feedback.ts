@@ -67,8 +67,12 @@ async function manualGenerate() {
     console.log(`   Live: ${submission.live_site_url}`)
     console.log()
 
-    // Fix challenge data structure
-    const submissionData = submission as any
+    // Fix challenge data structure. PostgREST embeds the relation under
+    // 'challenges'; the AI request type expects it under 'challenge'.
+    const submissionData =
+      submission as unknown as ChallengeSubmissionWithChallenge & {
+        challenges?: ChallengeSubmissionWithChallenge['challenge']
+      }
     if (!submissionData.challenge && submissionData.challenges) {
       submissionData.challenge = submissionData.challenges
     }
@@ -84,7 +88,9 @@ async function manualGenerate() {
       .eq('challenge_id', submission.challenge_id)
       .maybeSingle()
 
-    const requirements = (overview as any)?.requirements || []
+    // 'challenge_overview' is absent from the generated Database type
+    const requirements =
+      (overview as { requirements?: string[] } | null)?.requirements || []
     console.log(`   Found ${requirements.length} requirements`)
     console.log()
 
@@ -130,16 +136,16 @@ async function manualGenerate() {
       overall_good_practices: feedback.whatYouDidWell || [],
       improvment_advices: feedback.areasForImprovement || [],
       best_practices: (feedback.techAnalysis?.bestPractices || []).map(
-        (item: any) => `${item.category}: ${item.description} (${item.status})`
+        (item) => `${item.category}: ${item.description} (${item.status})`
       ),
       code_formatting: (feedback.techAnalysis?.codeFormatting || []).map(
-        (item: any) => `${item.category}: ${item.description} (${item.status})`
+        (item) => `${item.category}: ${item.description} (${item.status})`
       ),
       functionality: (feedback.techAnalysis?.functionality || []).map(
-        (item: any) => `${item.category}: ${item.description} (${item.status})`
+        (item) => `${item.category}: ${item.description} (${item.status})`
       ),
       accessibility: (feedback.techAnalysis?.accessibility || []).map(
-        (item: any) => `${item.category}: ${item.description} (${item.status})`
+        (item) => `${item.category}: ${item.description} (${item.status})`
       ),
       recommended_resources: feedback.recommendations?.learningResources || [],
       recommended_next_challenge:

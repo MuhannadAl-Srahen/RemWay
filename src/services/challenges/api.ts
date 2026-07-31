@@ -51,7 +51,7 @@ export const submitChallengeSolution = async (
     // Extract username from GitHub URL (supports various formats)
     // e.g., https://github.com/username/repo, github.com/username/repo
     const githubUrlMatch = submission.githubUrl.match(
-      /github\.com\/([^\/]+)\/[^\/]+/i
+      /github\.com\/([^/]+)\/[^/]+/i
     )
     const submittedRepoOwner = githubUrlMatch?.[1]?.toLowerCase()
 
