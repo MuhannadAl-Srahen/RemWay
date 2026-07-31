@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 import type { ChallengeSubmissionWithChallenge } from '@/types/feedback'
 import { fetchRepositoryCode, formatCodeForAI } from './githubFetcher'
 import {
@@ -7,7 +7,9 @@ import {
   checkLiveSiteAccessibility,
 } from './validation'
 
-const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY)
+const MODEL_ID = 'gemini-2.5-pro'
+
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY })
 
 // Track the status of code fetching for accurate AI analysis
 export interface CodeFetchStatus {
@@ -185,11 +187,6 @@ export const generateAIFeedback = async (
     try {
       console.log(`[generateAIFeedback] Attempt ${attempt}/${maxRetries}`)
 
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.5-pro',
-        systemInstruction: SYSTEM_PROMPT,
-      })
-
       // Fetch actual code from GitHub if URL is provided
       let codeAnalysis = ''
       let codeFetchStatus: CodeFetchStatus = {
@@ -323,9 +320,11 @@ export const generateAIFeedback = async (
         liveUrlStatus
       )
 
-      const result = await model.generateContent({
+      const result = await ai.models.generateContent({
+        model: MODEL_ID,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
           // CRITICAL: Use temperature 0 for deterministic, consistent scoring
           // This ensures the same submission always gets the same score
           temperature: 0,
@@ -336,8 +335,15 @@ export const generateAIFeedback = async (
         },
       })
 
-      const response = result.response
-      const text = response.text()
+      // `text` is a getter on the response and is undefined when the model
+      // returned no text parts (e.g. the response was blocked by a safety
+      // filter, or the candidate list came back empty).
+      const text = result.text
+      if (!text) {
+        throw new Error(
+          'AI returned an empty response (no text parts in the first candidate)'
+        )
+      }
 
       console.log(
         '[generateAIFeedback] 📄 Raw AI response length:',

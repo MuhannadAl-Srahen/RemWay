@@ -5,7 +5,10 @@
  * Run with: bun run scripts/test-ai-consistency.ts
  */
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
+
+// Keep in sync with src/services/ai/api.ts
+const MODEL_ID = 'gemini-2.5-pro'
 
 // Test configuration
 const TEST_CONFIG = {
@@ -107,14 +110,9 @@ Return JSON with:
 }`
 
 async function runAnalysis(
-  genAI: GoogleGenerativeAI,
+  ai: GoogleGenAI,
   iteration: number
 ): Promise<{ score: number; rating: string }> {
-  const model = genAI.getGenerativeModel({
-    model: 'gemini-2.5-pro',
-    systemInstruction: SYSTEM_PROMPT,
-  })
-
   const prompt = `Analyze this frontend challenge submission:
 
 **Challenge:** ${SAMPLE_SUBMISSION.challengeTitle} (${SAMPLE_SUBMISSION.challengeDifficulty})
@@ -128,9 +126,11 @@ Provide your analysis as JSON.`
   // Retry up to 3 times on transient errors
   for (let retry = 0; retry < 3; retry++) {
     try {
-      const result = await model.generateContent({
+      const result = await ai.models.generateContent({
+        model: MODEL_ID,
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        generationConfig: {
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
           // DETERMINISTIC SETTINGS - same as production
           temperature: 0,
           topK: 1,
@@ -140,7 +140,10 @@ Provide your analysis as JSON.`
         },
       })
 
-      const text = result.response.text()
+      const text = result.text
+      if (!text) {
+        throw new Error('AI returned an empty response')
+      }
 
       // Try to parse JSON, handle truncated responses
       let feedback: { overallScore: number; overallRating: string }
@@ -213,7 +216,7 @@ async function runConsistencyTest() {
     process.exit(1)
   }
 
-  const genAI = new GoogleGenerativeAI(TEST_CONFIG.apiKey)
+  const ai = new GoogleGenAI({ apiKey: TEST_CONFIG.apiKey })
 
   console.log(
     `\nRunning ${TEST_CONFIG.iterations} iterations with identical input...`
@@ -224,7 +227,7 @@ async function runConsistencyTest() {
 
   for (let i = 1; i <= TEST_CONFIG.iterations; i++) {
     try {
-      const result = await runAnalysis(genAI, i)
+      const result = await runAnalysis(ai, i)
       results.push(result)
 
       // Small delay between requests to avoid rate limiting
