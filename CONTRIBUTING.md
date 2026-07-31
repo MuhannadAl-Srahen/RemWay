@@ -74,6 +74,18 @@ We are committed to providing a welcoming and inclusive environment for all cont
    - Ensure the application loads without errors
    - Check that hot reload works
 
+6. **Configure `git blame` (recommended)**
+
+   The repo contains a bulk formatting commit that would otherwise dominate
+   `git blame` output. Tell Git to skip it:
+
+   ```bash
+   git config blame.ignoreRevsFile .git-blame-ignore-revs
+   ```
+
+   Only mechanical commits (formatting, mass renames) belong in that file —
+   never anything that changes behaviour.
+
 ## Development Workflow
 
 ### Branch Naming Convention
