@@ -124,8 +124,8 @@ export async function signInWithGitHub() {
   const ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://pex-fect.vercel.app',
-    'https://pexfect.vercel.app',
+    'https://rem-way.vercel.app',
+    'https://remway.vercel.app',
     import.meta.env.VITE_APP_URL, // Production URL from env
   ].filter(Boolean) // Remove undefined values
 

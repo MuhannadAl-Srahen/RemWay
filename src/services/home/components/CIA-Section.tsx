@@ -31,7 +31,7 @@ export function CIASection() {
                         <span className='text-primary'>Frontend Skills?</span>
                       </h2>
                       <p className='text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 sm:mb-8'>
-                        Join PexFect and tackle real-world challenges that
+                        Join RemWay and tackle real-world challenges that
                         transform you from a beginner to a confident frontend
                         developer. Get instant AI feedback and build an
                         impressive portfolio.
@@ -126,7 +126,7 @@ export function CIASection() {
                         <div className='w-2 h-2 sm:w-3 sm:h-3 bg-yellow-500/70 rounded-full'></div>
                         <div className='w-2 h-2 sm:w-3 sm:h-3 bg-green-500/70 rounded-full'></div>
                         <div className='ml-2 sm:ml-4 text-[10px] sm:text-xs text-muted-foreground hidden sm:block'>
-                          pexfect.com/challenges/react-portfolio
+                          rem-way.vercel.app/challenges/react-portfolio
                         </div>
                       </div>
 

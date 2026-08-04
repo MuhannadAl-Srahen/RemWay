@@ -128,7 +128,7 @@ const ContactInfo = () => {
             href='mailto:pexfect@gmail.com'
             className='text-muted-foreground hover:text-primary transition-colors duration-300 font-medium'
           >
-            pexfect@gmail.com
+            remway@gmail.com
           </a>
         </div>
         <div className='group flex items-start space-x-3 p-3 rounded-xl hover:bg-muted/30 transition-all duration-300'>
@@ -159,7 +159,7 @@ const FooterBottom = () => {
       <div className='max-w-5xl mx-auto'>
         <div className='flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0'>
           <div className='text-sm text-muted-foreground flex items-center space-x-2'>
-            <span>© {currentYear} PexFect. All rights reserved.</span>
+            <span>© {currentYear} RemWay. All rights reserved.</span>
           </div>
           <div className='flex items-center space-x-6 text-sm'>
             {legalLinks.map(({ name, href }, index) => (
