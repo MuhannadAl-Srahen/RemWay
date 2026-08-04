@@ -1,6 +1,6 @@
-# PexFect
+# RemWay
 
-**PexFect** is a modern frontend coding challenge platform built with React 19, TanStack Router, TanStack Query, Tailwind CSS v4, ShadCN UI, and Supabase. It features an advanced theming system, modular routing, efficient state and data management, and **AI-powered feedback** using Google Gemini 2.5 Pro.
+**RemWay** is a modern frontend coding challenge platform built with React 19, TanStack Router, TanStack Query, Tailwind CSS v4, ShadCN UI, and Supabase. It features an advanced theming system, modular routing, efficient state and data management, and **AI-powered feedback** using Google Gemini 2.5 Pro.
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## AI Feedback System
 
-PexFect includes a comprehensive AI feedback system that:
+RemWay includes a comprehensive AI feedback system that:
 
 - ✅ **Generates detailed feedback** for challenge submissions using Gemini AI
 - ✅ **Tracks submission history** and compares improvements over time
@@ -71,8 +71,8 @@ PexFect includes a comprehensive AI feedback system that:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/yourusername/pexfect.git
-   cd pexfect
+   git clone https://github.com/yourusername/remWay.git
+   cd remWay
    ```
 
 2. Install dependencies with Bun:

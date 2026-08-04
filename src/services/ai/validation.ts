@@ -294,7 +294,7 @@ export const generateValidationErrorFeedback = (
       learningResources: [
         {
           title: 'How to Submit a Challenge',
-          url: 'https://pexfect.com/help/submission-guide',
+          url: 'https://rem-way.vercel.app/help/submission-guide',
           type: 'documentation',
         },
       ],

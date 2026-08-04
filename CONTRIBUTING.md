@@ -1,6 +1,6 @@
-# Contributing to PexFect
+# Contributing to RemWay
 
-Thank you for your interest in contributing to PexFect! This document provides guidelines and instructions for contributing to the project.
+Thank you for your interest in contributing to RemWay! This document provides guidelines and instructions for contributing to the project.
 
 ## Table of Contents
 
@@ -46,8 +46,8 @@ We are committed to providing a welcoming and inclusive environment for all cont
 1. **Fork and Clone**
 
    ```bash
-   git clone https://github.com/YOUR_USERNAME/PexFect.git
-   cd PexFect
+   git clone https://github.com/YOUR_USERNAME/RemWay.git
+   cd RemWay
    ```
 
 2. **Install Dependencies**
@@ -478,8 +478,8 @@ export function ChallengeCard({ challenge, onSave }: ChallengeCardProps) {
 
 ## License
 
-By contributing to PexFect, you agree that your contributions will be licensed under the project's license.
+By contributing to RemWay, you agree that your contributions will be licensed under the project's license.
 
 ---
 
-Thank you for contributing to PexFect! 🎉
+Thank you for contributing to RemWay! 🎉

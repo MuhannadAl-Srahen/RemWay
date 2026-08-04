@@ -57,7 +57,7 @@ export function FeatureSection() {
                 <span className='text-primary'>succeed</span>
               </h2>
               <p className='text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed'>
-                PexFect combines real-world challenges, structured learning
+                RemWay combines real-world challenges, structured learning
                 paths, and AI-powered feedback so you can become a confident
                 developer.
               </p>

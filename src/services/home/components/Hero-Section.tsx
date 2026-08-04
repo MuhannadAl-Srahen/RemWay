@@ -255,7 +255,7 @@ export function HeroSection() {
                           transition={{ delay: 0.3 }}
                         >
                           &lt;<span className='text-red-400'>h1</span>
-                          &gt;Welcome to PexFect&lt;/
+                          &gt;Welcome to RemWay&lt;/
                           <span className='text-red-400'>h1</span>&gt;
                         </motion.div>
                         <motion.div
